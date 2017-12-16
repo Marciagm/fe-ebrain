@@ -1,53 +1,117 @@
 <template>
     <section id="predictView">
-        <div>
-            <el-button @click="showNewModelDialog">新建</el-button>
+        <div class="step-bar">
+            <el-steps :active="active" finish-status="success" align-center>
+                <el-step title="准备数据"></el-step>
+                <el-step title="检查数据"></el-step>
+                <el-step title="正在运行"></el-step>
+                <el-step title="准备预测"></el-step>
+            </el-steps>
         </div>
-        <el-row>
-            <el-col :span="6" class="box">
-                <div class="model-card">
-                    <div class="icon">
-
+        <div class="box">
+            <el-row>
+                <el-col :span="6">
+                    <div class="file-list">
+                        <div class="title">文件传清单</div>
+                        <div class="tool-bar">
+                            <el-row>
+                                <el-col :span="8">
+                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                        <i class="el-icon-delete"></i>
+                                        <a style="cursor: pointer;color: #20a0ff;" @click="deleteFile">删除</a>
+                                    </div>
+                                </el-col>
+                                <el-col :span="8">
+                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                        <i class="el-icon-circle-plus-outline"></i>
+                                        <a style="cursor: pointer;color: #20a0ff;" @click="addFile">继续添加</a>
+                                    </div>
+                                </el-col>
+                                <el-col :span="8">
+                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                        <i class="el-icon-circle-plus-outline"></i>
+                                        <a style="cursor: pointer;color: #20a0ff;" @click="next">下一步</a>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </div>
+                        <div class="content">
+                            <div class="file-item">
+                                <el-row >
+                                    <el-col :span="24">
+                                        <template>
+                                            <el-checkbox >发射点发射点发射点</el-checkbox>
+                                        </template>
+                                    </el-col>
+                                    <el-col :span="12">
+                                        10M
+                                    </el-col>
+                                    <el-col :span="12">
+                                        正在上传
+                                    </el-col>
+                                </el-row>
+                            </div>
+                        </div>
                     </div>
-                    <div class="name">
-                        模型1
-                    </div>
-                </div>
-            </el-col>
-            <el-col :span="6" class="box">
-                <div class="model-card">模型1</div>
-            </el-col>
-            <el-col :span="6" class="box">
-                <div class="model-card">模型1</div>
-            </el-col>
-            <el-col :span="6" class="box">
-                <div class="model-card">模型1</div>
-            </el-col>
-            <el-col :span="6" class="box">
-                <div class="model-card">模型1</div>
-            </el-col>
-            <el-col :span="6" class="box">
-                <div class="model-card">模型1</div>
-            </el-col>
-            <el-col :span="6" class="box">
-                <div class="model-card">模型1</div>
-            </el-col>
+                </el-col>
+                <el-col :span="18">
+                    <div class="file-chooser">
+                        <el-row>
+                            <el-col :span="8" class="card">
+                                <div>
+                                    <div class="title">服务器</div>
+                                    <div class="data-source">
+                                        <div id="serverUpload" class="icon">
 
-        </el-row>
-        <el-dialog  :visible.sync="dialogNewModelVisible">
-            <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
-                <el-form-item label="模型名称" prop="name">
-                    <el-input v-model="ruleForm.name"></el-input>
-                </el-form-item>
-                <el-form-item label="模型名称" prop="name">
-                    <el-input  type="textarea"  v-model="ruleForm.name"></el-input>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogNewModelVisible = false">取 消</el-button>
-                <el-button type="primary" @click="saveModel">确 定</el-button>
-            </span>
-        </el-dialog>
+                                        </div>
+                                        <div class="name">
+                                            <a style="cursor: pointer" @click="fromServer">点击上传</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-col>
+                            <el-col :span="8" class="card">
+                                <div>
+                                    <div class="title">本地</div>
+                                    <div class="data-source">
+                                        <div id="localUpload" class="icon">
+
+                                        </div>
+                                        <div class="name">
+                                            <el-upload
+                                                    class="upload-demo"
+                                                    :action="uploadAction"
+                                                    :headers="myHeaders"
+                                                    :on-remove="handleRemove"
+                                                    :on-success="handleUploadSuccess"
+                                                    :limit="3"
+                                                    :on-exceed="handleExceed"
+                                                    :file-list="fileList">
+                                                <a>点击上传</a>
+                                                <div slot="tip" class="el-upload__tip">只能上传txt/csv文件，且不超过500kb</div>
+                                            </el-upload>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-col>
+                            <el-col :span="8" class="card">
+                                <div>
+                                    <div class="title">历史库</div>
+                                    <div class="data-source">
+                                        <div id="historyUpload" class="icon">
+
+                                        </div>
+                                        <div class="name" >
+                                            <a style="cursor: pointer" @click="fromHistory">点击上传</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </div>
+                </el-col>
+            </el-row>
+        </div>
     </section>
 
 </template>
@@ -63,26 +127,11 @@
             ElButton},
         data() {
             return {
-                dialogNewModelVisible:false,
-                ruleForm: {
-                    name: '',
-                },
-                rules: {
-                    name: [
-                        {required: true, message: '请输入活动名称', trigger: 'blur'},
-                        {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
-                    ],
-                }
+                active:3,
             }
         },
         methods: {
-            showNewModelDialog(){
-                this.dialogNewModelVisible = true;
-            },
-            saveModel(){
-                this.dialogNewModelVisible=false;
-                this.$router.push({ path: '/main/fileSelectView' });
-            }
+
         },
         mounted(){
 
@@ -92,31 +141,86 @@
 
 <style lang="scss">
     #predictView{
-        height: 500px;
-        background: white;
-        border:1px solid #1d8ce0;
-        margin-top:60px;
-
-        .box{
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .step-bar{
+            padding: 30px 15px;
         }
-
-        .model-card{
-            height: 133px;
-            width:201px;
-            line-height: 133px;
-            text-align: center;
-            background: #cccccc;
-            margin: 15px;
+        .box {
+            height: 500px;
+            background: white;
+            border: 1px solid #1d8ce0;
+            margin-top: 15px;
+        }
+        .data-source{
+            height: 180px;
+            width:257px;
+            border:2px solid #1d8ce0;
             border-radius: 5px;
             .icon{
-                height: 50px;
-                width: 201px;
+                color:#1d8ce0;
+                text-align: center;
+                font-size: 22px;
+                line-height: 60px;
+                height: 60px;
+                width: 257px;
+                margin-bottom: 20px;
+                margin-top:40px;
             }
             .name{
-                font-size:20px;
+                text-align: center;
+                color:#20a0ff;
+            }
+            #serverUpload{
+                background: url("../assets/server-upload.png") no-repeat center center;
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+
+            #localUpload{
+                background: url("../assets/local-upload.png") no-repeat center center;
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+
+            #historyUpload{
+                background: url("../assets/history-upload.png") no-repeat center center;
+                background-size: contain;
+                background-repeat: no-repeat;
+            }
+
+        }
+        .file-chooser{
+            margin: 30px;
+            margin-top: 150px;
+        }
+        .file-list {
+            height: 500px;
+            border: 1px solid #1d8ce0;
+            background: #174574;
+            padding: 0 5px;
+            .title {
+                height: 40px;
+                font-size: 18px;
+                text-align: center;
+                color: white;
+                line-height: 40px;
+            }
+
+            .tool-bar {
+                height: 40px;
+                padding: 5px 0;
+                line-height: 22px;
+            }
+
+            .file-item {
+                height: 60px;
+                border-bottom: 1px solid #ccc;
+                border-top: 1px solid #ccc;
+                line-height: 30px;
+                color: white;
+
+                .el-checkbox__label {
+                    color: white;
+                }
             }
         }
     }

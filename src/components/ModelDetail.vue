@@ -1,5 +1,5 @@
 <template>
-    <section id="modelDetailView">
+    <section id="modelDetail">
         <div class="step-bar">
             <el-steps :active="active" finish-status="success" align-center>
                 <el-step title="准备数据"></el-step>
@@ -9,71 +9,196 @@
             </el-steps>
         </div>
 
-        <div class="content">
-            <el-collapse accordion>
-                <el-collapse-item>
-                    <template slot="title">
-                        <el-row class="header">
-                            <el-col :span="4">模型名称</el-col>
-                            <el-col :span="4">准确率</el-col>
-                            <el-col :span="4">模型大小</el-col>
-                            <el-col :span="4">AUC</el-col>
-                            <el-col :span="4">F值</el-col>
-                            <el-col :span="4">训练时间</el-col>
-                        </el-row>
-                    </template>
-                    <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>
-                    <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
-                </el-collapse-item>
-                <el-collapse-item>
-                    <template slot="title">
-                        <el-row class="item">
-                            <el-col :span="4">模型名称</el-col>
-                            <el-col :span="4">准确率</el-col>
-                            <el-col :span="4">模型大小</el-col>
-                            <el-col :span="4">AUC</el-col>
-                            <el-col :span="4">F值</el-col>
-                            <el-col :span="4">训练时间</el-col>
-                        </el-row>
-                    </template>
-                    <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>
-                    <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
-                </el-collapse-item>
-                <el-collapse-item>
-                    <template slot="title">
-                        <el-row class="item">
-                            <el-col :span="4">模型名称</el-col>
-                            <el-col :span="4">准确率</el-col>
-                            <el-col :span="4">模型大小</el-col>
-                            <el-col :span="4">AUC</el-col>
-                            <el-col :span="4">F值</el-col>
-                            <el-col :span="4">训练时间</el-col>
-                        </el-row>
-                    </template>
-                    <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>
-                    <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
-                </el-collapse-item>
-                <el-collapse-item>
-                    <template slot="title">
-                        <el-row class="item">
-                            <el-col :span="4">模型名称</el-col>
-                            <el-col :span="4">准确率</el-col>
-                            <el-col :span="4">模型大小</el-col>
-                            <el-col :span="4">AUC</el-col>
-                            <el-col :span="4">F值</el-col>
-                            <el-col :span="4">训练时间</el-col>
-                        </el-row>
-                    </template>
-                    <div>与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念；</div>
-                    <div>在界面中一致：所有的元素和结构需保持一致，比如：设计样式、图标和文本、元素的位置等。</div>
-                </el-collapse-item>
-            </el-collapse>
+        <div class="box">
+            <el-row class="header">
+                <el-col :span="4">模型名称</el-col>
+                <el-col :span="4">准确率</el-col>
+                <el-col :span="4">模型大小</el-col>
+                <el-col :span="4">AUC</el-col>
+                <el-col :span="4">训练时间</el-col>
+            </el-row>
+            <el-row>
+                <el-col :span="24">
+                    <el-collapse accordion>
+                        <el-collapse-item>
+                            <template slot="title">
+                                <el-row style="border-bottom: 1px solid #e6ebf5;">
+                                    <el-col :span="4">{{modelData.model_name}}</el-col>
+                                    <el-col :span="4">{{modelData.precise}}</el-col>
+                                    <el-col :span="4">{{modelData.model_size}}</el-col>
+                                    <el-col :span="4">{{modelData.auc}}</el-col>
+                                    <el-col :span="3">{{modelData.train_time}}</el-col>
+                                </el-row>
+                            </template>
+                            <div style="padding:15px;background: #e6ebf5">
+                                <template>
+                                    <el-tabs  v-model="activeName">
+                                        <el-tab-pane label="特征重要性" name="tab1">
+                                            <el-card class="box-card">
+                                                <div>
+                                                    <el-row>
+                                                        <el-col :span="12" class="block">
+                                                            <div class="explain">
+                                                                <div>预测结果是由特征来决定的，
+                                                                哪些特征对结果影响最大，
+                                                                可通过右图的特征重要性图表来进行解释</div>
+                                                            </div>
+                                                        </el-col>
+                                                        <el-col :span="12" class="block">
+                                                            <div id="chart0"></div>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+                                            </el-card>
+                                        </el-tab-pane>
+                                        <el-tab-pane label="Lift Chart" name="tab2">
+                                            <el-card class="box-card">
+                                                <div>
+                                                    <el-row>
+                                                        <el-col :span="12">
+                                                            <div id="chart2"></div>
+                                                        </el-col>
+                                                        <el-col :span="12" class="block">
+                                                            <div style="padding: 15px 0" class="explain">
+                                                                <div>
+                                                                    提升图是对模型训练效果的一个评估，
+                                                                    <br/>
+                                                                    是模型捕捉到的所有正响应，对比真实分类情况的表现。
+                                                                    <br/>
+                                                                    横坐标是把训练集数据分成100等份
+                                                                    <br/>
+                                                                    纵坐标是每一等份数据预测效果
+                                                                    <br/>
+                                                                    提升率，蓝色线是基准线，即随机预测的效果
+                                                                </div>
+                                                            </div>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+                                            </el-card>
+                                        </el-tab-pane>
+                                        <el-tab-pane label="准确率&召回率" name="tab3">
+                                            <el-card class="box-card">
+                                                <div>
+                                                    <el-row>
+                                                        <el-col :span="12">
+                                                            <div id="chart3"></div>
+                                                        </el-col>
+                                                        <el-col :span="12" class="block">
+                                                            <div style="padding: 15px 0" class="explain">
+                                                                <div>
+                                                                    准确率：预测为正的样本中有多少是真正的正样本，蓝色线条表示。
+                                                                    <br/>
+                                                                    召回率：是针对我们原来的样本而言的，它表示的是样本中的正例有多少被预测正确了，红色线条表示。
+                                                                </div>
+                                                            </div>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+                                            </el-card>
+                                        </el-tab-pane>
+
+                                        <el-tab-pane label="KS Chart" name="tab4">
+                                            <el-card class="box-card">
+                                                <div>
+                                                    <el-row>
+                                                        <el-col :span="12">
+                                                            <div id="chart5"></div>
+                                                        </el-col>
+                                                        <el-col :span="12" class="block">
+                                                            <div style="padding: 15px 0" class="explain">
+                                                                <div>
+                                                                    红色线条代表TPR: 所有真实的“1”中，有多少被模型成功选出
+                                                                    <br/>
+                                                                    蓝色线条代表FPR: 所有真实的“0”中，有多少被模型误判为1了
+                                                                    <br/>
+                                                                    横坐标为样本数量，纵坐标为预测的准确率
+                                                                </div>
+                                                            </div>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+                                            </el-card>
+                                        </el-tab-pane>
+                                        <el-tab-pane label="ROC曲线" name="tab5">
+                                            <el-card class="box-card">
+                                                <div>
+                                                    <el-row>
+                                                        <el-col :span="12">
+                                                            <div id="chart4"></div>
+                                                        </el-col>
+                                                        <el-col :span="12" class="block">
+                                                            <div style="padding: 15px 0" class="explain">
+                                                                <div>
+                                                                    横轴FPR: FPR越大，预测正类中实际负类越多。
+                                                                    <br/>
+                                                                    纵轴TPR： TPR越大，预测正类中实际正类越多。
+                                                                    <br/>
+                                                                    理想目标：TPR=1，FPR=0,即图中(0,1)点，故ROC曲线越靠拢(0,1)点，越偏离45度对角线越好。
+                                                                </div>
+                                                            </div>
+                                                        </el-col>
+                                                    </el-row>
+                                                </div>
+                                            </el-card>
+                                        </el-tab-pane>
+                                        <el-tab-pane label="混淆矩阵" name="tab6">
+                                            <el-card class="box-card">
+                                                <div>
+                                                    <table id="trueValueTable" style="width: 100%" v-if="confusion_matrix.length>0">
+                                                        <tbody>
+                                                        <tr>
+                                                            <td rowspan="2" colspan="2"></td>
+                                                            <td colspan="2">真实值</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>{{confusion_matrix[0][1].value}}</td>
+                                                            <td>{{confusion_matrix[0][2].value}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td rowspan="2">预测值</td>
+                                                            <td>{{confusion_matrix[1][0].value}}</td>
+                                                            <td>
+                                                                <span>{{confusion_matrix[1][1].value}}</span>
+                                                                <span style="font-size: 12px;">({{Math.floor(confusion_matrix[1][1].percent*100)}}%)</span>
+                                                            </td>
+                                                            <td>
+                                                                <span >{{confusion_matrix[1][2].value}}</span>
+                                                                <span style="font-size: 12px;">({{Math.floor(confusion_matrix[1][2].percent*100)}}%)</span>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>{{confusion_matrix[2][0].value}}</td>
+                                                            <td>
+                                                                <span>{{confusion_matrix[2][1].value}}</span>
+                                                                <span style="font-size: 12px;">({{Math.floor(confusion_matrix[2][1].percent*100)}}%)</span>
+                                                            </td>
+                                                            <td>
+                                                                <span >{{confusion_matrix[2][2].value}}</span>
+                                                                <span style="font-size: 12px">({{Math.floor(confusion_matrix[2][2].percent*100)}}%)</span>
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </el-card>
+                                        </el-tab-pane>
+                                    </el-tabs>
+                                </template>
+                            </div>
+                        </el-collapse-item>
+                    </el-collapse>
+                </el-col>
+            </el-row>
         </div>
     </section>
 
 </template>
 
 <script>
+    import {getModelDetail} from '../api/api';
+    import echarts from 'echarts';
+    import DynamicTable from "@/components//DynamicTable.vue";
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
     import ElCol from "element-ui/packages/col/src/col";
@@ -84,55 +209,311 @@
             ElButton},
         data() {
             return {
-                active:0,
+                active:3,
                 dialogNewModelVisible:false,
-                ruleForm: {
-                    name: '',
-                },
-                rules: {
-                    name: [
-                        {required: true, message: '请输入活动名称', trigger: 'blur'},
-                        {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
-                    ],
-                }
+                modelExplain:{},
+                modelData:{},
+                tableData1:[],
+                barData:{},
+                confusion_matrix:[],
+                activeName: 'tab1'
             }
         },
         methods: {
+
             showNewModelDialog(){
                 this.dialogNewModelVisible = true;
             },
             saveModel(){
                 this.dialogNewModelVisible=false;
                 this.$router.push({ path: '/main/fileSelectView' });
-            }
+            },
+            queryModelDetail(){
+                let param={modelId:this.modelId};
+                getModelDetail(param).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.modelExplain = JSON.parse(data.data.modelExplain);
+                        this.modelData={model_name:this.modelExplain.models[0].model_name,
+                            precise:this.modelExplain.precise,
+                            model_size:this.modelExplain.models[0].model_size,
+                            train_time:this.modelExplain.models[0].train_time,
+                            auc:this.modelExplain.models[0].roc.auc||'-'
+                        };
+                        this.confusion_matrix = this.modelExplain.models[0].confusion_matrix;
+
+                        var feature_importance_chart = this.modelExplain.models[0].feature_importance;
+                        var feature_importance_yAxisData=[];
+                        var feature_importance_seriesData=[];
+                        for(var i=0;i<feature_importance_chart.length;i++){
+                            feature_importance_seriesData.push(feature_importance_chart[i].contribution);
+                            feature_importance_yAxisData.push(feature_importance_chart[i].feature_name);
+                        }
+                        var feature_importanceChartData={
+                            yAxisData:feature_importance_yAxisData,
+                            seriesData:[{
+                                name: '特征重要性',
+                                type: 'bar',
+                                itemStyle:{
+                                    normal:{
+                                        color:'#006bc7',
+                                    }
+                                },
+                                data: feature_importance_seriesData
+                            }],
+                            legendData:[]
+                        };
+                        this.drawFeatureBarChart("chart0",feature_importanceChartData);
+
+                        var lift_chart = this.modelExplain.models[0].lift_chart[0].x_y;
+                        var xAxisData=[];
+                        var seriesData=[];
+                        var baseLineData=[];
+                        for(var i=0;i<lift_chart.length;i++){
+                            xAxisData.push(lift_chart[i].x);
+                            seriesData.push(lift_chart[i].y);
+                            baseLineData.push(1);
+                        }
+                        xAxisData.push(1.5);
+                        var liftChartData={
+                            xAxisData:xAxisData,
+                            seriesData:[{
+                                name: 'Lift Curve',
+                                type: 'line',
+                                data: seriesData
+                            },{
+                                name: 'Base Line',
+                                type: 'line',
+                                data: baseLineData
+                            }],
+                            legendData:["Lift Curve","BaseLine"]
+                        };
+                        this.drawLineChart("chart2",liftChartData);
+
+                        var ksChartData={};
+                        var ks_chart = this.modelExplain.models[0].ks[0].x_y;
+                        var ks_xAxisData=[];
+                        var ks_seriesData1=[];
+                        var ks_seriesData2=[];
+                        for(var i=0;i<ks_chart.length;i++){
+                            ks_xAxisData.push(ks_chart[i].x);
+                            ks_seriesData1.push(ks_chart[i].y_tpr);
+                            ks_seriesData2.push(ks_chart[i].y_fpr);
+                        }
+                        ks_xAxisData.push(1.5);
+                        var ksChartData={
+                            xAxisData:ks_xAxisData,
+                            seriesData:[{
+                                name: 'K',
+                                type: 'line',
+                                data: ks_seriesData1
+                            },{
+                                name: 'S',
+                                type: 'line',
+                                data: ks_seriesData2
+                            }],
+                            legendData:["K",'S']
+                        };
+                        //console.log(ksChartData)
+                        this.drawLineChart("chart5",ksChartData);
+
+                        var rocChartData={};
+                        var roc_chart = this.modelExplain.models[0].roc.x_y;
+                        var roc_xAxisData=[];
+                        var roc_seriesData=[];
+                        for(var i=0;i<roc_chart.length;i++){
+                            roc_xAxisData.push(roc_chart[i].x_value);
+                            roc_seriesData.push(roc_chart[i].y_value);
+                        }
+                        roc_xAxisData.push(1.5);
+                        var rocChartData={
+                            xAxisData:roc_xAxisData,
+                            seriesData:[{
+                                name: 'ROC',
+                                type: 'line',
+                                data: roc_seriesData
+                            }],
+                            legendData:["ROC"]
+                        };
+                        this.drawLineChart("chart4",rocChartData);
+
+
+                        var recallChartData={};
+                        var recall_chart = this.modelExplain.models[0].precise_recall.x_y;
+                        var recall_xAxisData=[];
+                        var precise_seriesData=[];
+                        var recall_seriesData=[];
+                        for(var i=0;i<recall_chart.length;i++){
+                            recall_xAxisData.push(recall_chart[i].pctr);
+                            precise_seriesData.push(recall_chart[i].precise);
+                            recall_seriesData.push(recall_chart[i].recall);
+                        }
+                        recall_xAxisData.push(1.2);
+                        var recallChartData={
+                            xAxisData:recall_xAxisData,
+                            seriesData:[{
+                                name: 'precise',
+                                type: 'line',
+                                data: precise_seriesData
+                            },{
+                                name: 'recall',
+                                type: 'line',
+                                data: recall_seriesData
+                            }],
+                            legendData:["recall","precise"]
+                        };
+                        this.drawLineChart("chart3",recallChartData);
+                    }
+                });
+            },
+            drawBarChart(xAxisData,barSeriesData) {
+                this.chartBar = echarts.init(document.getElementById('chart1'));
+                this.chartBar.setOption({
+                    title: {
+                        text: '待预测目标类型分布',
+                        subtext: ''
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    yAxis: {
+                        type: 'value',
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: xAxisData,
+                        boundaryGap: [0, 0.01]
+                    },
+                    series: [
+                        {
+                            type: 'bar',
+                            data: barSeriesData
+                        }
+                    ]
+                });
+            },
+            drawFeatureBarChart(target,data) {
+                var featureBar = echarts.init(document.getElementById(target));
+                featureBar.setOption({
+                    title: {
+                        text: '特征重要性',
+                        left:'20%'
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        boundaryGap: [0, 0.01]
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: data.yAxisData,
+                    },
+                    series: data.seriesData
+                });
+            },
+            drawLineChart(targetId,chartData) {
+                console.log(targetId);
+                this.chartLine = echarts.init(document.getElementById(targetId));
+                this.chartLine.setOption({
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    legend: {
+                        data:chartData.legendData
+                    },
+                    grid: {
+                        left: '3%',
+                        right: '4%',
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        splitLine:{show: true},
+                        type: 'category',
+                        boundaryGap: false,
+                        data: chartData.xAxisData,
+                    },
+                    yAxis: {
+                        splitLine:{show: true},
+                        type: 'value'
+                    },
+                    series: chartData.seriesData
+                });
+            },
+
         },
         mounted(){
-
+            this.modelId = this.$route.params.modelId;
+            this.queryModelDetail();
         }
     }
 </script>
 
 <style lang="scss">
-    #modelDetailView{
+    #modelDetail{
         .step-bar{
             padding: 30px 15px;
         }
-        .content{
+        .box {
+            min-height: 500px;
             background: white;
+            border: 1px solid #1d8ce0;
+            margin-top: 15px;
+
             .header{
+                height: 45px;
                 background: #1d8ce0;
-                text-align: center;
-            }
-            .item{
-                text-align: center;
-            }
-            .item:hover{
-                background: #cccccc;
-            }
-            .el-collapse-item__arrow{
-                display: none;
+                line-height: 45px;
             }
         }
+        #chart0,#chart1,#chart2,#chart3,#chart4,#chart5{
+            width: 450px;
+            height:400px;
+            margin:30px;
+        }
+        #trueValueTable,#trueValueTable tr td{
+            border-collapse:collapse;
+            border:1px solid #ccc;
+            text-align: center;
+            vertical-align: middle;
+            height:35px;
+        }
 
+        .explain{
+            line-height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 450px;
+            height:400px;
+        }
+        .explain div{
+            width: 200px;
+        }
     }
 </style>

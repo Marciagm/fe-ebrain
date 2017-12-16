@@ -138,8 +138,6 @@
         bottom: 0px;
         width: 100%;
         .header {
-            position: fixed;
-            height: 60px;
             line-height: 60px;
             background: #006bc7;
             color:#fff;
@@ -153,6 +151,9 @@
             }
             .el-menu-item a{
                 text-decoration: none;
+            }
+            .el-menu--horizontal{
+                border-bottom: none;
             }
             .el-menu--horizontal>.el-menu-item.is-active, .el-menu--horizontal>.el-submenu.is-active .el-submenu__title {
                 border-bottom: none;
@@ -211,7 +212,7 @@
             }
         }
         .main{
-            margin-top:60px;
+            margin-top:30px;
             z-index: 100;
         }
         .footer{

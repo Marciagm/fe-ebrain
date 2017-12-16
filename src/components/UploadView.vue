@@ -11,17 +11,102 @@
         <div class="box">
             <el-row>
                 <el-col :span="18">
-sdfsdfsdf
+                    <div class="file-chooser">
+                        <el-row>
+                            <el-col :span="8" class="card">
+                                <div>
+                                    <div class="title">服务器</div>
+                                    <div class="data-source">
+                                        <div id="serverUpload" class="icon">
+
+                                        </div>
+                                        <div class="name">
+                                            <a style="cursor: pointer" @click="fromServer">点击上传</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-col>
+                            <el-col :span="8" class="card">
+                                <div>
+                                    <div class="title">本地</div>
+                                    <div class="data-source">
+                                        <div id="localUpload" class="icon">
+
+                                        </div>
+                                        <div class="name">
+                                            <el-upload
+                                                    class="upload-demo"
+                                                    :action="uploadAction"
+                                                    :headers="myHeaders"
+                                                    :on-remove="handleRemove"
+                                                    :on-success="handleUploadSuccess"
+                                                    :limit="3"
+                                                    :on-exceed="handleExceed"
+                                                    :file-list="fileList">
+                                                <a>点击上传</a>
+                                                <div slot="tip" class="el-upload__tip">只能上传txt/csv文件，且不超过500kb</div>
+                                            </el-upload>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-col>
+                            <el-col :span="8" class="card">
+                                <div>
+                                    <div class="title">历史库</div>
+                                    <div class="data-source">
+                                        <div id="historyUpload" class="icon">
+
+                                        </div>
+                                        <div class="name" >
+                                            <a style="cursor: pointer" @click="fromHistory">点击上传</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </div>
                 </el-col>
                 <el-col :span="6">
                    <div class="file-list">
                        <div class="title">文件传清单</div>
-                       <div class="title">
-                           <el-button>删除</el-button>
-                           <el-button>添加</el-button>
+                       <div class="tool-bar">
+                           <el-row>
+                               <el-col :span="8">
+                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                        <i class="el-icon-delete"></i>
+                                        <a style="cursor: pointer;color: #20a0ff;" @click="deleteFile">删除</a>
+                                    </div>
+                               </el-col>
+                               <el-col :span="8">
+                                   <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                       <i class="el-icon-circle-plus-outline"></i>
+                                       <a style="cursor: pointer;color: #20a0ff;" @click="addFile">继续添加</a>
+                                   </div>
+                               </el-col>
+                               <el-col :span="8">
+                                   <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                       <i class="el-icon-circle-plus-outline"></i>
+                                       <a style="cursor: pointer;color: #20a0ff;" @click="next">下一步</a>
+                                   </div>
+                               </el-col>
+                           </el-row>
                        </div>
                        <div class="content">
-                           <div class="item"></div>
+                           <div class="file-item">
+                               <el-row >
+                                   <el-col :span="24">
+                                       <template>
+                                           <el-checkbox >发射点发射点发射点</el-checkbox>
+                                       </template>
+                                   </el-col>
+                                   <el-col :span="12">
+                                       10M
+                                   </el-col>
+                                   <el-col :span="12">
+                                       正在上传
+                                   </el-col>
+                               </el-row>
+                           </div>
                        </div>
                    </div>
                 </el-col>
@@ -41,6 +126,7 @@ sdfsdfsdf
         components: {ElButton},
         data() {
             return {
+                active:0,
                 adSrc:'./static/ad.jpg',
                 store:store,
                 uploadAction:'',
@@ -54,10 +140,14 @@ sdfsdfsdf
                 dialogVisible:false,
                 msg:'运行中...',
                 percentage:0,
+                fileList:[],
             };
         },
         methods: {
-            uploadSuccess(response, file, fileList){
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            handleUploadSuccess(response, file, fileList){
                 console.log(response);
                 if(response.data.code>0){
                     this.$message({
@@ -74,115 +164,58 @@ sdfsdfsdf
             uploadError(){
                 this.$router.push({ path: '/main/resultView' });
             },
-            openFullScreenLoading(msg) {
-                this.msg = msg;
-                this.dialogVisible=true;
+            handleExceed(files, fileList) {
+                this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
             },
-            closeFullScreenLoading(){
-                this.dialogVisible=false;
-            },
-            createProject(){
-                this.openFullScreenLoading("初始化项目");
-                var param = {
-                    "projectName": "临时项目_"+(new Date()).toLocaleString(),
-                    "projectDesc": "一个临时项目",
-                };
-                newProject(param).then(data=>{
+            fromServer(){
+                this.serverDialogVisible=true;
+                var param={
+                    projectId:this.projectId,
+                }
+                serverChoose(param).then(data=>{
                     let { msg, code } = data;
-                    this.closeFullScreenLoading();
                     if (code > 0) {
                         this.$message({
                             message: msg,
                             type: 'error'
                         });
                     } else {
-                        this.createJob(data.data.tid);
+                        this.serverFileList= data.data;
                     }
                 });
             },
-            createJob(projectId){
-                var that = this;
-                that.openFullScreenLoading("初始化任务...");
-                var param=[];
-                param.push(this.file);
-                newJob(projectId,param).then(data=>{
-                    that.closeFullScreenLoading();
+            handleServerDialogClose(){
+                this.serverDialogVisible=false;
+            },
+            fromHistory(){
+                this.historyDialogVisible=true;
+                var param={
+                    pageNum:1,
+                    pageSize:1000,
+                }
+                getHistoryFileList(param).then(data=>{
                     let { msg, code } = data;
                     if (code > 0) {
-                        that.$message({
+                        this.$message({
                             message: msg,
                             type: 'error'
                         });
                     } else {
-                        that.projectId=projectId;
-                        that.jobId  = data.data.tid;
-                        that.sequence = data.data.sequence;
-                        that.fileId = this.file.tid;
-
-                        //job状态保存，退出再进使用
-                        var jobInfo = this.projectId+"/"+this.jobId+"/"+this.sequence+"/"+this.fileId;
-                        localStorage.setItem("jobInfo",jobInfo);
-                        //job创建成功后查询job执行状态
-                        this.queryJobInfo();
+                        this.historyFileList= data.data.list;
                     }
                 });
             },
-            queryJobInfo(callback){
-                var that=this;
-                var msgs={feature_analyse:"特征分析...",train:'模型训练...',predict:'正在预测...',predict_explain:"模型解释..."};
-                that.openFullScreenLoading("正在进行模型训练，时间较长，请耐心等等...");
-                var timer = setInterval(() => { //每分钟查询一次任务状态
-                    var param={projectId:this.projectId,jobId:this.jobId,sequence:this.sequence};
-                    getJobInfo(param).then(data=>{
-                        let { msg, code } = data;
-                        if (code > 0) {
-                            that.closeFullScreenLoading();
-                            callback();
-                            that.$message({
-                                message: msg,
-                                type: 'error'
-                            });
-                        } else {
-                            if(data.data.jobStatus=='success'){
-                                that.closeFullScreenLoading();
-                                clearInterval(timer);
-                                //var jobInfo = localStorage.getItem("jobInfo");
-                                localStorage.removeItem("jobInfo");
-                                var path="/main/resultView/"+this.projectId+"/"+this.jobId+"/"+this.sequence+"/"+this.fileId;
-                                this.$router.push({ path: path });
-                            }else if(data.data.jobStatus=='failed'){
-                                clearInterval(timer);
-                                localStorage.removeItem("jobInfo");
-                                this.dialogVisible=false;
-                                this.$alert(data.data.reason, '错误提醒', {
-                                    confirmButtonText: '确定',
-                                    callback: action => {}
-                                });
-                            }else{
-                                if(msgs[data.data.progress]){
-                                    this.msg=msgs[data.data.progress];
-                                    if(data.data.progress=="feature_analyse"){
-                                        this.percentage=25;
-                                    }else if(data.data.progress=="train"){
-                                        this.percentage=50;
-                                    }else if(data.data.progress=="predict"){
-                                        this.percentage=75;
-                                    }else{
-                                        this.percentage=100;
-                                    }
-                                }else{
-                                    this.msg="运行中...";
-                                }
-
-                            }
-                        }
-                    });
-                },10000);
+            handleHistoryDialogClose(){
+                this.historyDialogVisible=false;
+            },
+            deleteFile(){
 
             },
-            killAll(){
-                localStorage.removeItem('jobInfo');
-                this.dialogVisible=false;
+            addFile(){
+
+            },
+            next(){
+                this.$router.push({ path: "/main/dataCheckView/"+this.projectId+"/"+this.jobId+"/"+this.sequence });
             }
         },
         mounted(){
@@ -190,15 +223,9 @@ sdfsdfsdf
             var token = localStorage.getItem('token');
             this.myHeaders={Authorization: token};
             this.uploadAction=process.env.API_ROOT+'/filelist/upload';
-            var jobInfo = localStorage.getItem('jobInfo');
-            if(jobInfo){
-                var list = jobInfo.split("/");
-                this.projectId = list[0];
-                this.jobId  = list[1];
-                this.sequence = list[2];
-                this.fileId = list[3];
-                this.queryJobInfo();
-            }
+            this.projectId = this.$route.params.projectId;
+            this.jobId = this.$route.params.jobId;
+            this.sequence = this.$route.params.sequence;
         }
 
     }
@@ -215,11 +242,88 @@ sdfsdfsdf
             background: white;
             border:1px solid #1d8ce0;
             margin-top:15px;
+            .file-chooser{
+                height: 500px;
+                margin-top: 150px;
+            }
+            .card{
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                .title{
+                    padding: 10px 0;
+                }
+                .data-source{
+                    height: 180px;
+                    width:257px;
+                    border:2px solid #1d8ce0;
+                    border-radius: 5px;
+                    .icon{
+                        color:#1d8ce0;
+                        text-align: center;
+                        font-size: 22px;
+                        line-height: 60px;
+                        height: 60px;
+                        width: 257px;
+                        margin-bottom: 20px;
+                        margin-top:40px;
+                    }
+                    .name{
+                        text-align: center;
+                        color:#20a0ff;
+                    }
+                    #serverUpload{
+                        background: url("../assets/server-upload.png") no-repeat center center;
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                    }
+
+                    #localUpload{
+                        background: url("../assets/local-upload.png") no-repeat center center;
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                    }
+
+                    #historyUpload{
+                        background: url("../assets/history-upload.png") no-repeat center center;
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                    }
+                }
+            }
             .file-list{
                 height: 500px;
                 border:1px solid #1d8ce0;
-                background: #1d8ce0;
+                background: #174574;
+                padding:0 5px;
+                .title{
+                    height: 40px;
+                    font-size: 18px;
+                    text-align: center;
+                    color: white;
+                    line-height: 40px;
+                }
+
+                .tool-bar{
+                    height: 40px;
+                    padding: 5px 0;
+                    line-height: 22px;
+                }
+
+                .file-item{
+                    height: 60px;
+                    border-bottom: 1px solid #ccc;
+                    border-top: 1px solid #ccc;
+                    line-height: 30px;
+                    color:white;
+
+                    .el-checkbox__label{
+                        color:white;
+                    }
+                }
             }
+
+
         }
     }
 </style>

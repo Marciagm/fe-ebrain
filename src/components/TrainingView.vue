@@ -13,30 +13,30 @@
             <div><h3>模型名称</h3></div>
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
-                    <span>模型名称</span>
-                    <el-button style="float: right; padding: 3px 0" type="text">操作按钮</el-button>
+                    <span>测试模型</span>
+                    <el-button style="float: right; padding: 3px 0" type="text">全部终止</el-button>
                 </div>
                 <div>
                     <table>
                         <tbody>
                             <tr>
-                                <td>1</td>
-                                <td>sdfsdfsdfasdfasdfsadfsadf</td>
-                                <td><el-progress :percentage="70"></el-progress></td>
-                                <td>CPU:80%</td>
-                                <td>内存：20</td>
+                                <td width="60"><i class="el-icon-setting"></i></td>
+                                <td style="text-align: left">sdfsdfsdfasdfasdfsadfsadf</td>
+                                <td>进度<el-progress :percentage="70"></el-progress></td>
+                                <td>CPU:0</td>
+                                <td>内存：0</td>
                                 <td>
-                                    <el-button size="mini" round>终止</el-button>
+                                    <el-button type="primary"  size="mini" round>终止</el-button>
                                 </td>
                             </tr>
                             <tr>
-                                <td>1</td>
-                                <td>sdfsdfsdfasdfasdfsadfsadf</td>
-                                <td><el-progress :percentage="70"></el-progress></td>
-                                <td>CPU:80%</td>
-                                <td>内存：20</td>
+                                <td><i class="el-icon-setting"></i></td>
+                                <td style="text-align: left">sdfsdfsdfasdfasdfsadfsadf</td>
+                                <td width="200">进度<el-progress :percentage="70"></el-progress></td>
+                                <td>CPU:0</td>
+                                <td>内存：0</td>
                                 <td>
-                                    <el-button size="mini" round>终止</el-button>
+                                    <el-button type="primary" size="mini" round>终止</el-button>
                                 </td>
                             </tr>
                         </tbody>
