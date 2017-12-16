@@ -32,6 +32,8 @@ export const getDataResult = params => { return axios.get(`${base}/project/get-d
 
 export const getModelDetail = params => { return axios.get(`${base}/model/detail/${params.modelId}`, {}).then(res => res.data); };
 
+export const getModelExplain = params => { return axios.get(`${base}/project/get-model-explain`, { params: params }).then(res => res.data); };
+
 export const getTrainResult = params => { return axios.get(`${base}/project/get-train-result`, { params: params }).then(res => res.data); };
 
 export const getPredictResult = params => { return axios.get(`${base}/project/get-predict-result`, { params: params }).then(res => res.data); };
@@ -50,3 +52,6 @@ export const serverChoose = params => { return axios.get(`${base}/filelist/serve
 
 
 export const getHistoryFileList = params => { return axios.get(`${base}/filelist/list`, { params: params }).then(res => res.data); };
+
+
+export const getFileData = params => { return axios.get(`${base}/project/get-file-data`, { params: params }).then(res => res.data); };

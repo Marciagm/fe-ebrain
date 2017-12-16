@@ -196,7 +196,7 @@
 </template>
 
 <script>
-    import {getModelDetail} from '../api/api';
+    import {getModelDetail,getModelExplain} from '../api/api';
     import echarts from 'echarts';
     import DynamicTable from "@/components//DynamicTable.vue";
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
@@ -229,8 +229,12 @@
                 this.$router.push({ path: '/main/fileSelectView' });
             },
             queryModelDetail(){
-                let param={modelId:this.modelId};
-                getModelDetail(param).then(data=>{
+                let param={
+                    projectId:this.projectId,
+                    jobId:this.jobId,
+                    sequence:this.sequence,
+                };
+                getModelExplain(param).then(data=>{
                     let { msg, code } = data;
                     if (code > 0) {
                         this.$message({
@@ -240,7 +244,7 @@
                     } else {
                         this.modelExplain = JSON.parse(data.data.modelExplain);
                         this.modelData={model_name:this.modelExplain.models[0].model_name,
-                            precise:this.modelExplain.precise,
+                            precise:this.modelExplain.precise+"%",
                             model_size:this.modelExplain.models[0].model_size,
                             train_time:this.modelExplain.models[0].train_time,
                             auc:this.modelExplain.models[0].roc.auc||'-'
@@ -468,7 +472,9 @@
 
         },
         mounted(){
-            this.modelId = this.$route.params.modelId;
+            this.projectId = this.$route.params.projectId;
+            this.jobId = this.$route.params.jobId;
+            this.sequence = this.$route.params.sequence;
             this.queryModelDetail();
         }
     }

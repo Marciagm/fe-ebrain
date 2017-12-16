@@ -32,7 +32,7 @@
                     </el-table-column>
                     <el-table-column
                             prop="time"
-                            label="日期"
+                            label="提交时间"
                             :formatter="formatTime"
                             width="180">
                     </el-table-column>
@@ -60,16 +60,18 @@
                     </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
-                            <el-button
-                                    size="mini"
-                                    @click="handleEdit(scope.$index, scope.row)">查看</el-button>
-                            <el-button
-                                    size="mini"
-                                    @click="handleEdit(scope.$index, scope.row)">预测</el-button>
-                            <el-button
-                                    size="mini"
-                                    type="danger"
-                                    @click="handleDelete(scope.$index, scope.row)">发布</el-button>
+                            <div>
+                                <el-button
+                                        size="mini" :disabled="scope.row.jobStatus!='success'"
+                                        @click="handleView(scope.$index, scope.row)">查看</el-button>
+                                <el-button
+                                        size="mini" :disabled="scope.row.jobStatus!='success'"
+                                        @click="handlePredict(scope.$index, scope.row)">预测</el-button>
+                                <el-button
+                                        size="mini" :disabled="scope.row.jobStatus!='success'"
+                                        type="success"
+                                        @click="handleDelete(scope.$index, scope.row)">发布</el-button>
+                            </div>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -133,11 +135,12 @@
             formatRight(){
               return "78%" ;
             },
-            handleEdit($index,row){
+            handleView($index,row){
+                console.log(row);
                 if(row.progress=='0'){
                     this.$router.push({ path: '/main/fileSelectView/'+row.projectId });
                 }else if(row.progress=='feature_analyse'){
-                    this.$router.push({ path: '/main/dataCheckView/'+row.projectId });
+                    this.$router.push({ path: '/main/dataCheckView/'+row.projectId+"/"+row.tid+"/"+row.sequence});
                 }else if(row.progress=='train'){
                     this.$router.push({ path: '/main/trainingView/'+row.projectId  });
                 }else if(row.progress=='predict'){
@@ -145,8 +148,11 @@
                 }else if(row.progress=='predict_explain'){
                     this.$router.push({ path: '/main/resultView/'+row.projectId });
                 }else{
-
+                    this.$router.push({ path: '/main/modelDetail/'+row.projectId+"/"+row.tid+"/"+row.sequence });
                 }
+            },
+            handlePredict($index,row){
+
             },
             createJob(){
                 this.$router.push({ path: '/main/fileSelectView/'+this.projectId });

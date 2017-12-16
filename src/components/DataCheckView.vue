@@ -13,32 +13,56 @@
                 <div style="height: 30px">你想预测什么？</div>
                 <el-input v-model="predict_label" size="medium" style="width: 200px"></el-input>
             </div>
-            <div id="fileInfo">
-
-                dfsdfsdfs
-            </div>
             <div>
                 <template>
-                    <el-table
-                            :data="tableData1"
-                            height="250"
-                            border
-                            style="width: 100%">
-                        <el-table-column
-                                prop="date"
-                                label="日期"
-                                width="180">
-                        </el-table-column>
-                        <el-table-column
-                                prop="name"
-                                label="姓名"
-                                width="180">
-                        </el-table-column>
-                        <el-table-column
-                                prop="address"
-                                label="地址">
-                        </el-table-column>
-                    </el-table>
+                    <el-tabs v-model="activeTab" type="card">
+                        <el-tab-pane label="数据报告" name="first">
+                            <el-table
+                                    :data="tableData1"
+                                    border
+                                    style="width: 100%;height: 350px;overflow: auto;">
+                                <el-table-column
+                                        prop="feature_name"
+                                        label="特征"
+                                        width="180">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="type"
+                                        label="特征类型"
+                                        width="180">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="value_count"
+                                        label="单一个数">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="miss"
+                                        label="缺少情况">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="max"
+                                        label="最大值">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="min"
+                                        label="最小值">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="mean"
+                                        label="均值">
+                                </el-table-column>
+                                <el-table-column
+                                        prop="std"
+                                        label="方差">
+                                </el-table-column>
+                            </el-table>
+                        </el-tab-pane>
+                        <el-tab-pane label="原始数据" name="second">
+                            <template>
+                                <dynamic-table  :headers="[]" :list="this.sourceDataResult.dataList"></dynamic-table>
+                            </template>
+                        </el-tab-pane>
+                    </el-tabs>
                 </template>
             </div>
 
@@ -48,6 +72,8 @@
 </template>
 
 <script>
+    import {getDataResult,getFileData} from '../api/api';
+    import DynamicTable from "@/components/DynamicTable";
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
     import ElCol from "element-ui/packages/col/src/col";
@@ -57,53 +83,64 @@
             ElInput,
             ElCol,
             ElRow,
-            ElButton},
+            ElButton,
+            DynamicTable},
         data() {
             return {
                 active:1,
+                activeTab:'first',
                 predict_label:'',
-                tableData1: [{
-                    date: '2016-05-03',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-02',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-04',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-01',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-08',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-06',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }, {
-                    date: '2016-05-07',
-                    name: '王小虎',
-                    address: '上海市普陀区金沙江路 1518 弄'
-                }]
+                tableData1: [],
+                sourceDataResult:{}
             }
         },
         methods: {
-            showNewModelDialog(){
-                this.dialogNewModelVisible = true;
+            querySourceFileData(ev){
+                var param={jobId:this.jobId};
+                getFileData(param).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.sourceData = data.data;
+                        this.sourceDataResult =JSON.parse(data.data.dataResult);
+                        // console.log(this.sourceDataResult)
+                    }
+                });
             },
-            saveModel(){
-                this.dialogNewModelVisible=false;
-                this.$router.push({ path: '/main/fileSelectView' });
-            }
+            queryDataResult(){
+                var _this = this;
+                var param={projectId:this.projectId,jobId:this.jobId,sequence:this.sequence};
+                getDataResult(param).then(data=>{
+                    let { msg, code } = data;
+                    // console.log(data)
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        //console.log(data.data.dataResult)
+                        if(data.data && data.data.dataResult){
+                            this.labelData = JSON.parse(data.data.dataResult || {});
+                            var datas = this.labelData.feature_and_label;
+                            this.tableData1 = datas.slice(1,datas.length);
+                        }
+                    }
+                });
+            },
+
         },
         mounted(){
-
+            this.jobId = this.$route.params.jobId;
+            this.projectId='192552057364811776';
+            this.jobId='192552059436797952';
+            this.sequence=1;
+            this.queryDataResult();
+            this.querySourceFileData();
         }
     }
 </script>

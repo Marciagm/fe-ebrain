@@ -44,13 +44,13 @@ let routes = [
         children: [
             { path: '/main/modelList', component: ModelList, name: '模型列表' },
             { path: '/main/fileSelectView/:projectId', component: FileSelectView, name: '选择文件' },
-            { path: '/main/dataCheckView/:projectId/:jobId/:sequence', component: DataCheckView, name: '数据检测页' },
+            { path: '/main/dataCheckView/:jobId', component: DataCheckView, name: '数据检测页' },
             { path: '/main/trainingView/:modelId', component: TrainingView, name: '训练页' },
             { path: '/main/resultView/:projectId/:jobId/:sequence/:fileId', component: ResultView, name: '模型结果' },
             { path: '/main/modelJobListView/:projectId', component: ModelJobListView, name: '模型详情' },
             { path: '/main/uploadView/:projectId/:jobId/:sequence', component: UploadView, name: '文件上传' },
             { path: '/main/predictView', component: PredictView, name: '文件上传' },
-            { path: '/main/modelDetail/:modelId', component: ModelDetail, name: '模型详情' },
+            { path: '/main/modelDetail/:projectId/:jobId/:sequence', component: ModelDetail, name: '模型详情' },
             { path: '/main/help', component: Help, name: '帮助' },
             { path: '/main/dataView', component: DataView, name: '帮助' },
         ]
