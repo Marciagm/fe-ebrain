@@ -11,7 +11,16 @@
         <div class="box">
             <div>
                 <div style="height: 30px">你想预测什么？</div>
-                <el-input v-model="predict_label" size="medium" style="width: 200px"></el-input>
+                <!--<el-input v-model="predict_label" size="medium" style="width: 200px"></el-input>-->
+                <el-autocomplete
+                        class="inline-input"
+                        v-model="predict_label"
+                        :fetch-suggestions="querySearch"
+                        value-key="feature_name"
+                        placeholder="请输入标签名称"
+                        :trigger-on-focus="false"
+                        @select="handleTagSelect"
+                ></el-autocomplete>
             </div>
             <div>
                 <template>
@@ -22,9 +31,12 @@
                                     border
                                     style="width: 100%;height: 350px;overflow: auto;">
                                 <el-table-column
-                                        prop="feature_name"
                                         label="特征"
-                                        width="180">
+                                        width="180"
+                                        @cell-click="selectTag()">
+                                    <template scope="scope">
+                                        <span style="cursor: pointer" @click="selectTag(scope.row.feature_name)">{{scope.row.feature_name}}</span>
+                                    </template>
                                 </el-table-column>
                                 <el-table-column
                                         prop="type"
@@ -91,10 +103,27 @@
                 activeTab:'first',
                 predict_label:'',
                 tableData1: [],
-                sourceDataResult:{}
+                sourceDataResult:{},
             }
         },
         methods: {
+            selectTag(feature_name){
+                this.predict_label=feature_name;
+            },
+            handleTagSelect(tag){
+                this.predict_label=tag.feature_name;
+            },
+            querySearch(queryString, cb) {
+                var tagSuggestions = this.tableData1;
+                var results = queryString ? tagSuggestions.filter(this.createFilter(queryString)) : tagSuggestions;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter(queryString) {
+                return (tag) => {
+                    return (tag.feature_name.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
+            },
             querySourceFileData(ev){
                 var param={jobId:this.jobId};
                 getFileData(param).then(data=>{

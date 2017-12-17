@@ -102,9 +102,6 @@
             }
         },
         methods: {
-            goToJobDetail(e,projectId){
-                this.$router.push({ path: '/main/modelDetailView/'+projectId });
-            },
             queryJobList(projectId){
                 var param = {
                     "projectId":projectId,
@@ -138,7 +135,7 @@
             handleView($index,row){
                 console.log(row);
                 if(row.progress=='0'){
-                    this.$router.push({ path: '/main/fileSelectView/'+row.projectId });
+                    this.$router.push({ path: '/main/fileSelectView/'+row.tid });
                 }else if(row.progress=='feature_analyse'){
                     this.$router.push({ path: '/main/dataCheckView/'+row.projectId+"/"+row.tid+"/"+row.sequence});
                 }else if(row.progress=='train'){

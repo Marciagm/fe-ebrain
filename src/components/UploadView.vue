@@ -10,8 +10,11 @@
         </div>
         <div class="box">
             <el-row>
-                <el-col :span="18">
-                    <div class="file-chooser">
+                <el-col :span="18" v-if="!showFileChooser" style="height: 500px;display: flex;justify-content: center;align-items: center;">
+                    <el-button type="primary" @click="next"> 下一步 </el-button>
+                </el-col>
+                <el-col :span="18" v-if="showFileChooser">
+                    <div class="file-chooser" >
                         <el-row>
                             <el-col :span="8" class="card">
                                 <div>
@@ -38,11 +41,13 @@
                                                     class="upload-demo"
                                                     :action="uploadAction"
                                                     :headers="myHeaders"
+                                                    :show-file-list=false
+                                                    :before-upload="beforeUpload"
                                                     :on-remove="handleRemove"
+                                                    :on-progress="onUploadProgress"
                                                     :on-success="handleUploadSuccess"
                                                     :limit="3"
-                                                    :on-exceed="handleExceed"
-                                                    :file-list="fileList">
+                                                    :on-exceed="handleExceed">
                                                 <a>点击上传</a>
                                                 <div slot="tip" class="el-upload__tip">只能上传txt/csv文件，且不超过500kb</div>
                                             </el-upload>
@@ -71,39 +76,34 @@
                        <div class="title">文件传清单</div>
                        <div class="tool-bar">
                            <el-row>
-                               <el-col :span="8">
+                               <el-col :span="12">
                                     <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
                                         <i class="el-icon-delete"></i>
                                         <a style="cursor: pointer;color: #20a0ff;" @click="deleteFile">删除</a>
                                     </div>
                                </el-col>
-                               <el-col :span="8">
+                               <el-col :span="12">
                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
                                        <i class="el-icon-circle-plus-outline"></i>
-                                       <a style="cursor: pointer;color: #20a0ff;" @click="addFile">继续添加</a>
-                                   </div>
-                               </el-col>
-                               <el-col :span="8">
-                                   <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                       <i class="el-icon-circle-plus-outline"></i>
-                                       <a style="cursor: pointer;color: #20a0ff;" @click="next">下一步</a>
+                                       <a style="cursor: pointer;color: #20a0ff;" @click="addFile" v-show="!showFileChooser">继续添加</a>
+                                       <a style="cursor: pointer;color: #20a0ff;" @click="showFileChooser=!showFileChooser" v-show="showFileChooser">放弃添加</a>
                                    </div>
                                </el-col>
                            </el-row>
                        </div>
                        <div class="content">
                            <div class="file-item">
-                               <el-row >
-                                   <el-col :span="24">
+                               <el-row v-for="file in jobFiles" :key="file.tid">
+                                   <el-col :span="24" style="overflow: hidden">
                                        <template>
-                                           <el-checkbox >发射点发射点发射点</el-checkbox>
+                                             <el-checkbox :true-label="file.tid" @change="onFileChange">{{file.filename}}</el-checkbox>
                                        </template>
                                    </el-col>
-                                   <el-col :span="12">
-                                       10M
+                                   <el-col :span="12" style="text-align: center">
+                                       {{file.fileSize}}
                                    </el-col>
-                                   <el-col :span="12">
-                                       正在上传
+                                   <el-col :span="12" style="text-align: center">
+                                       {{file.status || '已上传'}}
                                    </el-col>
                                </el-row>
                            </div>
@@ -117,7 +117,8 @@
 </template>
 
 <script>
-    import {newProject,newJob,getJobInfo } from '../api/api';
+    import {newProject,newJob,getJobFiles,updateJobFiles,runJobStep } from '../api/api';
+    import util from '@/common/js/util';
     import store from '@/vuex/store';
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     //import NProgress from 'nprogress'
@@ -129,6 +130,7 @@
                 active:0,
                 adSrc:'./static/ad.jpg',
                 store:store,
+                showFileChooser:false,
                 uploadAction:'',
                 myHeaders: {Authorization: ''},
                 fileId:"",
@@ -140,15 +142,60 @@
                 dialogVisible:false,
                 msg:'运行中...',
                 percentage:0,
-                fileList:[],
+                jobFiles:[],
+                jobFileIds:[],
+                upladProgress:0,
+                checkList:{},
             };
         },
         methods: {
+            queryJobInfo(){
+                var that =this;
+                let param={
+                    jobId:this.jobId,
+                    sequence:this.sequence,
+                };
+                getJobFiles(param).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        that.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        that.jobFiles=data.data;
+                        for(var i=0;i<that.jobFiles.length;i++){
+                            that.jobFileIds.push(that.jobFiles[i].tid);
+                        }
+                    }
+                });
+            },
+            onFileChange(value){
+                if(this.checkList[value]){
+                    delete this.checkList[value];
+                }else{
+                    this.checkList[value]=value;
+                }
+            },
             handleRemove(file, fileList) {
                 console.log(file, fileList);
             },
+            beforeUpload(file){
+                console.log(file);
+                var f = {
+                    tid:0,
+                    filename:file.name,
+                    fileSize:util.formatFileSize(file.size),
+                    status:'正在上传',
+                };
+                this.jobFiles.push(f);
+                this.showFileChooser=false;
+            },
+            onUploadProgress(event, file, fileList){
+                console.log(event);
+                this.upladProgress=event.percent;
+            },
             handleUploadSuccess(response, file, fileList){
-                console.log(response);
                 if(response.data.code>0){
                     this.$message({
                         message: '未登录',
@@ -157,12 +204,24 @@
                     });
                     this.$router.push({ path: '/login'});
                 }
-
-                this.file = response.data;
-                this.createProject();
+                this.jobFileIds.push(response.data.tid);
+                //上传成功更新job文件
+                var param={tid:this.jobId,fileList: this.jobFileIds.join(",")};
+                updateJobFiles(param).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    }else{
+                        //更新文件成功刷新文件列表
+                        this.queryJobInfo();
+                    }
+                });
             },
             uploadError(){
-                this.$router.push({ path: '/main/resultView' });
+                console.log("upload error")
             },
             handleExceed(files, fileList) {
                 this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
@@ -208,14 +267,56 @@
             handleHistoryDialogClose(){
                 this.historyDialogVisible=false;
             },
-            deleteFile(){
-
+            deleteFile(){ //删除文件
+                console.log('删除选中文件')
+                for(var ff in this.checkList){
+                    for(var i=0;i<this.jobFileIds.length;i++){
+                        if(this.jobFileIds[i]==ff){
+                            this.jobFileIds.splice(i,1);
+                        }
+                    }
+                }
+                console.log(this.checkList);
+                var pm={
+                  tid:this.jobId,
+                    fileList:this.jobFileIds.join(',')
+                };
+                console.log(pm);
+                updateJobFiles(pm).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    }else{
+                        //更新文件成功刷新文件列表
+                        this.queryJobInfo();
+                    }
+                });
             },
             addFile(){
-
+                this.showFileChooser=true;
             },
             next(){
-                this.$router.push({ path: "/main/dataCheckView/"+this.projectId+"/"+this.jobId+"/"+this.sequence });
+                var pm={
+                    projectId:this.projectId,
+                    jobId:this.jobId,
+                    sequence:this.sequence,
+                    step:'dataCheck',
+                };
+                runJobStep(pm).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    }else{
+                        this.$router.push({ path: "/main/dataCheckView/"+this.projectId+"/"+this.jobId+"/"+this.sequence });
+                    }
+                });
+
             }
         },
         mounted(){
@@ -226,6 +327,7 @@
             this.projectId = this.$route.params.projectId;
             this.jobId = this.$route.params.jobId;
             this.sequence = this.$route.params.sequence;
+            this.queryJobInfo();
         }
 
     }

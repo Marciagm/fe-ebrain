@@ -10,21 +10,26 @@ axios.interceptors.request.use(function (config) {    // 这里的config包含�
 
 let base = process.env.API_ROOT;
 
+export const regist = params => { return axios.post(`${base}/user/signup`, params).then(res => res.data); };
+
 export const login = params => { return axios.post(`${base}/auth`, params).then(res => res.data); };
-
-export const  newProject = params => { return axios.post(`${base}/project/create`, params).then(res => res.data); };
-
-export const getProjectListPage = params => { return axios.get(`${base}/project/list`, { params: params }).then(res => res.data); };
-
-export const  newJob = (projectId,params) => { return axios.post(`${base}/project/new-job/${projectId}`, params).then(res => res.data); };
-
-export const getJobInfo = params => { return axios.get(`${base}/project/get-jobinfo`, { params: params }).then(res => res.data); };
-
-export const getJobList = params => { return axios.get(`${base}/project/get-job-list`, { params: params }).then(res => res.data); };
 
 export const logout = params => { return axios.get(`${base}/auth/logout`, { params: params }); };
 
-export const regist = params => { return axios.post(`${base}/user/signup`, params).then(res => res.data); };
+export const getProjectListPage = params => { return axios.get(`${base}/project/list`, { params: params }).then(res => res.data); };
+
+export const  newProject = params => { return axios.post(`${base}/project/create`, params).then(res => res.data); };
+
+export const getJobList = params => { return axios.get(`${base}/project/get-job-list`, { params: params }).then(res => res.data); };
+
+export const  newJob = (projectId,params) => { return axios.post(`${base}/model/new-job/${projectId}`, params).then(res => res.data); };
+
+export const getJobFiles = params => { return axios.get(`${base}/model/jobFiles/${params.jobId}/${params.sequence}`,{}).then(res => res.data); };
+
+export const  updateJobFiles = (params) => { return axios.post(`${base}/model/update-jobfiles`, params).then(res => res.data); };
+
+export const  runJobStep = (params) => { return axios.post(`${base}/project/run-step`, params).then(res => res.data); };
+
 
 export const getSourceFileDataResult = params => { return axios.get(`${base}/project/get-source-file-data`, { params: params }).then(res => res.data); };
 
