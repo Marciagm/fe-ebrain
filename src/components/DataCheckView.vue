@@ -12,15 +12,26 @@
             <div>
                 <div style="height: 30px">你想预测什么？</div>
                 <!--<el-input v-model="predict_label" size="medium" style="width: 200px"></el-input>-->
-                <el-autocomplete
-                        class="inline-input"
-                        v-model="predict_label"
-                        :fetch-suggestions="querySearch"
-                        value-key="feature_name"
-                        placeholder="请输入标签名称"
-                        :trigger-on-focus="false"
-                        @select="handleTagSelect"
-                ></el-autocomplete>
+                <div>
+                   <el-row style="display: flex;justify-content: center;align-items: center;">
+                       <el-col :span="8">
+                           <el-autocomplete
+                                   class="inline-input predict-label-input"
+                                   v-model="predict_label"
+                                   :fetch-suggestions="querySearch"
+                                   value-key="feature_name"
+                                   placeholder="请输入标签名称"
+                                   :trigger-on-focus="false"
+                                   @select="handleTagSelect"
+                           ></el-autocomplete>
+                       </el-col>
+                       <el-col :span="16">
+                           <el-button type="primary" class="start-btn" @click="startTrain">开始</el-button>
+                       </el-col>
+                   </el-row>
+
+                </div>
+
             </div>
             <div>
                 <template>
@@ -35,7 +46,7 @@
                                         width="180"
                                         @cell-click="selectTag()">
                                     <template scope="scope">
-                                        <span style="cursor: pointer" @click="selectTag(scope.row.feature_name)">{{scope.row.feature_name}}</span>
+                                        <span style="cursor: pointer" @click="selectTag(scope.row.feature_name,scope.row.column_index)">{{scope.row.feature_name}}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column
@@ -84,7 +95,7 @@
 </template>
 
 <script>
-    import {getDataResult,getFileData} from '../api/api';
+    import {getDataResult,getFileData,runJobStep,getJobInfo,getJobProgress} from '../api/api';
     import DynamicTable from "@/components/DynamicTable";
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
@@ -104,11 +115,15 @@
                 predict_label:'',
                 tableData1: [],
                 sourceDataResult:{},
+                dataSeparatorL:',',
+                labelIndex:1,
+                timer:false,
             }
         },
         methods: {
-            selectTag(feature_name){
+            selectTag(feature_name,columnIndex){
                 this.predict_label=feature_name;
+                this.labelIndex = columnIndex;
             },
             handleTagSelect(tag){
                 this.predict_label=tag.feature_name;
@@ -153,41 +168,91 @@
                         });
                     } else {
                         //console.log(data.data.dataResult)
+                        this.projectId=data.data.projectId;
+                        this.sequence = data.data.jobSequence;
+                        this.dataSeparator = data.data.dataSeparator;
                         if(data.data && data.data.dataResult){
                             this.labelData = JSON.parse(data.data.dataResult || {});
                             var datas = this.labelData.feature_and_label;
-                            this.tableData1 = datas.slice(1,datas.length);
+                            this.tableData1 = datas;
                         }
                     }
                 });
             },
+            startTrain(){
+                var param={
+                    projectId:this.projectId,
+                    jobId:this.jobId,
+                    sequence:this.sequence,
+                    step:'train',
+                    labelIndex:this.labelIndex,
+                };
+                runJobStep(param).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.timer = setInterval(() => { //每分钟查询一次任务状态
+                            var param = {jobId: this.jobId};
+                            getJobProgress(param).then(data => {
+                                let {msg, code} = data;
+                                if (code > 0) {
+                                    window.clearInterval(this.timer);
+                                    this.$message({
+                                        message: msg,
+                                        type: 'error'
+                                    });
+                                } else {
+                                    if(data.data=='train'){
+                                        window.clearInterval(this.timer);
+                                        this.$router.push({ path: '/main/trainingView/'+this.projectId+"/"+this.jobId+"/"+this.sequence });
+                                    }
+                                }
+                            });
+                        },5000);
 
+                    }
+                });
+            },
         },
         mounted(){
             this.jobId = this.$route.params.jobId;
-            this.projectId='192552057364811776';
-            this.jobId='192552059436797952';
-            this.sequence=1;
+            this.projectId=this.$route.params.projectId;
+            this.sequence=this.$route.params.sequence;
             this.queryDataResult();
             this.querySourceFileData();
+        },
+        destroy(){
+            if(this.timer){
+                window.clearInterval(this.timer);
+            }
         }
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #dataCheckView{
         .step-bar{
             padding: 30px 15px;
         }
         .box{
-            height: 500px;
+            min-height: 500px;
             background: white;
             border:1px solid #1d8ce0;
             padding:15px;
 
-            #fileInfo{
-                padding: 15px 0;
-            }
+        }
+        .start-btn{
+            border-radius: 100px;
+            height:100px;
+            width:100px;
+        }
+        .predict-label-input input{
+            min-width:200px ;
+            width: 100%;
         }
     }
 </style>

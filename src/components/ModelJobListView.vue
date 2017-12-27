@@ -62,13 +62,13 @@
                         <template slot-scope="scope">
                             <div>
                                 <el-button
-                                        size="mini" :disabled="scope.row.jobStatus!='success'"
+                                        size="mini"
                                         @click="handleView(scope.$index, scope.row)">查看</el-button>
                                 <el-button
-                                        size="mini" :disabled="scope.row.jobStatus!='success'"
+                                        size="mini"
                                         @click="handlePredict(scope.$index, scope.row)">预测</el-button>
                                 <el-button
-                                        size="mini" :disabled="scope.row.jobStatus!='success'"
+                                        size="mini"
                                         type="success"
                                         @click="handleDelete(scope.$index, scope.row)">发布</el-button>
                             </div>
@@ -133,23 +133,23 @@
               return "78%" ;
             },
             handleView($index,row){
-                console.log(row);
+                //console.log(row.progress);
                 if(row.progress=='0'){
                     this.$router.push({ path: '/main/fileSelectView/'+row.tid });
                 }else if(row.progress=='feature_analyse'){
                     this.$router.push({ path: '/main/dataCheckView/'+row.projectId+"/"+row.tid+"/"+row.sequence});
                 }else if(row.progress=='train'){
-                    this.$router.push({ path: '/main/trainingView/'+row.projectId  });
+                    this.$router.push({ path: '/main/trainingView/'+row.projectId+'/'+row.tid+'/'+row.sequence });
                 }else if(row.progress=='predict'){
-                    this.$router.push({ path: '/main/resultView/'+row.projectId });
+                    this.handlePredict($index,row)
                 }else if(row.progress=='predict_explain'){
-                    this.$router.push({ path: '/main/resultView/'+row.projectId });
+                    this.$router.push({ path: '/main/resultView/'+row.projectId+'/'+row.tid+'/'+row.sequence});
                 }else{
-                    this.$router.push({ path: '/main/modelDetail/'+row.projectId+"/"+row.tid+"/"+row.sequence });
+                    this.$router.push({ path: '/main/modelDetail/'+row.projectId+'/'+row.tid+'/'+row.sequence });
                 }
             },
             handlePredict($index,row){
-
+                this.$router.push({ path: '/main/modelDetail/'+row.projectId+'/'+row.tid+'/'+row.sequence });
             },
             createJob(){
                 this.$router.push({ path: '/main/fileSelectView/'+this.projectId });

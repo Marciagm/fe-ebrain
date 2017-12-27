@@ -30,6 +30,18 @@ export const  updateJobFiles = (params) => { return axios.post(`${base}/model/up
 
 export const  runJobStep = (params) => { return axios.post(`${base}/project/run-step`, params).then(res => res.data); };
 
+export const getJobInfo = params => { return axios.get(`${base}/project/get-jobinfo`, { params: params }).then(res => res.data); };
+
+export const getTrainResult = params => { return axios.get(`${base}/project/get-train-result`, { params: params }).then(res => res.data); };
+
+export const getPredictHistory = params => { return axios.post(`${base}/predict/history`,params).then(res => res.data); };
+
+export const savePredictHistory = params => { return axios.post(`${base}/predict/save`,params).then(res => res.data); };
+
+export const getPredictResultAndDetail = params => { return axios.get(`${base}/predict/result/${params.tid}`,{}).then(res => res.data); };
+
+export const getJobProgress = params => { return axios.get(`${base}/project/get-job-progress`,{ params: params }).then(res => res.data); };
+
 
 export const getSourceFileDataResult = params => { return axios.get(`${base}/project/get-source-file-data`, { params: params }).then(res => res.data); };
 
@@ -39,7 +51,6 @@ export const getModelDetail = params => { return axios.get(`${base}/model/detail
 
 export const getModelExplain = params => { return axios.get(`${base}/project/get-model-explain`, { params: params }).then(res => res.data); };
 
-export const getTrainResult = params => { return axios.get(`${base}/project/get-train-result`, { params: params }).then(res => res.data); };
 
 export const getPredictResult = params => { return axios.get(`${base}/project/get-predict-result`, { params: params }).then(res => res.data); };
 

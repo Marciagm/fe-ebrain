@@ -1,6 +1,6 @@
 <template>
     <section  class="dynamic-table-section">
-        <table class="dynamic-table">
+        <table class="dynamic-table" cellspacing="0" cellpadding="0">
             <thead>
                 <tr>
                     <th v-for="h in headers">{{h}}</th>
@@ -38,11 +38,7 @@
         }
     }
 </script>
-<style scoped lang="scss">
-    section{
-        overflow: auto;
-        max-height: 500px;
-    }
+<style scoped lang="scss" type="text/scss">
     table{
         overflow: hidden;
         width: 100%;

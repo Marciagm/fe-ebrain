@@ -21,14 +21,15 @@ let routes = [
         hidden: true
     },
     {
-        path: '/',
-        redirect: '/main/uploadView',
-        hidden: true
-    },
-    {
         path: '/regist',
         component: Regist,
         name: '',
+        hidden: true
+    },
+    {
+        path: '/',
+        component: Main,
+        redirect: '/main',
         hidden: true
     },
     {
@@ -43,14 +44,14 @@ let routes = [
         redirect: '/main/modelList',
         children: [
             { path: '/main/modelList', component: ModelList, name: '模型列表' },
+            { path: '/main/modelJobListView/:projectId', component: ModelJobListView, name: 'job列表' },
             { path: '/main/fileSelectView/:projectId', component: FileSelectView, name: '选择文件' },
-            { path: '/main/dataCheckView/:jobId', component: DataCheckView, name: '数据检测页' },
-            { path: '/main/trainingView/:modelId', component: TrainingView, name: '训练页' },
-            { path: '/main/resultView/:projectId/:jobId/:sequence/:fileId', component: ResultView, name: '模型结果' },
-            { path: '/main/modelJobListView/:projectId', component: ModelJobListView, name: '模型详情' },
-            { path: '/main/uploadView/:projectId/:jobId/:sequence', component: UploadView, name: '文件上传' },
-            { path: '/main/predictView', component: PredictView, name: '文件上传' },
+            { path: '/main/dataCheckView/:projectId/:jobId/:sequence', component: DataCheckView, name: '数据检测页' },
+            { path: '/main/trainingView/:projectId/:jobId/:sequence', component: TrainingView, name: '训练页' },
             { path: '/main/modelDetail/:projectId/:jobId/:sequence', component: ModelDetail, name: '模型详情' },
+            { path: '/main/resultView/:projectId/:jobId/:sequence/:fileId', component: ResultView, name: '模型结果' },
+            { path: '/main/uploadView/:projectId/:jobId/:sequence', component: UploadView, name: '文件上传' },
+            { path: '/main/predictView/:projectId/:jobId/:sequence/:modelName', component: PredictView, name: '文件上传' },
             { path: '/main/help', component: Help, name: '帮助' },
             { path: '/main/dataView', component: DataView, name: '帮助' },
         ]

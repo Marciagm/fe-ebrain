@@ -15,39 +15,31 @@
                         <div class="title">文件传清单</div>
                         <div class="tool-bar">
                             <el-row>
-                                <el-col :span="8">
+                                <el-col :span="12">
                                     <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
                                         <i class="el-icon-delete"></i>
                                         <a style="cursor: pointer;color: #20a0ff;" @click="deleteFile">删除</a>
                                     </div>
                                 </el-col>
-                                <el-col :span="8">
+                                <el-col :span="12">
                                     <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
                                         <i class="el-icon-circle-plus-outline"></i>
                                         <a style="cursor: pointer;color: #20a0ff;" @click="addFile">继续添加</a>
                                     </div>
                                 </el-col>
-                                <el-col :span="8">
-                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                        <i class="el-icon-circle-plus-outline"></i>
-                                        <a style="cursor: pointer;color: #20a0ff;" @click="next">下一步</a>
-                                    </div>
-                                </el-col>
                             </el-row>
                         </div>
                         <div class="content">
-                            <div class="file-item">
-                                <el-row >
-                                    <el-col :span="24">
-                                        <template>
-                                            <el-checkbox >发射点发射点发射点</el-checkbox>
-                                        </template>
+                            <div class="file-item" v-for="file in predictFiles" :key="file.tid" @click="queryPredictResultAndDetail(file.tid)">
+                                <el-row>
+                                    <el-col :span="24" style="overflow: hidden">
+                                        {{file.srcFile}}
                                     </el-col>
-                                    <el-col :span="12">
-                                        10M
+                                    <el-col :span="12" style="text-align: center">
+                                        {{file.fileSize}}
                                     </el-col>
-                                    <el-col :span="12">
-                                        正在上传
+                                    <el-col :span="12" style="text-align: center">
+                                        {{file.status || '已上传'}}
                                     </el-col>
                                 </el-row>
                             </div>
@@ -55,7 +47,18 @@
                     </div>
                 </el-col>
                 <el-col :span="18">
-                    <div class="file-chooser">
+                    <div class="predict" v-show="!showFileChooser">
+                        <el-tabs v-model="activeName2" type="card">
+                            <el-tab-pane label="置信度" name="second"></el-tab-pane>
+                            <el-tab-pane label="预测结果" name="third">
+                                <template>
+                                    <dynamic-table :headers="[]" :list="this.predictResult"></dynamic-table>
+                                </template>
+                            </el-tab-pane>
+                        </el-tabs>
+
+                    </div>
+                    <div class="file-chooser" v-show="showFileChooser">
                         <el-row>
                             <el-col :span="8" class="card">
                                 <div>
@@ -83,12 +86,13 @@
                                                     :action="uploadAction"
                                                     :headers="myHeaders"
                                                     :on-remove="handleRemove"
+                                                    :before-upload="beforeUpload"
+                                                    :show-file-list="false"
                                                     :on-success="handleUploadSuccess"
                                                     :limit="3"
-                                                    :on-exceed="handleExceed"
                                                     :file-list="fileList">
                                                 <a>点击上传</a>
-                                                <div slot="tip" class="el-upload__tip">只能上传txt/csv文件，且不超过500kb</div>
+                                                <div slot="tip" class="el-upload__tip">只能上传txt/csv文件</div>
                                             </el-upload>
                                         </div>
                                     </div>
@@ -117,29 +121,254 @@
 </template>
 
 <script>
+    import {serverChoose,getHistoryFileList,getPredictHistory,savePredictHistory,getPredictResult,runJobStep,getPredictResultAndDetail,getJobProgress} from '../api/api';
+    import util from '@/common/js/util';
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
     import ElCol from "element-ui/packages/col/src/col";
+    import DynamicTable from "@/components/DynamicTable.vue";
     export default {
         components: {
             ElCol,
             ElRow,
-            ElButton},
+            ElButton,
+            DynamicTable},
         data() {
             return {
                 active:3,
+                activeName2: 'first',
+                showFileChooser: false,
+                uploadAction: '',
+                myHeaders: {Authorization: ''},
+                fileId: "",
+                projectId: "",
+                jobId: "",
+                sequence: 0,
+                modelName:"",
+                file: {},
+                fileList:[],
+                screenLoading: {},
+                dialogVisible: false,
+                msg: '运行中...',
+                percentage: 0,
+                predictFiles: [],
+                uploadProgress: 0,
+                checkList: {},
+                predictResult: [],
+                uploading:false,
+                currentFile:{},
+                predictDetail:{},
             }
         },
         methods: {
+            onFileSelect(value){
+               /* if (this.checkList[value]) {
+                    delete this.checkList[value];
+                } else {
+                    this.checkList[value] = value;
+                }*/
+            },
+            handleRemove(file, fileList) {
+                console.log(file, fileList);
+            },
+            beforeUpload(file){
+                this.uploading=true;
+                this.currentFile = {
+                    tid: 0,
+                    srcFile: file.name,
+                    fileSize: util.formatFileSize(file.size),
+                    status: '正在上传',
+                };
+                this.predictFiles.push(this.currentFile);
+                this.showFileChooser = false;
+            },
+            onUploadProgress(event, file, fileList){
+                this.upladProgress = event.percent;
+            },
+            queryHistory(param){
+                getPredictHistory(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.predictFiles = data.data;
 
+                    }
+                });
+            },
+            handleUploadSuccess(response, file, fileList){
+                this.uploading=false;
+                if (response.data.code > 0) {
+                    this.$message({
+                        message: '未登录',
+                        type: 'warning',
+                        duration: 10000
+                    });
+                    this.$router.push({path: '/login'});
+                }
+
+                var param={
+                    projectId:this.projectId,
+                    jobId:this.jobId,
+                    jobSequence:this.jobSequence,
+                    modelName:this.modelName,
+                    srcFile:this.currentFile.srcFile,
+                    fileSize:this.currentFile.fileSize,
+                    filePath:response.data.filepath,
+                };
+
+                savePredictHistory(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        param={
+                            projectId:this.projectId,
+                            jobId:this.jobId,
+                            jobSequence:this.jobSequence,
+                            modelName:this.modelName,
+                        };
+                        this.queryHistory(param);
+                        var pm={
+                            tid:data.data.tid,
+                            projectId:this.projectId,
+                            jobId:this.jobId,
+                            sequence:this.jobSequence,
+                            modelName:this.modelName,
+                            filePath:response.data.filepath,
+                            labelIndex:1,
+                            modelName:this.modelName,
+                            step:"predict"
+                        };
+                        this.runPredict(pm);
+                    }
+                });
+            },
+            runPredict(param){
+                runJobStep(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+
+                        this.queryPredictResultAndDetail(param.tid);
+                    }
+                });
+
+            },
+            queryPredictResultAndDetail(tid){
+                var param={tid:tid};
+                var timer = setInterval(() => { //每分钟查询一次任务状态
+                    getPredictResultAndDetail(param).then(data=>{
+                        let {msg, code} = data;
+                        if (code > 0) {
+                            window.clearInterval(timer);
+                            this.$message({
+                                message: msg,
+                                type: 'error'
+                            });
+                        } else {
+                            if(data.data.result){
+                                window.clearInterval(timer);
+                                this.predictResult = JSON.parse(data.data.result.predictResult).dataList;
+                                this.predictDetail = data.data.detail;
+                            }
+
+                        }
+                    });
+                },5000);
+
+            },
+            uploadError(){
+                console.log("upload error")
+            },
+            fromServer(){
+                this.serverDialogVisible = true;
+                var param = {
+                    projectId: this.projectId,
+                }
+                serverChoose(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.serverFileList = data.data;
+                    }
+                });
+            },
+            handleServerDialogClose(){
+                this.serverDialogVisible = false;
+            },
+            fromHistory(){
+                this.historyDialogVisible = true;
+                var param = {
+                    pageNum: 1,
+                    pageSize: 1000,
+                }
+                getHistoryFileList(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.historyFileList = data.data.list;
+                    }
+                });
+            },
+            handleHistoryDialogClose(){
+                this.historyDialogVisible = false;
+            },
+            deleteFile(){ //删除文件
+
+            },
+            addFile(){
+                if(this.uploading){
+                    this.$message({
+                        message: '当前还有文件未上传完成，请稍后再试!',
+                        type: 'warning',
+                        duration: 10000
+                    });
+                }else{
+                    this.showFileChooser = !this.showFileChooser;
+                }
+
+            },
         },
         mounted(){
+            this.projectId = this.$route.params.projectId;
+            this.jobId = this.$route.params.jobId;
+            this.jobSequence = this.$route.params.sequence;
+            this.modelName = this.$route.params.modelName;
+            var token = localStorage.getItem('token');
+            this.myHeaders={Authorization: token};
+            this.uploadAction=process.env.API_ROOT+'/filelist/upload';
 
+           var param={
+                projectId:this.projectId,
+                jobId:this.jobId,
+                jobSequence:this.jobSequence,
+                modelName:this.modelName,
+            };
+            this.queryHistory(param);
         }
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #predictView{
         .step-bar{
             padding: 30px 15px;
@@ -149,6 +378,15 @@
             background: white;
             border: 1px solid #1d8ce0;
             margin-top: 15px;
+            overflow: hidden;
+        }
+        .predict{
+            height: 450px;
+            overflow: hidden;
+        }
+        .predict .el-tab-pane{
+            height: 500px;
+            overflow: scroll;
         }
         .data-source{
             height: 180px;
@@ -217,10 +455,7 @@
                 border-top: 1px solid #ccc;
                 line-height: 30px;
                 color: white;
-
-                .el-checkbox__label {
-                    color: white;
-                }
+                cursor:pointer;
             }
         }
     }

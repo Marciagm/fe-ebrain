@@ -10,37 +10,49 @@
         </div>
 
         <div>
-            <div><h3>模型名称</h3></div>
             <el-card class="box-card">
                 <div slot="header" class="clearfix">
-                    <span>测试模型</span>
+                    <span>模型算法列表</span>
                     <el-button style="float: right; padding: 3px 0" type="text">全部终止</el-button>
                 </div>
                 <div>
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td width="60"><i class="el-icon-setting"></i></td>
-                                <td style="text-align: left">sdfsdfsdfasdfasdfsadfsadf</td>
-                                <td>进度<el-progress :percentage="70"></el-progress></td>
-                                <td>CPU:0</td>
-                                <td>内存：0</td>
-                                <td>
-                                    <el-button type="primary"  size="mini" round>终止</el-button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td><i class="el-icon-setting"></i></td>
-                                <td style="text-align: left">sdfsdfsdfasdfasdfsadfsadf</td>
-                                <td width="200">进度<el-progress :percentage="70"></el-progress></td>
-                                <td>CPU:0</td>
-                                <td>内存：0</td>
-                                <td>
-                                    <el-button type="primary" size="mini" round>终止</el-button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <template>
+                        <el-table
+                                :data="trainedResult"
+                                border
+                                style="width: 100%">
+                            <el-table-column
+                                    prop="model_name"
+                                    label="算法名称"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                prop="validate_auc"
+                                label="validate_auc"
+                                width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="loss"
+                                    label="loss"
+                                    width="180">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="mse"
+                                    label="mse">
+                            </el-table-column>
+                            <el-table-column
+                                    prop="precise"
+                                    label="precise">
+                            </el-table-column>
+                            <el-table-column
+                                    label="操作"
+                                    width="100">
+                                <template slot-scope="scope">
+                                    <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                                </template>
+                            </el-table-column>
+                        </el-table>
+                    </template>
                 </div>
 
             </el-card>
@@ -50,6 +62,7 @@
 </template>
 
 <script>
+    import{getTrainResult} from '../api/api';
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
     import ElCol from "element-ui/packages/col/src/col";
@@ -60,34 +73,45 @@
             ElButton},
         data() {
             return {
-                dialogNewModelVisible:false,
-                ruleForm: {
-                    name: '',
-                },
-                rules: {
-                    name: [
-                        {required: true, message: '请输入活动名称', trigger: 'blur'},
-                        {min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur'}
-                    ],
-                }
+                active:2,
+                projectId:0,
+                jobId:0,
+                squence:0,
+                trainedResult:[],
             }
         },
         methods: {
-            showNewModelDialog(){
-                this.dialogNewModelVisible = true;
+            queryTrainResult(){
+                var param={projectId:this.projectId,jobId:this.jobId,sequence:this.sequence};
+                getTrainResult(param).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        var  result =data.data;
+                        console.log(JSON.parse(result[0].trainedResult).model_info.train_result)
+                        this.trainedResult = JSON.parse(result[0].trainedResult).model_info.train_result;
+
+                    }
+                });
             },
-            saveModel(){
-                this.dialogNewModelVisible=false;
-                this.$router.push({ path: '/main/fileSelectView' });
+            handleClick(row){
+                this.$router.push({ path: '/main/modelDetail/'+this.projectId+"/"+this.jobId+"/"+this.sequence });
             }
         },
         mounted(){
-
+            this.jobId = this.$route.params.jobId;
+            this.projectId=this.$route.params.projectId;
+            this.sequence=this.$route.params.sequence;
+            this.queryTrainResult();
         }
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #trainingView{
         .step-bar{
             padding: 30px 15px;

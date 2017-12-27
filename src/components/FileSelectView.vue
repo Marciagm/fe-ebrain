@@ -39,12 +39,15 @@
                                         :action="uploadAction"
                                         :headers="myHeaders"
                                         :on-remove="handleRemove"
+                                        :on-progress="onProgress"
                                         :on-success="handleUploadSuccess"
+                                        :show-file-list="false"
                                         :limit="3"
                                         :on-exceed="handleExceed"
                                         :file-list="fileList">
+                                    <el-progress :percentage="percentage" class="upload-progress" v-show="percentage>0"></el-progress>
                                     <a>点击上传</a>
-                                    <div slot="tip" class="el-upload__tip">只能上传txt/csv文件，且不超过500kb</div>
+                                    <div slot="tip" class="el-upload__tip">只能上传txt/csv文件</div>
                                 </el-upload>
                             </div>
                         </div>
@@ -123,6 +126,7 @@
                 uploadAction:'',
                 fileList:[],
                 projectId:"",
+                percentage:0,
                 serverFileList:[],
                 serverDialogVisible:false,
                 historyFileList:[],
@@ -134,6 +138,9 @@
         methods: {
             handleRemove(file, fileList) {
                 console.log(file, fileList);
+            },
+            onProgress(event){
+                this.percentage = Math.ceil(event.percent);
             },
             handleUploadSuccess(response, file, fileList){
                 if(response.data.code>0){
@@ -219,7 +226,7 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #fileSelectView{
         .step-bar{
             padding: 30px 15px;
@@ -284,6 +291,8 @@
                     background-size: contain;
                     background-repeat: no-repeat;
                 }
+
+
             }
         }
 

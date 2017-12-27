@@ -8,14 +8,19 @@
                 <el-step title="准备预测"></el-step>
             </el-steps>
         </div>
-
+        <el-row>
+            <el-col style="text-align: right;">
+                <el-button @click="updateFile">更新</el-button>
+            </el-col>
+        </el-row>
         <div class="box">
             <el-row class="header">
                 <el-col :span="4">模型名称</el-col>
                 <el-col :span="4">准确率</el-col>
                 <el-col :span="4">模型大小</el-col>
                 <el-col :span="4">AUC</el-col>
-                <el-col :span="4">训练时间</el-col>
+                <el-col :span="3">训练时间</el-col>
+                <el-col :span="3" style="text-align: center">操作</el-col>
             </el-row>
             <el-row>
                 <el-col :span="24">
@@ -28,6 +33,9 @@
                                     <el-col :span="4">{{modelData.model_size}}</el-col>
                                     <el-col :span="4">{{modelData.auc}}</el-col>
                                     <el-col :span="3">{{modelData.train_time}}</el-col>
+                                    <el-col :span="3" style="text-align: center;">
+                                        <span style="color:#006bc7;" @click="startPredict(modelData)">预测</span>
+                                    </el-col>
                                 </el-row>
                             </template>
                             <div style="padding:15px;background: #e6ebf5">
@@ -469,6 +477,12 @@
                     series: chartData.seriesData
                 });
             },
+            startPredict(modelData){
+                this.$router.push({ path: '/main/predictView/'+this.projectId+"/"+this.jobId+"/"+this.sequence+"/"+ modelData.model_name});
+            },
+            updateFile(){
+                this.$router.push({ path: '/main/uploadView/'+this.projectId+"/"+this.jobId+"/"+this.sequence});
+            }
 
         },
         mounted(){
@@ -480,7 +494,7 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #modelDetail{
         .step-bar{
             padding: 30px 15px;
