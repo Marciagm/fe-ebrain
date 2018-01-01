@@ -135,7 +135,7 @@
             handleView($index,row){
                 //console.log(row.progress);
                 if(row.progress=='0'){
-                    this.$router.push({ path: '/main/fileSelectView/'+row.tid });
+                    this.$router.push({ path: '/main/uploadView/'+row.projectId+"/"+row.tid+"/"+row.sequence});
                 }else if(row.progress=='feature_analyse'){
                     this.$router.push({ path: '/main/dataCheckView/'+row.projectId+"/"+row.tid+"/"+row.sequence});
                 }else if(row.progress=='train'){
@@ -152,7 +152,22 @@
                 this.$router.push({ path: '/main/modelDetail/'+row.projectId+'/'+row.tid+'/'+row.sequence });
             },
             createJob(){
-                this.$router.push({ path: '/main/fileSelectView/'+this.projectId });
+                var that = this;
+                newJob(that.projectId,[]).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        that.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        that.jobId  = data.data.tid;
+                        that.sequence = data.data.sequence;
+                        //job状态保存，退出再进使用
+                        var jobInfo = this.projectId+"/"+this.jobId+"/"+this.sequence;
+                        this.$router.push({ path: '/main/uploadView/'+jobInfo });
+                    }
+                });
             }
         },
         mounted(){
@@ -162,7 +177,7 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #modelDetailView{
         height: 500px;
         background: white;

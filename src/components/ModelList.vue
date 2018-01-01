@@ -1,37 +1,41 @@
 <template>
     <section id="modelListView">
-        <div style="padding: 15px;">
-            <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="showNewModelDialog">新建</el-button>
+        <div class="_healder">模型库</div>
+        <div class="panel">
+            <div style="padding: 15px;">
+                <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="showNewModelDialog">新建</el-button>
+            </div>
+            <el-row v-show="isLoading">
+                <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">
+                    <i class="el-icon-loading"></i>
+                </el-col>
+            </el-row>
+            <el-row v-show="!isLoading" style="height: 350px">
+
+                <el-col :span="6" class="box" v-for="p in projectPageInfo.list" :key="p.tid">
+                    <div class="model-card" @click="goToModelDetail($event,p.tid,p.status)">
+                        <div class="icon">
+                            1
+                        </div>
+                        <div class="name">
+                            {{p.projectName}}
+                        </div>
+                    </div>
+                </el-col>
+            </el-row>
+            <el-row v-show="!isLoading">
+                <el-col :span="24" style="text-align: center;margin-top: 30px;">
+                    <el-pagination
+                            background
+                            layout="prev, pager, next"
+                            :total="projectPageInfo.total"
+                            :page-size="8"
+                            @current-change="pageChange"
+                    >
+                    </el-pagination>
+                </el-col>
+            </el-row>
         </div>
-        <el-row v-show="isLoading">
-            <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">
-                <i class="el-icon-loading"></i>
-            </el-col>
-        </el-row>
-        <el-row v-show="!isLoading" style="height: 350px">
-            <el-col :span="6" class="box" v-for="p in projectPageInfo.list" :key="p.tid">
-                <div class="model-card" @click="goToModelDetail($event,p.tid,p.status)">
-                    <div class="icon">
-                        1
-                    </div>
-                    <div class="name">
-                        {{p.projectName}}
-                    </div>
-                </div>
-            </el-col>
-        </el-row>
-        <el-row v-show="!isLoading">
-            <el-col :span="24" style="text-align: center;margin-top: 30px;">
-                <el-pagination
-                        background
-                        layout="prev, pager, next"
-                        :total="projectPageInfo.total"
-                        :page-size="8"
-                        @current-change="pageChange"
-                >
-                </el-pagination>
-            </el-col>
-        </el-row>
         <el-dialog  :visible.sync="dialogNewModelVisible">
             <el-form :model="projectForm" :rules="rules" ref="projectForm" label-width="100px">
                 <el-form-item label="模型名称" prop="projectName">
@@ -141,11 +145,15 @@
     }
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #modelListView{
-        height: 500px;
+        ._healder{
+            height: 50px;background: #9bc3ed;font-size:20px;color:white;text-align: center;line-height: 50px;
+        }
+        .panel{
+            border: 2px solid #56bbf6;
+        }
         background: white;
-        border:1px solid #1d8ce0;
         .box{
             display: flex;
             justify-content: center;

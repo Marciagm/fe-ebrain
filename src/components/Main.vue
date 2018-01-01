@@ -4,7 +4,7 @@
             <el-col :span="24" class="header">
                 <el-col :span="20" :offset="2">
                     <el-col :span="4" class="logo" style="padding-left:0" >
-                        <span>预测精灵</span>
+                        <a href="#/main/modelList">预测精灵</a>
                     </el-col>
                     <el-col :span="10" >
                         <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelect">
@@ -106,7 +106,7 @@
 
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" type="text/scss">
     @import '~scss_vars';
     .help{
         width: 32px;
@@ -195,6 +195,10 @@
                 }
                 .txt {
                     color:#fff;
+                }
+                a{
+                    text-decoration: none;
+                    color:white;
                 }
             }
             .logo-width{

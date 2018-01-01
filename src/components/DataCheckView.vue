@@ -25,8 +25,11 @@
                                    @select="handleTagSelect"
                            ></el-autocomplete>
                        </el-col>
-                       <el-col :span="16">
-                           <el-button type="primary" class="start-btn" @click="startTrain">开始</el-button>
+                       <el-col :span="10">
+                           <div id="chart1"></div>
+                       </el-col>
+                       <el-col :span="6">
+                           <el-button type="primary" class="start-btn" @click="startTrain" :loading="isLoading" :disabled="startBtnDisabled">开始</el-button>
                        </el-col>
                    </el-row>
 
@@ -52,7 +55,8 @@
                                 <el-table-column
                                         prop="type"
                                         label="特征类型"
-                                        width="180">
+                                        width="180"
+                                        :formatter="labelTypeFormat">
                                 </el-table-column>
                                 <el-table-column
                                         prop="value_count"
@@ -118,15 +122,21 @@
                 dataSeparatorL:',',
                 labelIndex:1,
                 timer:false,
+                isLoading:false,
+                startBtnDisabled:true,
             }
         },
         methods: {
+            labelTypeFormat(row){
+               return row.type==0? '离散':'连续'
+            },
             selectTag(feature_name,columnIndex){
                 this.predict_label=feature_name;
                 this.labelIndex = columnIndex;
             },
             handleTagSelect(tag){
                 this.predict_label=tag.feature_name;
+                this.startBtnDisabled=false;
             },
             querySearch(queryString, cb) {
                 var tagSuggestions = this.tableData1;
@@ -176,6 +186,7 @@
                             var datas = this.labelData.feature_and_label;
                             this.tableData1 = datas;
                         }
+
                     }
                 });
             },
@@ -187,6 +198,7 @@
                     step:'train',
                     labelIndex:this.labelIndex,
                 };
+                this.isLoading=true;
                 runJobStep(param).then(data=>{
                     let { msg, code } = data;
                     if (code > 0) {
@@ -195,20 +207,22 @@
                             type: 'error'
                         });
                     } else {
-                        this.timer = setInterval(() => { //每分钟查询一次任务状态
+                        window.timer = setInterval(() => { //每分钟查询一次任务状态
                             var param = {jobId: this.jobId};
                             getJobProgress(param).then(data => {
                                 let {msg, code} = data;
                                 if (code > 0) {
-                                    window.clearInterval(this.timer);
+                                    this.isLoading=false;
+                                    window.clearInterval(window.timer);
                                     this.$message({
                                         message: msg,
                                         type: 'error'
                                     });
                                 } else {
-                                    if(data.data=='train'){
-                                        window.clearInterval(this.timer);
-                                        this.$router.push({ path: '/main/trainingView/'+this.projectId+"/"+this.jobId+"/"+this.sequence });
+                                    if(data.data.progress !='feature_analyse'){
+                                        this.isLoading=false;
+                                        window.clearInterval(window.timer);
+                                        this.$router.push({ path: '/main/modelDetail/'+this.projectId+"/"+this.jobId+"/"+this.sequence });
                                     }
                                 }
                             });
@@ -217,6 +231,47 @@
                     }
                 });
             },
+            drawBarChart(xAxisData,barSeriesData,xLabel,yLabel) {
+                this.chartBar = echarts.init(document.getElementById('chart1'));
+                this.chartBar.setOption({
+                    title: {
+                        text: '待预测目标类型分布',
+                        subtext: ''
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '8%',
+                        right: '8%',
+                        bottom: '8%',
+                        containLabel: true
+                    },
+                    yAxis: {
+                        name:xLabel,
+                        nameLocation:'center',
+                        nameGap:50,
+                        type: 'value',
+                    },
+                    xAxis: {
+                        name:yLabel,
+                        nameLocation:'center',
+                        nameGap:20,
+                        type: 'category',
+                        data: xAxisData,
+                        boundaryGap: [0, 0.01]
+                    },
+                    series: [
+                        {
+                            type: 'bar',
+                            data: barSeriesData
+                        }
+                    ]
+                });
+            }
         },
         mounted(){
             this.jobId = this.$route.params.jobId;
@@ -226,9 +281,7 @@
             this.querySourceFileData();
         },
         destroy(){
-            if(this.timer){
-                window.clearInterval(this.timer);
-            }
+            window.clearInterval(window.timer);
         }
     }
 </script>

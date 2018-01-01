@@ -49,7 +49,11 @@
                 <el-col :span="18">
                     <div class="predict" v-show="!showFileChooser">
                         <el-tabs v-model="activeName2" type="card">
-                            <el-tab-pane label="置信度" name="second"></el-tab-pane>
+                            <el-tab-pane label="详细报告" name="second">
+                                <template>
+                                    <dynamic-table :headers="predictDetailHeader" :list="this.predictDetailReport.dataList"></dynamic-table>
+                                </template>
+                            </el-tab-pane>
                             <el-tab-pane label="预测结果" name="third">
                                 <template>
                                     <dynamic-table :headers="[]" :list="this.predictResult"></dynamic-table>
@@ -121,7 +125,7 @@
 </template>
 
 <script>
-    import {serverChoose,getHistoryFileList,getPredictHistory,savePredictHistory,getPredictResult,runJobStep,getPredictResultAndDetail,getJobProgress} from '../api/api';
+    import {serverChoose,getHistoryFileList,getPredictHistory,savePredictHistory,getPredictResult,runJobStep,getPredictResultAndDetail,getJobProgress,getPredictDetail} from '../api/api';
     import util from '@/common/js/util';
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
@@ -158,6 +162,8 @@
                 uploading:false,
                 currentFile:{},
                 predictDetail:{},
+                predictDetailHeader:[],
+                predictDetailReport:{}
             }
         },
         methods: {
@@ -347,6 +353,20 @@
                 }
 
             },
+            viewModelDetailReport(){
+                var param={projectId:this.projectId,jobId:this.jobId,sequence:this.sequence};
+                getPredictDetail(param).then(data=> {
+                    let {msg, code} = data;
+                    if (code > 0 && code != 100) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else if (code == 0) {
+                        this.predictDetailReport=JSON.parse(data.data.detail);
+                    }
+                });
+            }
         },
         mounted(){
             this.projectId = this.$route.params.projectId;
@@ -364,6 +384,7 @@
                 modelName:this.modelName,
             };
             this.queryHistory(param);
+            this.viewModelDetailReport();
         }
     }
 </script>

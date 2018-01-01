@@ -10,11 +10,7 @@
         </div>
         <div class="box">
             <el-row>
-                <el-col :span="18" v-if="!showFileChooser"
-                        style="height: 500px;display: flex;justify-content: center;align-items: center;">
-                    <el-button type="primary" @click="next"> 下一步</el-button>
-                </el-col>
-                <el-col :span="18" v-if="showFileChooser">
+                <el-col :span="18">
                     <div class="file-chooser">
                         <el-row>
                             <el-col :span="8" class="card">
@@ -39,18 +35,17 @@
                                         </div>
                                         <div class="name">
                                             <el-upload
-                                                    class="upload-demo"
+                                                    class="upload-file"
                                                     :action="uploadAction"
                                                     :headers="myHeaders"
                                                     :show-file-list=false
                                                     :before-upload="beforeUpload"
-                                                    :on-remove="handleRemove"
                                                     :on-progress="onUploadProgress"
                                                     :on-success="handleUploadSuccess"
-                                                    :limit="3"
-                                                    :on-exceed="handleExceed">
+                                                    multiple
+                                                    >
                                                 <a>点击上传</a>
-                                                <div slot="tip" class="el-upload__tip">只能上传txt/csv文件，且不超过500kb</div>
+                                                <div slot="tip" class="el-upload__tip">只能上传txt/csv文件</div>
                                             </el-upload>
                                         </div>
                                     </div>
@@ -77,38 +72,34 @@
                         <div class="title">文件传清单</div>
                         <div class="tool-bar">
                             <el-row>
-                                <el-col :span="12">
+                                <el-col :span="24">
                                     <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                        <i class="el-icon-delete"></i>
-                                        <a style="cursor: pointer;color: #20a0ff;" @click="deleteFile">删除</a>
-                                    </div>
-                                </el-col>
-                                <el-col :span="12">
-                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                        <i class="el-icon-circle-plus-outline"></i>
-                                        <a style="cursor: pointer;color: #20a0ff;" @click="addFile"
-                                           v-show="!showFileChooser">继续添加</a>
-                                        <a style="cursor: pointer;color: #20a0ff;"
-                                           @click="showFileChooser=!showFileChooser" v-show="showFileChooser">放弃添加</a>
+                                        <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="next" v-show="jobFiles.length>0" :loading="isLoading">下一步</el-button>
                                     </div>
                                 </el-col>
                             </el-row>
                         </div>
                         <div class="content">
-                            <div class="file-item">
-                                <el-row v-for="file in jobFiles" :key="file.tid">
-                                    <el-col :span="24" style="overflow: hidden">
-                                        <template>
-                                            <el-checkbox :true-label="file.tid" @change="onFileChange">
+                            <div>
+                                <el-row v-for="file in jobFiles" :key="file.tid"  class="file-item">
+                                    <el-col :span="22">
+                                        <el-row>
+                                            <el-col :span="24" style="overflow: hidden">
                                                 {{file.filename}}
-                                            </el-checkbox>
-                                        </template>
+                                            </el-col>
+                                            <el-col :span="12" style="text-align: center">
+                                                {{file.fileSize}}
+                                            </el-col>
+                                            <el-col :span="12" style="text-align: center">
+                                                {{file.status || '已上传'}}
+                                            </el-col>
+                                            <el-col :span="24" v-if="file.status">
+                                                <el-progress :percentage="uploadProgress[file.tid]"></el-progress>
+                                            </el-col>
+                                        </el-row>
                                     </el-col>
-                                    <el-col :span="12" style="text-align: center">
-                                        {{file.fileSize}}
-                                    </el-col>
-                                    <el-col :span="12" style="text-align: center">
-                                        {{file.status || '已上传'}}
+                                    <el-col :span="2">
+                                        <span class="del-btn" @click="deleteFile(file.tid)">×</span>
                                     </el-col>
                                 </el-row>
                             </div>
@@ -133,9 +124,7 @@
         data() {
             return {
                 active: 0,
-                adSrc: './static/ad.jpg',
                 store: store,
-                showFileChooser: false,
                 uploadAction: '',
                 myHeaders: {Authorization: ''},
                 fileId: "",
@@ -149,8 +138,9 @@
                 percentage: 0,
                 jobFiles: [],
                 jobFileIds: [],
-                uploadProgress: 0,
+                uploadProgress:{},
                 checkList: {},
+                isLoading:false,
             };
         },
         methods: {
@@ -188,7 +178,7 @@
             beforeUpload(file){
                 console.log(file);
                 var f = {
-                    tid: 0,
+                    tid: file.uid,
                     filename: file.name,
                     fileSize: util.formatFileSize(file.size),
                     status: '正在上传',
@@ -197,8 +187,8 @@
                 this.showFileChooser = false;
             },
             onUploadProgress(event, file, fileList){
-                console.log(event);
-                this.upladProgress = Math.ceil(event.percent);
+                console.log(file)
+                this.uploadProgress[file.uid] = Math.ceil(event.percent);
             },
             handleUploadSuccess(response, file, fileList){
                 if (response.data.code > 0) {
@@ -272,15 +262,12 @@
             handleHistoryDialogClose(){
                 this.historyDialogVisible = false;
             },
-            deleteFile(){ //删除文件
-                for (var ff in this.checkList) {
-                    for (var i = 0; i < this.jobFileIds.length; i++) {
-                        if (this.jobFileIds[i] == ff) {
-                            this.jobFileIds.splice(i, 1);
-                        }
+            deleteFile(tid){ //删除文件
+                for (var i = 0; i < this.jobFileIds.length; i++) {
+                    if (this.jobFileIds[i] == tid) {
+                        this.jobFileIds.splice(i, 1);
                     }
                 }
-                console.log(this.checkList);
                 var pm = {
                     tid: this.jobId,
                     fileList: this.jobFileIds.join(',')
@@ -298,9 +285,6 @@
                     }
                 });
             },
-            addFile(){
-                this.showFileChooser = true;
-            },
             next(){
                 var pm = {
                     projectId: this.projectId,
@@ -308,6 +292,7 @@
                     sequence: this.sequence,
                     step: 'dataCheck',
                 };
+                this.isLoading=true;
                 runJobStep(pm).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
@@ -327,7 +312,7 @@
                                         type: 'error'
                                     });
                                 } else {
-                                    if(data.data!='0'){
+                                    if(data.data.progress!='0'){
                                         window.clearInterval(timer);
                                         this.$router.push({path: "/main/dataCheckView/" + this.projectId + "/" + this.jobId + "/" + this.sequence});
                                     }
@@ -451,11 +436,25 @@
         height: 60px;
         border-bottom: 1px solid #ccc;
         border-top: 1px solid #ccc;
-        line-height: 30px;
+        line-height: 22px;
+        color: white;
+    }
+    #uploadView .file-item .del-btn{
+        line-height: 60px;
+        cursor: pointer;
+        color:#1d8ce0;
+        padding:2px 6px;
+    }
+    #uploadView .file-item .del-btn:hover{
+        color:white;
+    }
+    #uploadView .el-checkbox {
         color: white;
     }
 
-    #uploadView .el-checkbox {
-        color: white;
+    #uploadView .file-list .content{
+        overflow-y: auto;
+        overflow-x: hidden;
+        height: 390px;
     }
 </style>

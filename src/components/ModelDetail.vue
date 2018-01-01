@@ -14,197 +14,249 @@
             </el-col>
         </el-row>
         <div class="box">
-            <el-row class="header">
-                <el-col :span="4">模型名称</el-col>
-                <el-col :span="4">准确率</el-col>
-                <el-col :span="4">模型大小</el-col>
-                <el-col :span="4">AUC</el-col>
-                <el-col :span="3">训练时间</el-col>
-                <el-col :span="3" style="text-align: center">操作</el-col>
-            </el-row>
-            <el-row>
-                <el-col :span="24">
-                    <el-collapse accordion>
-                        <el-collapse-item>
-                            <template slot="title">
-                                <el-row style="border-bottom: 1px solid #e6ebf5;">
-                                    <el-col :span="4">{{modelData.model_name}}</el-col>
-                                    <el-col :span="4">{{modelData.precise}}</el-col>
-                                    <el-col :span="4">{{modelData.model_size}}</el-col>
-                                    <el-col :span="4">{{modelData.auc}}</el-col>
-                                    <el-col :span="3">{{modelData.train_time}}</el-col>
-                                    <el-col :span="3" style="text-align: center;">
-                                        <span style="color:#006bc7;" @click="startPredict(modelData)">预测</span>
-                                    </el-col>
-                                </el-row>
-                            </template>
-                            <div style="padding:15px;background: #e6ebf5">
-                                <template>
-                                    <el-tabs  v-model="activeName">
-                                        <el-tab-pane label="特征重要性" name="tab1">
-                                            <el-card class="box-card">
-                                                <div>
-                                                    <el-row>
-                                                        <el-col :span="12" class="block">
-                                                            <div class="explain">
-                                                                <div>预测结果是由特征来决定的，
-                                                                哪些特征对结果影响最大，
-                                                                可通过右图的特征重要性图表来进行解释</div>
-                                                            </div>
-                                                        </el-col>
-                                                        <el-col :span="12" class="block">
-                                                            <div id="chart0"></div>
-                                                        </el-col>
-                                                    </el-row>
-                                                </div>
-                                            </el-card>
-                                        </el-tab-pane>
-                                        <el-tab-pane label="Lift Chart" name="tab2">
-                                            <el-card class="box-card">
-                                                <div>
-                                                    <el-row>
-                                                        <el-col :span="12">
-                                                            <div id="chart2"></div>
-                                                        </el-col>
-                                                        <el-col :span="12" class="block">
-                                                            <div style="padding: 15px 0" class="explain">
-                                                                <div>
-                                                                    提升图是对模型训练效果的一个评估，
-                                                                    <br/>
-                                                                    是模型捕捉到的所有正响应，对比真实分类情况的表现。
-                                                                    <br/>
-                                                                    横坐标是把训练集数据分成100等份
-                                                                    <br/>
-                                                                    纵坐标是每一等份数据预测效果
-                                                                    <br/>
-                                                                    提升率，蓝色线是基准线，即随机预测的效果
-                                                                </div>
-                                                            </div>
-                                                        </el-col>
-                                                    </el-row>
-                                                </div>
-                                            </el-card>
-                                        </el-tab-pane>
-                                        <el-tab-pane label="准确率&召回率" name="tab3">
-                                            <el-card class="box-card">
-                                                <div>
-                                                    <el-row>
-                                                        <el-col :span="12">
-                                                            <div id="chart3"></div>
-                                                        </el-col>
-                                                        <el-col :span="12" class="block">
-                                                            <div style="padding: 15px 0" class="explain">
-                                                                <div>
-                                                                    准确率：预测为正的样本中有多少是真正的正样本，蓝色线条表示。
-                                                                    <br/>
-                                                                    召回率：是针对我们原来的样本而言的，它表示的是样本中的正例有多少被预测正确了，红色线条表示。
-                                                                </div>
-                                                            </div>
-                                                        </el-col>
-                                                    </el-row>
-                                                </div>
-                                            </el-card>
-                                        </el-tab-pane>
-
-                                        <el-tab-pane label="KS Chart" name="tab4">
-                                            <el-card class="box-card">
-                                                <div>
-                                                    <el-row>
-                                                        <el-col :span="12">
-                                                            <div id="chart5"></div>
-                                                        </el-col>
-                                                        <el-col :span="12" class="block">
-                                                            <div style="padding: 15px 0" class="explain">
-                                                                <div>
-                                                                    红色线条代表TPR: 所有真实的“1”中，有多少被模型成功选出
-                                                                    <br/>
-                                                                    蓝色线条代表FPR: 所有真实的“0”中，有多少被模型误判为1了
-                                                                    <br/>
-                                                                    横坐标为样本数量，纵坐标为预测的准确率
-                                                                </div>
-                                                            </div>
-                                                        </el-col>
-                                                    </el-row>
-                                                </div>
-                                            </el-card>
-                                        </el-tab-pane>
-                                        <el-tab-pane label="ROC曲线" name="tab5">
-                                            <el-card class="box-card">
-                                                <div>
-                                                    <el-row>
-                                                        <el-col :span="12">
-                                                            <div id="chart4"></div>
-                                                        </el-col>
-                                                        <el-col :span="12" class="block">
-                                                            <div style="padding: 15px 0" class="explain">
-                                                                <div>
-                                                                    横轴FPR: FPR越大，预测正类中实际负类越多。
-                                                                    <br/>
-                                                                    纵轴TPR： TPR越大，预测正类中实际正类越多。
-                                                                    <br/>
-                                                                    理想目标：TPR=1，FPR=0,即图中(0,1)点，故ROC曲线越靠拢(0,1)点，越偏离45度对角线越好。
-                                                                </div>
-                                                            </div>
-                                                        </el-col>
-                                                    </el-row>
-                                                </div>
-                                            </el-card>
-                                        </el-tab-pane>
-                                        <el-tab-pane label="混淆矩阵" name="tab6">
-                                            <el-card class="box-card">
-                                                <div>
-                                                    <table id="trueValueTable" style="width: 100%" v-if="confusion_matrix.length>0">
-                                                        <tbody>
-                                                        <tr>
-                                                            <td rowspan="2" colspan="2"></td>
-                                                            <td colspan="2">真实值</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>{{confusion_matrix[0][1].value}}</td>
-                                                            <td>{{confusion_matrix[0][2].value}}</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td rowspan="2">预测值</td>
-                                                            <td>{{confusion_matrix[1][0].value}}</td>
-                                                            <td>
-                                                                <span>{{confusion_matrix[1][1].value}}</span>
-                                                                <span style="font-size: 12px;">({{Math.floor(confusion_matrix[1][1].percent*100)}}%)</span>
-                                                            </td>
-                                                            <td>
-                                                                <span >{{confusion_matrix[1][2].value}}</span>
-                                                                <span style="font-size: 12px;">({{Math.floor(confusion_matrix[1][2].percent*100)}}%)</span>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>{{confusion_matrix[2][0].value}}</td>
-                                                            <td>
-                                                                <span>{{confusion_matrix[2][1].value}}</span>
-                                                                <span style="font-size: 12px;">({{Math.floor(confusion_matrix[2][1].percent*100)}}%)</span>
-                                                            </td>
-                                                            <td>
-                                                                <span >{{confusion_matrix[2][2].value}}</span>
-                                                                <span style="font-size: 12px">({{Math.floor(confusion_matrix[2][2].percent*100)}}%)</span>
-                                                            </td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </el-card>
-                                        </el-tab-pane>
-                                    </el-tabs>
+            <div v-show="showModelDetail" style="margin-bottom: 30px;">
+                <el-row class="header">
+                    <el-col :span="4">模型名称</el-col>
+                    <el-col :span="4">准确率</el-col>
+                    <el-col :span="4">模型大小</el-col>
+                    <el-col :span="4">AUC</el-col>
+                    <el-col :span="3">训练时间</el-col>
+                    <el-col :span="3" style="text-align: center">操作</el-col>
+                </el-row>
+                <el-row>
+                    <el-col :span="24">
+                        <el-collapse accordion>
+                            <el-collapse-item>
+                                <template slot="title">
+                                    <el-row style="border-bottom: 1px solid #e6ebf5;">
+                                        <el-col :span="4">{{modelData.model_name}}</el-col>
+                                        <el-col :span="4">{{modelData.precise}}</el-col>
+                                        <el-col :span="4">{{modelData.model_size}}</el-col>
+                                        <el-col :span="4">{{modelData.auc}}</el-col>
+                                        <el-col :span="3">{{modelData.train_time}}</el-col>
+                                        <el-col :span="3" style="text-align: center;">
+                                            <span style="color:#006bc7;" @click="startPredict(modelData)">预测</span>
+                                        </el-col>
+                                    </el-row>
                                 </template>
-                            </div>
-                        </el-collapse-item>
-                    </el-collapse>
-                </el-col>
-            </el-row>
+                                <div style="padding:15px;background: #e6ebf5">
+                                    <template>
+                                        <el-tabs  v-model="activeName">
+                                            <el-tab-pane label="特征重要性" name="tab1">
+                                                <el-card class="box-card">
+                                                    <div>
+                                                        <el-row>
+                                                            <el-col :span="12" class="block">
+                                                                <div class="explain">
+                                                                    <div>预测结果是由特征来决定的，
+                                                                    哪些特征对结果影响最大，
+                                                                    可通过右图的特征重要性图表来进行解释</div>
+                                                                </div>
+                                                            </el-col>
+                                                            <el-col :span="12" class="block">
+                                                                <div id="chart0"></div>
+                                                            </el-col>
+                                                        </el-row>
+                                                    </div>
+                                                </el-card>
+                                            </el-tab-pane>
+                                            <el-tab-pane label="Lift Chart" name="tab2">
+                                                <el-card class="box-card">
+                                                    <div>
+                                                        <el-row>
+                                                            <el-col :span="12">
+                                                                <div id="chart2"></div>
+                                                            </el-col>
+                                                            <el-col :span="12" class="block">
+                                                                <div style="padding: 15px 0" class="explain">
+                                                                    <div>
+                                                                        提升图是对模型训练效果的一个评估，
+                                                                        <br/>
+                                                                        是模型捕捉到的所有正响应，对比真实分类情况的表现。
+                                                                        <br/>
+                                                                        横坐标是把训练集数据分成100等份
+                                                                        <br/>
+                                                                        纵坐标是每一等份数据预测效果
+                                                                        <br/>
+                                                                        提升率，蓝色线是基准线，即随机预测的效果
+                                                                    </div>
+                                                                </div>
+                                                            </el-col>
+                                                        </el-row>
+                                                    </div>
+                                                </el-card>
+                                            </el-tab-pane>
+                                            <el-tab-pane label="准确率&召回率" name="tab3">
+                                                <el-card class="box-card">
+                                                    <div>
+                                                        <el-row>
+                                                            <el-col :span="12">
+                                                                <div id="chart3"></div>
+                                                            </el-col>
+                                                            <el-col :span="12" class="block">
+                                                                <div style="padding: 15px 0" class="explain">
+                                                                    <div>
+                                                                        准确率：预测为正的样本中有多少是真正的正样本，蓝色线条表示。
+                                                                        <br/>
+                                                                        召回率：是针对我们原来的样本而言的，它表示的是样本中的正例有多少被预测正确了，红色线条表示。
+                                                                    </div>
+                                                                </div>
+                                                            </el-col>
+                                                        </el-row>
+                                                    </div>
+                                                </el-card>
+                                            </el-tab-pane>
+
+                                            <el-tab-pane label="KS Chart" name="tab4">
+                                                <el-card class="box-card">
+                                                    <div>
+                                                        <el-row>
+                                                            <el-col :span="12">
+                                                                <div id="chart5"></div>
+                                                            </el-col>
+                                                            <el-col :span="12" class="block">
+                                                                <div style="padding: 15px 0" class="explain">
+                                                                    <div>
+                                                                        红色线条代表TPR: 所有真实的“1”中，有多少被模型成功选出
+                                                                        <br/>
+                                                                        蓝色线条代表FPR: 所有真实的“0”中，有多少被模型误判为1了
+                                                                        <br/>
+                                                                        横坐标为样本数量，纵坐标为预测的准确率
+                                                                    </div>
+                                                                </div>
+                                                            </el-col>
+                                                        </el-row>
+                                                    </div>
+                                                </el-card>
+                                            </el-tab-pane>
+                                            <el-tab-pane label="ROC曲线" name="tab5">
+                                                <el-card class="box-card">
+                                                    <div>
+                                                        <el-row>
+                                                            <el-col :span="12">
+                                                                <div id="chart4"></div>
+                                                            </el-col>
+                                                            <el-col :span="12" class="block">
+                                                                <div style="padding: 15px 0" class="explain">
+                                                                    <div>
+                                                                        横轴FPR: FPR越大，预测正类中实际负类越多。
+                                                                        <br/>
+                                                                        纵轴TPR： TPR越大，预测正类中实际正类越多。
+                                                                        <br/>
+                                                                        理想目标：TPR=1，FPR=0,即图中(0,1)点，故ROC曲线越靠拢(0,1)点，越偏离45度对角线越好。
+                                                                    </div>
+                                                                </div>
+                                                            </el-col>
+                                                        </el-row>
+                                                    </div>
+                                                </el-card>
+                                            </el-tab-pane>
+                                            <el-tab-pane label="混淆矩阵" name="tab6">
+                                                <el-card class="box-card">
+                                                    <div>
+                                                        <table id="trueValueTable" style="width: 100%" v-if="confusion_matrix.length>0">
+                                                            <tbody>
+                                                            <tr>
+                                                                <td rowspan="2" colspan="2"></td>
+                                                                <td colspan="2">真实值</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{confusion_matrix[0][1].value}}</td>
+                                                                <td>{{confusion_matrix[0][2].value}}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td rowspan="2">预测值</td>
+                                                                <td>{{confusion_matrix[1][0].value}}</td>
+                                                                <td>
+                                                                    <span>{{confusion_matrix[1][1].value}}</span>
+                                                                    <span style="font-size: 12px;">({{Math.floor(confusion_matrix[1][1].percent*100)}}%)</span>
+                                                                </td>
+                                                                <td>
+                                                                    <span >{{confusion_matrix[1][2].value}}</span>
+                                                                    <span style="font-size: 12px;">({{Math.floor(confusion_matrix[1][2].percent*100)}}%)</span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{confusion_matrix[2][0].value}}</td>
+                                                                <td>
+                                                                    <span>{{confusion_matrix[2][1].value}}</span>
+                                                                    <span style="font-size: 12px;">({{Math.floor(confusion_matrix[2][1].percent*100)}}%)</span>
+                                                                </td>
+                                                                <td>
+                                                                    <span >{{confusion_matrix[2][2].value}}</span>
+                                                                    <span style="font-size: 12px">({{Math.floor(confusion_matrix[2][2].percent*100)}}%)</span>
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </el-card>
+                                            </el-tab-pane>
+                                        </el-tabs>
+                                    </template>
+                                </div>
+                            </el-collapse-item>
+                        </el-collapse>
+                    </el-col>
+                </el-row>
+            </div>
+            <div style="height: 400px">
+                <el-row v-show="!showModelDetail">
+                    <el-col :span="24">
+                        <table class="status-table" cellspacing="0" cellpadding="0">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;padding-left:10px">
+                                        算法名称
+                                    </th>
+                                    <th>
+                                        训练进度
+                                    </th>
+                                    <th>
+                                        CPU使用量
+                                    </th>
+                                    <th>
+                                        内存占用量
+                                    </th>
+                                    <th>
+                                        操作
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td style="text-align: left;padding-left:10px">
+                                    <i class="el-icon-star-on">{{jobInfo.algorithm}}</i>
+                                </td>
+                                <td width="400" style="text-align: center;">
+                                    <div>
+                                        <div>{{runPercentage}}%</div>
+                                        <div><el-progress :percentage="runPercentage" :show-text="false"></el-progress></div>
+                                    </div>
+                                </td>
+                                <td width="200" style="text-align: center;">
+                                    CPU:<span>{{jobInfo.cpu}}%</span>;
+                                </td>
+                                <td width="200" style="text-align: center;">
+                                    内存:<span>{{jobInfo.mem}}KB</span>;
+                                </td>
+                                <td width="200" style="text-align: center;">
+                                    <el-button type="text">终止</el-button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </el-col>
+                </el-row>
+            </div>
         </div>
+
     </section>
 
 </template>
 
 <script>
-    import {getModelDetail,getModelExplain} from '../api/api';
+    import {getModelDetail,getModelExplain,getJobInfo} from '../api/api';
     import echarts from 'echarts';
     import DynamicTable from "@/components//DynamicTable.vue";
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
@@ -224,11 +276,40 @@
                 tableData1:[],
                 barData:{},
                 confusion_matrix:[],
-                activeName: 'tab1'
+                activeName: 'tab1',
+                jobInfo:{},
+                runPercentage:0,
+                showModelDetail:false,
             }
         },
         methods: {
+            queryJobInfo(){
+                var param={projectId:this.projectId,jobId:this.jobId,sequence:this.sequence};
+                window.timer = setInterval(() => { //每分钟查询一次任务状态
+                    getJobInfo(param).then(data=>{
+                        let { msg, code } = data;
+                        if (code > 0) {
+                            window.clearInterval(window.timer);
+                            this.$message({
+                                message: msg,
+                                type: 'error'
+                            });
+                        } else {
+                            this.jobInfo = data.data.reason;
+                            if(this.jobInfo.job_statues=='FINISHED'){
+                                window.clearInterval(window.timer);
+                                this.runPercentage=100;
+                                this.queryModelDetail();
+                                this.showModelDetail=true;
+                            }else{
+                                this.runPercentage=Math.ceil(this.jobInfo.ratio || 0 * 100);
+                            }
 
+                        }
+                    });
+                },5000);
+
+            },
             showNewModelDialog(){
                 this.dialogNewModelVisible = true;
             },
@@ -489,7 +570,10 @@
             this.projectId = this.$route.params.projectId;
             this.jobId = this.$route.params.jobId;
             this.sequence = this.$route.params.sequence;
-            this.queryModelDetail();
+            this.queryJobInfo();
+        },
+        destroy(){
+            window.clearInterval(window.timer);
         }
     }
 </script>
@@ -534,6 +618,41 @@
         }
         .explain div{
             width: 200px;
+        }
+
+        .status-table{
+            overflow: hidden;
+            width: 100%;
+            max-width: 100%;
+            background-color: #fff;
+            border: 1px solid #dfe6ec;
+            font-size: 14px;
+            color: #1f2d3d;
+            tr{
+                background-color: #fff;
+                td{
+                    height: 40px;
+                    min-width: 80px;
+                    text-overflow: ellipsis;
+                    vertical-align: middle;
+                    border-bottom: 1px solid #dfe6ec;
+                    transition: background-color .25s ease;
+                    box-sizing: border-box;
+                    white-space: nowrap;
+                    position: relative;
+                    .cell{
+                        padding-left: 18px;
+                        padding-right: 18px;
+                        box-sizing: border-box;
+                        text-overflow: ellipsis;
+                    }
+                }
+            }
+            thead tr:first-child{
+                background-color: #eef1f6;
+                color: #1f2d3d;
+                height:40px;
+            }
         }
     }
 </style>
