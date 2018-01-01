@@ -130,7 +130,7 @@
         background: #1166b7;
     }
     #mainView{
-        background-color: #d3dce6;
+        background-color: #e4e9f3;
         overflow: auto;
         height: 100%;
         position: absolute;
@@ -220,14 +220,18 @@
             z-index: 100;
         }
         .footer{
+            position: fixed;
+            bottom:0;
             z-index: 100;
-            height: 60px;
             background: #d3dce6;
             text-align: center;
             line-height: 30px;
-            color: #255da3;
+            color: white;
             padding:15px;
         }
-
+        .el-step__title.is-success,.el-step__head.is-success{
+            color:#1d8ce0;
+            border-color: #1d8ce0;
+        }
     }
 </style>

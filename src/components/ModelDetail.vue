@@ -224,21 +224,21 @@
                                 </tr>
                             </thead>
                             <tbody>
-                            <tr>
+                            <tr v-for="job in jobInfo">
                                 <td style="text-align: left;padding-left:10px">
-                                    <i class="el-icon-star-on">{{jobInfo.algorithm}}</i>
+                                    <i class="el-icon-star-on">{{job.algorithm}}</i>
                                 </td>
                                 <td width="400" style="text-align: center;">
                                     <div>
-                                        <div>{{runPercentage}}%</div>
-                                        <div><el-progress :percentage="runPercentage" :show-text="false"></el-progress></div>
+                                        <div>{{Math.ceil(job.ratio || 0 * 100)}}%</div>
+                                        <div><el-progress :percentage="Math.ceil(job.ratio || 0 * 100)" :show-text="false"></el-progress></div>
                                     </div>
                                 </td>
                                 <td width="200" style="text-align: center;">
-                                    CPU:<span>{{jobInfo.cpu}}%</span>;
+                                    CPU:<span>{{job.cpu}}%</span>;
                                 </td>
                                 <td width="200" style="text-align: center;">
-                                    内存:<span>{{jobInfo.mem}}KB</span>;
+                                    内存:<span>{{job.mem}}KB</span>;
                                 </td>
                                 <td width="200" style="text-align: center;">
                                     <el-button type="text">终止</el-button>
@@ -285,6 +285,7 @@
         methods: {
             queryJobInfo(){
                 var param={projectId:this.projectId,jobId:this.jobId,sequence:this.sequence};
+                window.clearInterval(window.timer);
                 window.timer = setInterval(() => { //每分钟查询一次任务状态
                     getJobInfo(param).then(data=>{
                         let { msg, code } = data;
@@ -295,15 +296,21 @@
                                 type: 'error'
                             });
                         } else {
-                            this.jobInfo = data.data.reason;
-                            if(this.jobInfo.job_statues=='FINISHED'){
+                            this.jobInfo = JSON.parse(data.data.reason);
+                            //this.jobInfo = JSON.parse('[{"algorithm":"gbdt","job_statues":" START", "total_step":"246", "ratio":1.00, "stage_name":"TRAIN"}]');
+                            console.log(this.jobInfo)
+                            for(var i=0;i<this.jobInfo.length;i++){
+
+                            }
+                            /*if(this.jobInfo.job_statues=='FINISHED' || this.jobInfo.job_statues=='finish'){
                                 window.clearInterval(window.timer);
                                 this.runPercentage=100;
                                 this.queryModelDetail();
                                 this.showModelDetail=true;
                             }else{
+
                                 this.runPercentage=Math.ceil(this.jobInfo.ratio || 0 * 100);
-                            }
+                            }*/
 
                         }
                     });
@@ -572,7 +579,8 @@
             this.sequence = this.$route.params.sequence;
             this.queryJobInfo();
         },
-        destroy(){
+        destroyed(){
+            console.log("destory");
             window.clearInterval(window.timer);
         }
     }

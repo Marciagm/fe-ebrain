@@ -14,7 +14,7 @@
                 <!--<el-input v-model="predict_label" size="medium" style="width: 200px"></el-input>-->
                 <div>
                    <el-row style="display: flex;justify-content: center;align-items: center;">
-                       <el-col :span="8">
+                       <el-col :span="24">
                            <el-autocomplete
                                    class="inline-input predict-label-input"
                                    v-model="predict_label"
@@ -25,18 +25,21 @@
                                    @select="handleTagSelect"
                            ></el-autocomplete>
                        </el-col>
-                       <el-col :span="10">
-                           <div id="chart1"></div>
-                       </el-col>
-                       <el-col :span="6">
-                           <el-button type="primary" class="start-btn" @click="startTrain" :loading="isLoading" :disabled="startBtnDisabled">开始</el-button>
-                       </el-col>
-                   </el-row>
 
+                   </el-row>
+                    <el-row v-show="!startBtnDisabled">
+                        <el-col :span="10">
+                            <div id="chart0" v-show="chartType==0"></div>
+                            <div id="chart1" v-show="chartType==1"></div>
+                        </el-col>
+                        <el-col :span="6" style="display: flex;justify-content: left;align-items: center;height: 400px">
+                            <el-button type="primary" class="start-btn" @click="startTrain" :loading="isLoading">开始</el-button>
+                        </el-col>
+                    </el-row>
                 </div>
 
             </div>
-            <div>
+            <div style="margin-top:15px;">
                 <template>
                     <el-tabs v-model="activeTab" type="card">
                         <el-tab-pane label="数据报告" name="first">
@@ -100,6 +103,7 @@
 
 <script>
     import {getDataResult,getFileData,runJobStep,getJobInfo,getJobProgress} from '../api/api';
+    import echarts from 'echarts';
     import DynamicTable from "@/components/DynamicTable";
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
@@ -124,6 +128,7 @@
                 timer:false,
                 isLoading:false,
                 startBtnDisabled:true,
+                chartType:0,
             }
         },
         methods: {
@@ -133,6 +138,23 @@
             selectTag(feature_name,columnIndex){
                 this.predict_label=feature_name;
                 this.labelIndex = columnIndex;
+                this.startBtnDisabled=false;
+                var xAxisData=[];
+                var seriesData=[];
+                for (var i=0;i< this.tableData1[this.labelIndex].value_top_frequence.length;i++){
+                    var obj = this.tableData1[this.labelIndex].value_top_frequence[i];
+                    xAxisData.push(obj.value);
+                    seriesData.push(obj.frequence);
+                }
+                console.log(this.tableData1[this.labelIndex].type)
+                if( this.tableData1[this.labelIndex].type==0){
+                    this.chartType = 0;
+                    this.drawBarChart(xAxisData,seriesData,'目标类型','样本数');
+                }else{
+                    this.drawLineChart(xAxisData,seriesData,'目标类型','样本数');
+                    this.chartType = 1;
+                }
+
             },
             handleTagSelect(tag){
                 this.predict_label=tag.feature_name;
@@ -196,7 +218,7 @@
                     jobId:this.jobId,
                     sequence:this.sequence,
                     step:'train',
-                    labelIndex:this.labelIndex,
+                    labelIndex:(this.labelIndex+1),
                 };
                 this.isLoading=true;
                 runJobStep(param).then(data=>{
@@ -207,6 +229,7 @@
                             type: 'error'
                         });
                     } else {
+                        window.clearInterval(window.timer);
                         window.timer = setInterval(() => { //每分钟查询一次任务状态
                             var param = {jobId: this.jobId};
                             getJobProgress(param).then(data => {
@@ -231,8 +254,9 @@
                     }
                 });
             },
-            drawBarChart(xAxisData,barSeriesData,xLabel,yLabel) {
-                this.chartBar = echarts.init(document.getElementById('chart1'));
+            drawBarChart(xAxisData,seriesData,xLabel,yLabel) {
+
+                this.chartBar = echarts.init(document.getElementById('chart0'));
                 this.chartBar.setOption({
                     title: {
                         text: '待预测目标类型分布',
@@ -267,9 +291,48 @@
                     series: [
                         {
                             type: 'bar',
-                            data: barSeriesData
+                            data: seriesData
                         }
                     ]
+                });
+            },
+            drawLineChart(xAxisData,seriesData,xLabel,yLabel) {
+                console.log(seriesData);
+                var chartLine = echarts.init(document.getElementById("chart1"));
+                chartLine.setOption({
+                    title: {
+                        text: '待预测目标类型分布',
+                        subtext: ''
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    grid: {
+                        left: '8%',
+                        right: '8%',
+                        bottom: '8%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        name:xLabel,
+                        nameLocation:'center',
+                        nameGap:30,
+                        type: 'category',
+                        splitLine:{show: true},
+                        boundaryGap: false,
+                        data: xAxisData,
+                    },
+                    yAxis: {
+                        name:yLabel,
+                        nameLocation:'center',
+                        splitLine:{show: true},
+                        nameGap:50,
+                        type: 'value'
+                    },
+                    series: {
+                        type:'line',
+                        data:seriesData
+                    }
                 });
             }
         },
@@ -280,7 +343,7 @@
             this.queryDataResult();
             this.querySourceFileData();
         },
-        destroy(){
+        destroyed(){
             window.clearInterval(window.timer);
         }
     }
@@ -306,6 +369,10 @@
         .predict-label-input input{
             min-width:200px ;
             width: 100%;
+        }
+        #chart0,#chart1{
+            width:400px;
+            height:400px;
         }
     }
 </style>

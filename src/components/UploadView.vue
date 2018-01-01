@@ -94,7 +94,7 @@
                                                 {{file.status || '已上传'}}
                                             </el-col>
                                             <el-col :span="24" v-if="file.status">
-                                                <el-progress :percentage="uploadProgress[file.tid]"></el-progress>
+                                                <el-progress :percentage="uploadProgress[file.tid]" :show-text="false"></el-progress>
                                             </el-col>
                                         </el-row>
                                     </el-col>
@@ -188,7 +188,8 @@
             },
             onUploadProgress(event, file, fileList){
                 console.log(file)
-                this.uploadProgress[file.uid] = Math.ceil(event.percent);
+                this.uploadProgress[file.uid] = parseInt(event.percent);
+                console.log(this.uploadProgress);
             },
             handleUploadSuccess(response, file, fileList){
                 if (response.data.code > 0) {
@@ -211,7 +212,7 @@
                         });
                     } else {
                         //更新文件成功刷新文件列表
-                        this.queryJobInfo();
+                       this.queryJobInfo();
                     }
                 });
             },
