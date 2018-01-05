@@ -20,6 +20,11 @@ export const getProjectListPage = params => { return axios.get(`${base}/project/
 
 export const  newProject = params => { return axios.post(`${base}/project/create`, params).then(res => res.data); };
 
+export const getProject = params => { return axios.get(`${base}/project/detail/${params.projectId}`, { }).then(res => res.data); };
+
+
+export const getModelExplainList = params => { return axios.get(`${base}/model/explain/list/${params.projectId}`, { }).then(res => res.data); };
+
 export const getJobList = params => { return axios.get(`${base}/project/get-job-list`, { params: params }).then(res => res.data); };
 
 export const  newJob = (projectId,params) => { return axios.post(`${base}/model/new-job/${projectId}`, params).then(res => res.data); };
@@ -34,11 +39,13 @@ export const getJobInfo = params => { return axios.get(`${base}/project/get-jobi
 
 export const getTrainResult = params => { return axios.get(`${base}/project/get-train-result`, { params: params }).then(res => res.data); };
 
-export const getPredictHistory = params => { return axios.post(`${base}/predict/history`,params).then(res => res.data); };
+//export const getPredictHistory = params => { return axios.post(`${base}/predict/history`,params).then(res => res.data); };
 
 export const savePredictHistory = params => { return axios.post(`${base}/predict/save`,params).then(res => res.data); };
 
 export const getPredictResultAndDetail = params => { return axios.get(`${base}/predict/result/${params.tid}`,{}).then(res => res.data); };
+
+export const getPredictHistory = params => { return axios.get(`${base}/model/predict-history/${params.jobId}/${params.sequence}`,{}).then(res => res.data); };
 
 export const getJobProgress = params => { return axios.get(`${base}/project/get-job-progress`,{ params: params }).then(res => res.data); };
 

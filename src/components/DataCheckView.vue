@@ -245,7 +245,7 @@
                                     if(data.data.progress !='feature_analyse'){
                                         this.isLoading=false;
                                         window.clearInterval(window.timer);
-                                        this.$router.push({ path: '/main/modelDetail/'+this.projectId+"/"+this.jobId+"/"+this.sequence });
+                                        this.$router.push({ path: '/main/modelDetail/'+this.projectId+"/"+this.jobId+"/"+this.sequence+"/false" });
                                     }
                                 }
                             });

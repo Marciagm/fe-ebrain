@@ -27,14 +27,14 @@
                     <router-view></router-view>
                 </transition>
             </el-col>
-            <el-col :span="24" class="footer">
+            <!--<el-col :span="24" class="footer">
                 <div>
                     联系方式：platform@ebrain.ai
                 </div>
                 <div>
                    地址：北京市海淀区中关村科学院南路2号融科咨询中心B座11层
                 </div>
-            </el-col>
+            </el-col>-->
         </el-row>
         <div class="help"><a @click="gotoHelp">帮助</a></div>
     </div>
@@ -218,10 +218,9 @@
         .main{
             margin-top:30px;
             z-index: 100;
+			margin-bottom: 100px;
         }
         .footer{
-            position: fixed;
-            bottom:0;
             z-index: 100;
             background: #d3dce6;
             text-align: center;

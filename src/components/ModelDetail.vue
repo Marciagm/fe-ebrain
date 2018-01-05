@@ -24,7 +24,10 @@
                     <el-col :span="3" style="text-align: center">操作</el-col>
                 </el-row>
                 <el-row>
-                    <el-col :span="24">
+                    <el-col :span="24" v-show="isLoading" style="text-align: center">
+                        <el-button :loading="isLoading" type="text">加载中...</el-button>
+                    </el-col>
+                    <el-col :span="24" v-show="!isLoading">
                         <el-collapse accordion>
                             <el-collapse-item>
                                 <template slot="title">
@@ -230,18 +233,18 @@
                                 </td>
                                 <td width="400" style="text-align: center;">
                                     <div>
-                                        <div>{{Math.ceil(job.ratio || 0 * 100)}}%</div>
-                                        <div><el-progress :percentage="Math.ceil(job.ratio || 0 * 100)" :show-text="false"></el-progress></div>
+                                        <div>{{runPercentage}}%</div>
+                                        <div><el-progress :percentage="runPercentage" :show-text="false"></el-progress></div>
                                     </div>
                                 </td>
                                 <td width="200" style="text-align: center;">
-                                    CPU:<span>{{job.cpu}}%</span>;
+                                    CPU:<span>{{job.cpu || 1}}%</span>;
                                 </td>
                                 <td width="200" style="text-align: center;">
-                                    内存:<span>{{job.mem}}KB</span>;
+                                    内存:<span>{{job.mem || 1}}KB</span>;
                                 </td>
                                 <td width="200" style="text-align: center;">
-                                    <el-button type="text">终止</el-button>
+                                    <el-button type="text" @click="stop(job)">终止</el-button>
                                 </td>
                             </tr>
                             </tbody>
@@ -279,11 +282,13 @@
                 activeName: 'tab1',
                 jobInfo:{},
                 runPercentage:0,
-                showModelDetail:false,
+                showModelDetail:true,
+                isLoading:true,
             }
         },
         methods: {
             queryJobInfo(){
+                var that = this;
                 var param={projectId:this.projectId,jobId:this.jobId,sequence:this.sequence};
                 window.clearInterval(window.timer);
                 window.timer = setInterval(() => { //每分钟查询一次任务状态
@@ -296,21 +301,19 @@
                                 type: 'error'
                             });
                         } else {
-                            this.jobInfo = JSON.parse(data.data.reason);
+                            that.jobInfo = JSON.parse(data.data.reason);
                             //this.jobInfo = JSON.parse('[{"algorithm":"gbdt","job_statues":" START", "total_step":"246", "ratio":1.00, "stage_name":"TRAIN"}]');
-                            console.log(this.jobInfo)
-                            for(var i=0;i<this.jobInfo.length;i++){
 
-                            }
-                            /*if(this.jobInfo.job_statues=='FINISHED' || this.jobInfo.job_statues=='finish'){
+                            if(data.data.jobStatus=='FINISHED' || data.data.jobStatus=='finish'){
                                 window.clearInterval(window.timer);
-                                this.runPercentage=100;
-                                this.queryModelDetail();
-                                this.showModelDetail=true;
+                                that.runPercentage=99;
+                                setTimeout(function(){
+                                    that.showModelDetail=true;
+                                    that.queryModelDetail();
+                                },1000);
                             }else{
-
-                                this.runPercentage=Math.ceil(this.jobInfo.ratio || 0 * 100);
-                            }*/
+                                that.runPercentage=Math.ceil(that.jobInfo.ratio || 0 * 100);
+                            }
 
                         }
                     });
@@ -332,6 +335,7 @@
                 };
                 getModelExplain(param).then(data=>{
                     let { msg, code } = data;
+                    this.isLoading=false;
                     if (code > 0) {
                         this.$message({
                             message: msg,
@@ -569,14 +573,18 @@
                 this.$router.push({ path: '/main/predictView/'+this.projectId+"/"+this.jobId+"/"+this.sequence+"/"+ modelData.model_name});
             },
             updateFile(){
-                this.$router.push({ path: '/main/uploadView/'+this.projectId+"/"+this.jobId+"/"+this.sequence});
-            }
+                this.$router.push({ path: '/main/uploadView/'+this.projectId+"/"+this.jobId+"/"+(this.sequence+1)});
+            },
+            stop(job){
+
+            },
 
         },
         mounted(){
             this.projectId = this.$route.params.projectId;
             this.jobId = this.$route.params.jobId;
             this.sequence = this.$route.params.sequence;
+            this.showModelDetail=this.$route.params.state;
             this.queryJobInfo();
         },
         destroyed(){

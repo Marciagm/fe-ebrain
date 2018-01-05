@@ -119,7 +119,7 @@
             },
             formatRight(row){
                 console.log(row);
-                return "78%" ;
+              return "78%" ;
             },
             handleView($index,row){
                 //console.log(row.progress);

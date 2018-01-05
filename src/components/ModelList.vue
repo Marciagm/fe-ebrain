@@ -113,7 +113,7 @@
 
             },
             goToModelDetail(e,projectId,b){
-                this.$router.push({ path: '/main/modelJobListView/'+projectId });
+                this.$router.push({ path: '/main/result/'+projectId });
             },
             queryProject(){
                 var param = {
