@@ -36,6 +36,8 @@ export const getJobFiles = params => { return axios.get(`${base}/model/jobFiles/
 
 export const  updateJobFiles = (params) => { return axios.post(`${base}/model/update-jobfiles`, params).then(res => res.data); };
 
+export const  validateFiles = (params) => { return axios.get(`${base}/filelist/validate`, { params: params }).then(res => res.data); };
+
 export const  runJobStep = (params) => { return axios.post(`${base}/project/run-step`, params).then(res => res.data); };
 
 export const getJobInfo = params => { return axios.get(`${base}/project/get-jobinfo`, { params: params }).then(res => res.data); };

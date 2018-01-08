@@ -1,126 +1,234 @@
 <template>
-    <div id="uploadView" ref="uploadView">
-        <div class="left">
+    <div>
+        <div id="uploadView" ref="uploadView" v-show="currentPage=='uploadView'">
+            <div class="left">
+                <div class="step-bar">
+                    <el-steps :active="active" finish-status="success"  simple >
+                        <el-step title="准备数据"></el-step>
+                        <el-step title="检查数据"></el-step>
+                        <el-step title="正在运行"></el-step>
+                        <el-step title="准备预测"></el-step>
+                    </el-steps>
+                </div>
+                <div class="file-chooser" v-show="showFileChooser">
+                    <div class="box">
+                        <div class="data-source">
+                            <div id="serverUpload" class="icon">
+
+                            </div>
+                            <div class="name">
+                                <el-button @click="fromServer" type="primary">数据库文件</el-button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="data-source">
+                            <div id="localUpload" class="icon">
+
+                            </div>
+                            <div class="name">
+                                <el-upload
+                                        class="upload-file"
+                                        :action="uploadAction"
+                                        :headers="myHeaders"
+                                        :show-file-list=false
+                                        :before-upload="beforeUpload"
+                                        :on-progress="onUploadProgress"
+                                        :on-success="handleUploadSuccess"
+                                        multiple
+                                >
+                                    <el-button type="primary">本地文件</el-button>
+                                </el-upload>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="data-source">
+                            <div id="historyUpload" class="icon">
+
+                            </div>
+                            <div class="name">
+                                <el-button @click="fromHistory" type="primary">历史文件</el-button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="file-info-list" v-show="!showFileChooser" >
+                        <p>
+                            {{validateFileMsg}}
+                        </p>
+                </div>
+            </div>
+            <div class="right">
+                <div class="file-list" ref="fileListDiv">
+                    <div class="title">{{projectName || '文件清单'}}</div>
+                    <div class="tool-bar">
+                        <el-row>
+                            <el-col :span="12">
+                                <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="showFileChooser=true" v-show="jobFiles.length>0">继续添加</el-button>
+                                </div>
+                            </el-col>
+                            <el-col :span="12">
+                                <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="dataCheck" v-show="jobFiles.length>0" :loading="isLoading">下一步</el-button>
+                                </div>
+                            </el-col>
+                        </el-row>
+                    </div>
+                    <div class="content">
+                        <div>
+                            <el-row v-for="file in jobFiles" :key="file.tid"  class="file-item">
+                                <el-col :span="22">
+                                    <el-row>
+                                        <el-col :span="24" style="overflow: hidden">
+                                            {{file.filename}}
+                                        </el-col>
+                                        <el-col :span="12" style="text-align: center">
+                                            {{file.fileSize}}
+                                        </el-col>
+                                        <el-col :span="12" style="text-align: center">
+                                            {{file.status || '已上传'}}
+                                        </el-col>
+                                        <el-col :span="24" v-if="file.status">
+                                            <el-progress :percentage="uploadProgress[file.tid]" :text-inside="true" :stroke-width="1"></el-progress>
+                                        </el-col>
+                                    </el-row>
+                                </el-col>
+                                <el-col :span="2">
+                                    <span class="del-btn" @click="deleteFile(file.tid)">×</span>
+                                </el-col>
+                            </el-row>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section id="dataCheckView"  v-show="currentPage=='dataCheckView'">
             <div class="step-bar">
-                <el-steps :active="active" finish-status="success"  simple >
+                <el-steps :active="active" finish-status="success" simple>
                     <el-step title="准备数据"></el-step>
                     <el-step title="检查数据"></el-step>
                     <el-step title="正在运行"></el-step>
                     <el-step title="准备预测"></el-step>
                 </el-steps>
             </div>
-            <div class="file-chooser">
-                <div class="box">
-                    <div class="data-source">
-                        <div id="serverUpload" class="icon">
-
-                        </div>
-                        <div class="name">
-                            <el-button @click="fromServer" type="primary">数据库文件</el-button>
-                        </div>
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="data-source">
-                        <div id="localUpload" class="icon">
-
-                        </div>
-                        <div class="name">
-                            <el-upload
-                                    class="upload-file"
-                                    :action="uploadAction"
-                                    :headers="myHeaders"
-                                    :show-file-list=false
-                                    :before-upload="beforeUpload"
-                                    :on-progress="onUploadProgress"
-                                    :on-success="handleUploadSuccess"
-                                    multiple
-                            >
-                                <el-button type="primary">本地文件</el-button>
-                            </el-upload>
-                        </div>
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="data-source">
-                        <div id="historyUpload" class="icon">
-
-                        </div>
-                        <div class="name">
-                            <el-button @click="fromHistory" type="primary">历史文件</el-button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="right">
-            <div class="file-list" ref="fileListDiv">
-                <div class="title">文件传清单</div>
-                <div class="tool-bar">
-                    <el-row>
-                        <el-col :span="24">
-                            <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="next" v-show="jobFiles.length>0" :loading="isLoading">下一步</el-button>
-                            </div>
-                        </el-col>
-                    </el-row>
-                </div>
-                <div class="content">
+            <div class="box">
+                <div>
+                    <div style="height: 30px">你想预测什么？</div>
+                    <!--<el-input v-model="predict_label" size="medium" style="width: 200px"></el-input>-->
                     <div>
-                        <el-row v-for="file in jobFiles" :key="file.tid"  class="file-item">
-                            <el-col :span="22">
-                                <el-row>
-                                    <el-col :span="24" style="overflow: hidden">
-                                        {{file.filename}}
-                                    </el-col>
-                                    <el-col :span="12" style="text-align: center">
-                                        {{file.fileSize}}
-                                    </el-col>
-                                    <el-col :span="12" style="text-align: center">
-                                        {{file.status || '已上传'}}
-                                    </el-col>
-                                    <el-col :span="24" v-if="file.status">
-                                        <el-progress :percentage="uploadProgress[file.tid]" :show-text="false"></el-progress>
-                                    </el-col>
-                                </el-row>
+                        <el-row>
+                            <el-col :span="24">
+                                <el-autocomplete
+                                        class="inline-input predict-label-input"
+                                        v-model="predict_label"
+                                        :fetch-suggestions="querySearch"
+                                        value-key="feature_name"
+                                        placeholder="请输入标签名称"
+                                        :trigger-on-focus="false"
+                                        @select="handleTagSelect"
+                                ></el-autocomplete>
                             </el-col>
-                            <el-col :span="2">
-                                <span class="del-btn" @click="deleteFile(file.tid)">×</span>
+                            <el-col :span="8">
+                                <div id="chart0" v-show="chartType==0"></div>
+                            </el-col>
+                            <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
+                                <p>
+                                <h3>{{tips}}</h3>
+                                </p>
+                            </el-col>
+                            <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
+                                <el-button type="primary" class="start-btn" @click="startTrain" :loading="isLoading">开始</el-button>
                             </el-col>
                         </el-row>
                     </div>
                 </div>
+                <div style="margin-top:15px;">
+                    <template>
+                        <el-tabs v-model="activeTab" type="card">
+                            <el-tab-pane label="数据报告" name="first">
+                                <el-table
+                                        :data="tableData1"
+                                        border
+                                        style="width: 100%;height: 350px;overflow: auto;">
+                                    <el-table-column
+                                            label="特征"
+                                            width="180"
+                                            @cell-click="selectTag()">
+                                        <template scope="scope">
+                                            <span style="cursor: pointer" @click="selectTag(scope.row.feature_name,scope.row.column_index)">{{scope.row.feature_name}}</span>
+                                        </template>
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="type"
+                                            label="特征类型"
+                                            width="180"
+                                            :formatter="labelTypeFormat">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="value_count"
+                                            label="单一个数">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="miss"
+                                            label="缺少情况">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="max"
+                                            label="最大值">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="min"
+                                            label="最小值">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="mean"
+                                            label="均值">
+                                    </el-table-column>
+                                    <el-table-column
+                                            prop="std"
+                                            label="方差">
+                                    </el-table-column>
+                                </el-table>
+                            </el-tab-pane>
+                            <el-tab-pane label="原始数据" name="second">
+                                <template>
+                                    <dynamic-table  :headers="[]" :list="this.sourceDataResult.dataList"></dynamic-table>
+                                </template>
+                            </el-tab-pane>
+                        </el-tabs>
+                    </template>
+                </div>
             </div>
-        </div>
+        </section>
     </div>
-    <!--<section id="uploadView">
-        <div class="box">
-            <el-row>
-                <el-col :span="18">
-
-                </el-col>
-                <el-col :span="6">
-
-                </el-col>
-            </el-row>
-        </div>
-    </section>-->
-
 </template>
 
 <script>
-    import {newProject, newJob, getJobFiles, updateJobFiles, runJobStep,getJobProgress} from '../api/api';
+    import { newProject, newJob, getJobFiles, updateJobFiles,runJobStep,getDataResult,getFileData,getJobInfo,getJobProgress,validateFiles } from '../api/api';
     import util from '@/common/js/util';
-    import store from '@/vuex/store';
+    import echarts from 'echarts';
+    import DynamicTable from "@/components/DynamicTable";
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
-    //import NProgress from 'nprogress'
+    import ElRow from "element-ui/packages/row/src/row";
+    import ElCol from "element-ui/packages/col/src/col";
+    import ElInput from "../../node_modules/element-ui/packages/input/src/input";
 
     export default {
-        components: {ElButton},
+        components: {
+            ElInput,
+            ElCol,
+            ElRow,
+            ElButton,
+            DynamicTable
+        },
         data() {
             return {
+                currentPage: 'uploadView',
+                showFileChooser:true,
                 active: 0,
-                store: store,
+                projectName: '',
                 uploadAction: '',
                 myHeaders: {Authorization: ''},
                 fileId: "",
@@ -134,9 +242,20 @@
                 percentage: 0,
                 jobFiles: [],
                 jobFileIds: [],
-                uploadProgress:{},
+                uploadProgress: {},
                 checkList: {},
-                isLoading:false,
+                isLoading: false,
+                activeTab: 'first',
+                predict_label: '',
+                tableData1: [],
+                sourceDataResult: {},
+                dataSeparator: ',',
+                labelIndex: 1,
+                timer: false,
+                startBtnDisabled: true,
+                chartType: 0,
+                tips:'',
+                validateFileMsg:''
             };
         },
         methods: {
@@ -158,6 +277,8 @@
                         for (var i = 0; i < that.jobFiles.length; i++) {
                             that.jobFileIds.push(that.jobFiles[i].tid);
                         }
+                        //调用验证文件
+                        this.validateUploadFile();
                     }
                 });
             },
@@ -172,7 +293,7 @@
                 console.log(file, fileList);
             },
             beforeUpload(file){
-                console.log(file);
+                this.uploadProgress[file.uid] = 1;
                 var f = {
                     tid: file.uid,
                     filename: file.name,
@@ -183,11 +304,14 @@
                 this.showFileChooser = false;
             },
             onUploadProgress(event, file, fileList){
-                console.log(file)
-                this.uploadProgress[file.uid] = parseInt(event.percent);
-                console.log(this.uploadProgress);
+                if( parseInt(event.percent)<=100){
+                    this.uploadProgress[file.uid] = parseInt(event.percent);
+                }
+                //console.log(this.jobFiles);
+                console.log(this.uploadProgress[file.uid]);
             },
             handleUploadSuccess(response, file, fileList){
+                this.showFileChooser=false;
                 if (response.data.code > 0) {
                     this.$message({
                         message: '未登录',
@@ -208,7 +332,23 @@
                         });
                     } else {
                         //更新文件成功刷新文件列表
-                       this.queryJobInfo();
+                        this.queryJobInfo();
+                    }
+                });
+            },
+            validateUploadFile(){
+                let param={
+                    fileIds:this.jobFileIds.join(",")
+                };
+                validateFiles(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.validateFileMsg=data.data;
                     }
                 });
             },
@@ -282,14 +422,16 @@
                     }
                 });
             },
-            next(){
+            dataCheck(){
+                this.active = 1;
+                this.showFileChooser = false;
                 var pm = {
                     projectId: this.projectId,
                     jobId: this.jobId,
                     sequence: this.sequence,
                     step: 'dataCheck',
                 };
-                this.isLoading=true;
+                this.isLoading = true;
                 runJobStep(pm).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
@@ -309,37 +451,254 @@
                                         type: 'error'
                                     });
                                 } else {
-                                    if(data.data.progress!='0'){
+                                    if (data.data.progress != '0') {
                                         window.clearInterval(timer);
-                                        this.$router.push({path: "/main/dataCheckView/" + this.projectId + "/" + this.jobId + "/" + this.sequence});
+                                        this.currentPage = 'dataCheckView';
+                                        this.queryDataResult();
+                                        this.querySourceFileData();
                                     }
                                 }
                             });
-                        },5000);
+                        }, 5000);
                     }
                 });
+            },
+            labelTypeFormat(row){
+                return row.type == 0 ? '离散' : '连续'
+            },
+            selectTag(feature_name, columnIndex){
+                this.predict_label = feature_name;
+                this.labelIndex = columnIndex;
+                this.startBtnDisabled = false;
+                var xAxisData = [];
+                var seriesData = [];
+                for (var i = 0; i < this.tableData1[this.labelIndex].value_top_frequence.length; i++) {
+                    var obj = this.tableData1[this.labelIndex].value_top_frequence[i];
+                    xAxisData.push(obj.value);
+                    seriesData.push(obj.frequence);
+                }
+                console.log(this.tableData1[this.labelIndex].type)
+                if (this.tableData1[this.labelIndex].type == 0) {
+                    this.chartType = 0;
+                    this.drawBarChart(xAxisData, seriesData, '样本数', '目标类型');
+                    if(this.tableData1[this.labelIndex].value_count>9){
+                        this.tips = '您选择的标签是离散类型，离散值共'+this.tableData1[this.labelIndex].value_count+'个，数量较多不适合作为训练标签';
+                    }
+                } else {
+                    this.drawLineChart(xAxisData, seriesData, '样本数', '目标类型');
+                    this.chartType = 0;
+                    if(this.tableData1[this.labelIndex].value_count>9){
+                        this.tips = '您选择的标签是连续类型';
+                    }
+                }
 
+            },
+            handleTagSelect(tag){
+                this.predict_label = tag.feature_name;
+                this.startBtnDisabled = false;
+            },
+            querySearch(queryString, cb) {
+                var tagSuggestions = this.tableData1;
+                var results = queryString ? tagSuggestions.filter(this.createFilter(queryString)) : tagSuggestions;
+                // 调用 callback 返回建议列表的数据
+                cb(results);
+            },
+            createFilter(queryString) {
+                return (tag) => {
+                    return (tag.feature_name.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+                };
+            },
+            querySourceFileData(ev){
+                var param = {jobId: this.jobId};
+                getFileData(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        this.sourceData = data.data;
+                        this.sourceDataResult = JSON.parse(data.data.dataResult);
+                        // console.log(this.sourceDataResult)
+                    }
+                });
+            },
+            queryDataResult(){
+                var _this = this;
+                var param = {projectId: this.projectId, jobId: this.jobId, sequence: this.sequence};
+                getDataResult(param).then(data => {
+                    let {msg, code} = data;
+                    // console.log(data)
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        //console.log(data.data.dataResult)
+                        this.projectId = data.data.projectId;
+                        this.sequence = data.data.jobSequence;
+                        this.dataSeparator = data.data.dataSeparator;
+                        if (data.data && data.data.dataResult) {
+                            this.labelData = JSON.parse(data.data.dataResult || {});
+                            var datas = this.labelData.feature_and_label;
+                            this.tableData1 = datas;
+                        }
+
+                    }
+                });
+            },
+            startTrain(){
+                var param = {
+                    projectId: this.projectId,
+                    jobId: this.jobId,
+                    sequence: this.sequence,
+                    step: 'train',
+                    labelIndex: (this.labelIndex + 1),
+                };
+                this.isLoading = true;
+                runJobStep(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        window.clearInterval(window.timer);
+                        window.timer = setInterval(() => { //每分钟查询一次任务状态
+                            var param = {jobId: this.jobId};
+                            getJobProgress(param).then(data => {
+                                let {msg, code} = data;
+                                if (code > 0) {
+                                    this.isLoading = false;
+                                    window.clearInterval(window.timer);
+                                    this.$message({
+                                        message: msg,
+                                        type: 'error'
+                                    });
+                                } else {
+                                    if (data.data.progress != 'feature_analyse') {
+                                        this.isLoading = false;
+                                        window.clearInterval(window.timer);
+                                        this.$router.push({path: '/main/modelDetail/' + this.projectId + "/" + this.jobId + "/" + this.sequence + "/false"});
+                                    }
+                                }
+                            });
+                        }, 5000);
+
+                    }
+                });
+            },
+            drawBarChart(xAxisData,seriesData,xLabel,yLabel) {
+                this.chartBar = echarts.init(document.getElementById('chart0'));
+                this.chartBar.setOption({
+                    title: {
+                        text: '待预测目标类型分布',
+                        subtext: ''
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        }
+                    },
+                    grid: {
+                        left: '8%',
+                        right: '8%',
+                        bottom: '8%',
+                        containLabel: true
+                    },
+                    yAxis: {
+                        name:xLabel,
+                        nameLocation:'center',
+                        nameGap:50,
+                        type: 'value',
+                    },
+                    xAxis: {
+                        name:yLabel,
+                        nameLocation:'center',
+                        nameGap:20,
+                        type: 'category',
+                        data: xAxisData,
+                        boundaryGap: [0, 0.01]
+                    },
+                    series: [
+                        {
+                            type: 'bar',
+                            data: seriesData
+                        }
+                    ]
+                });
+            },
+            drawLineChart(xAxisData,seriesData,xLabel,yLabel) {
+                var chartLine = echarts.init(document.getElementById("chart0"));
+                chartLine.setOption({
+                    title: {
+                        text: '待预测目标类型分布',
+                        subtext: ''
+                    },
+                    tooltip: {
+                        trigger: 'axis'
+                    },
+                    grid: {
+                        left: '8%',
+                        right: '8%',
+                        bottom: '8%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        name:xLabel,
+                        nameLocation:'center',
+                        nameGap:30,
+                        type: 'category',
+                        splitLine:{show: true},
+                        boundaryGap: false,
+                        data: xAxisData,
+                    },
+                    yAxis: {
+                        name:yLabel,
+                        nameLocation:'center',
+                        splitLine:{show: true},
+                        nameGap:50,
+                        type: 'value'
+                    },
+                    series: {
+                        type:'line',
+                        data:seriesData
+                    }
+                });
             }
         },
-        created(){
-            //let w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+            created(){
+                console.log(1111);
+                this.uploadAction = process.env.API_ROOT + '/filelist/upload';
+                console.log(this.uploadAction);
+            },
+            mounted(){
 
-        },
-        mounted(){
-            let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            this.$refs.uploadView.style.height=(h-60)+'px';
-            //var token = sessionStorage.getItem('token');
-            var token = localStorage.getItem('token');
-            this.myHeaders = {Authorization: token};
-            this.uploadAction = process.env.API_ROOT + '/filelist/upload';
-            this.projectId = this.$route.params.projectId;
-            this.jobId = this.$route.params.jobId;
-            this.sequence = this.$route.params.sequence;
-            this.queryJobInfo();
-        }
+                let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                this.$refs.uploadView.style.height = (h - 60) + 'px';
+                var token = localStorage.getItem('token');
+                this.myHeaders = {Authorization: token};
+
+                this.projectId = this.$route.params.projectId;
+                this.jobId = this.$route.params.jobId;
+                this.sequence = this.$route.params.sequence;
+                this.projectName = this.$route.params.name;
+                this.queryJobInfo();
+                var that = this;
+                window.onresize = function(){
+                    let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+                    that.$refs.uploadView.style.height = (h - 60) + 'px';
+                };
+            },
+            destroyed(){
+                window.clearInterval(window.timer);
+            }
 
     }
-
 </script>
 
 <style lang="scss" type="text/scss">
@@ -357,83 +716,114 @@
             width:20%;
             background-color: #262932;
         }
-    }
-    #uploadView {
-        overflow: hidden;
-    }
-    #uploadView .step-bar {
-        .el-steps--simple {
+
+        .step-bar {
+            .el-steps--simple {
+                border-radius:0;
+            }
+        }
+
+        .el-progress-bar__outer{
             border-radius:0;
         }
-    }
-    #uploadView {
-        overflow: hidden;
-    }
-    #uploadView .file-chooser {
-        display: flex;
-        justify-content: center;
-        margin-top: 100px;
-        .box{
-            margin:60px 30px;
+
+        .file-chooser {
+            display: flex;
+            justify-content: center;
+            margin-top: 100px;
+            .box{
+                margin:60px 30px;
+            }
+        }
+
+        .card {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .title {
+            padding: 10px 0;
+        }
+
+        .file-list {
+            background: #262932;
+            padding: 0 5px;
+            border-top:solid 1px #ccc;
+        }
+        .file-list .el-icon-circle-plus-outline{
+            color:white;
+        }
+
+        .title {
+            height: 40px;
+            font-size: 18px;
+            text-align: center;
+            color: white;
+            line-height: 40px;
+        }
+
+        .tool-bar {
+            height: 40px;
+            padding: 5px 0;
+            line-height: 22px;
+        }
+
+        .file-item {
+            height: 60px;
+            border-bottom: 1px solid #ccc;
+
+            line-height: 23px;
+            color: white;
+        }
+        .file-item:first-child{
+            border-top: 1px solid #ccc;
+        }
+        .file-item .del-btn{
+            line-height: 60px;
+            cursor: pointer;
+            color:#1d8ce0;
+            padding:2px 6px;
+        }
+        .file-item .del-btn:hover{
+            color:white;
+        }
+        .el-checkbox {
+            color: white;
+        }
+
+        .file-list .content{
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: 390px;
+        }
+
+        .file-info-list{
+            text-align: center;
+            margin-top: 200px;
         }
     }
-
-    #uploadView .card {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #uploadView .title {
-        padding: 10px 0;
-    }
-
-    #uploadView .file-list {
-        background: #262932;
-        padding: 0 5px;
-        border-top:solid 1px #ccc;
-    }
-    #uploadView .file-list .el-icon-circle-plus-outline{
-        color:white;
-    }
-
-    #uploadView .title {
-        height: 40px;
-        font-size: 18px;
-        text-align: center;
-        color: white;
-        line-height: 40px;
-    }
-
-    #uploadView .tool-bar {
-        height: 40px;
-        padding: 5px 0;
-        line-height: 22px;
-    }
-
-    #uploadView .file-item {
-        height: 60px;
-        border-bottom: 1px solid #ccc;
-        border-top: 1px solid #ccc;
-        line-height: 22px;
-        color: white;
-    }
-    #uploadView .file-item .del-btn{
-        line-height: 60px;
-        cursor: pointer;
-        color:#1d8ce0;
-        padding:2px 6px;
-    }
-    #uploadView .file-item .del-btn:hover{
-        color:white;
-    }
-    #uploadView .el-checkbox {
-        color: white;
-    }
-
-    #uploadView .file-list .content{
-        overflow-y: auto;
-        overflow-x: hidden;
-        height: 390px;
+    #dataCheckView{
+        .step-bar{
+            el-steps--simple {
+                border-radius:0;
+            }
+        }
+        .box{
+            padding:30px;
+        }
+        .start-btn{
+            border-radius: 100px;
+            height:100px;
+            width:100px;
+        }
+        .predict-label-input input{
+            min-width:200px ;
+            width: 100%;
+        }
+        #chart0,#chart1{
+            width:400px;
+            height:300px;
+        }
     }
 </style>

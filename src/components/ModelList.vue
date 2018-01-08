@@ -46,7 +46,7 @@
 </template>
 
 <script>
-    import {getProjectListPage,newProject} from '../api/api';
+    import {getProjectListPage,newProject,newJob} from '../api/api';
     import ElButton from "../../node_modules/element-ui/packages/button/src/button";
     import ElRow from "element-ui/packages/row/src/row";
     import ElCol from "element-ui/packages/col/src/col";
@@ -85,6 +85,7 @@
                 this.dialogNewModelVisible = true;
             },
             saveModel(){
+                var that = this;
                 this.dialogNewModelVisible=false;
                 var param = {
                     "projectName": this.projectForm.projectName,
@@ -98,10 +99,30 @@
                             type: 'error'
                         });
                     } else {
-                        this.$router.push({ path: '/main/fileSelectView/'+data.data.tid });
+                        //this.$router.push({ path: '/main/fileSelectView/'+data.data.tid });
+                        this.createJob(data.data.tid);
                     }
                 });
 
+            },
+            createJob(projectId){
+                var that = this;
+                newJob(that.projectId,[]).then(data=>{
+                    let { msg, code } = data;
+                    if (code > 0) {
+                        that.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        that.projectId = projectId;
+                        that.jobId  = data.data.tid;
+                        that.sequence = data.data.sequence;
+                        //job状态保存，退出再进使用
+                        var jobInfo = projectId+"/"+this.jobId+"/"+this.sequence+"/"+that.projectForm.projectName;
+                        this.$router.push({ path: '/main/uploadView/'+jobInfo });
+                    }
+                });
             },
             goToModelDetail(e,projectId,b){
                 this.$router.push({ path: '/main/result/'+projectId });
@@ -125,10 +146,6 @@
                     }
                 });
             },
-            pageChange(val){
-                this.projectPageInfo.pageNum=val,
-                this.queryProject();
-            }
         },
         mounted(){
             this.queryProject();
@@ -186,5 +203,6 @@
         .model-card:hover{
            cursor: pointer;
         }
+
     }
 </style>
