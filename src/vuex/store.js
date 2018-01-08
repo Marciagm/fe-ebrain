@@ -7,20 +7,13 @@ Vue.use(Vuex)
 
 // 应用初始状态
 const state = {
-    count: 10,
-    file:{},
+    projectId:''
 }
 
 // 定义所需的 mutations
 const mutations = {
-    INCREMENT(state) {
-        state.count++
-    },
-    DECREMENT(state) {
-        state.count--
-    },
-    SETFILE(state,file){
-        state.file=file
+    SET_PROJECT_ID(state,projectId){
+        state.projectId = projectId;
     }
 }
 

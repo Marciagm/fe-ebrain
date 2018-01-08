@@ -1,7 +1,7 @@
 <template>
     <section id="dataCheckView">
         <div class="step-bar">
-            <el-steps :active="active" finish-status="success" align-center>
+            <el-steps :active="active" finish-status="success" simple>
                 <el-step title="准备数据"></el-step>
                 <el-step title="检查数据"></el-step>
                 <el-step title="正在运行"></el-step>
@@ -149,9 +149,9 @@
                 console.log(this.tableData1[this.labelIndex].type)
                 if( this.tableData1[this.labelIndex].type==0){
                     this.chartType = 0;
-                    this.drawBarChart(xAxisData,seriesData,'目标类型','样本数');
+                    this.drawBarChart(xAxisData,seriesData,'样本数','目标类型');
                 }else{
-                    this.drawLineChart(xAxisData,seriesData,'目标类型','样本数');
+                    this.drawLineChart(xAxisData,seriesData,'样本数','目标类型');
                     this.chartType = 1;
                 }
 
@@ -352,14 +352,12 @@
 <style lang="scss" type="text/scss">
     #dataCheckView{
         .step-bar{
-            padding: 30px 15px;
+            el-steps--simple {
+                border-radius:0;
+            }
         }
         .box{
-            min-height: 500px;
-            background: white;
-            border:1px solid #1d8ce0;
-            padding:15px;
-
+            padding:30px;
         }
         .start-btn{
             border-radius: 100px;

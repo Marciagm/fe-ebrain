@@ -9,16 +9,6 @@
             </el-col>
         </el-row>
         <el-row v-show="!isLoading" style="height: 350px;padding: 15px;">
-            <!--<el-col :span="6" class="box" v-for="m in list">
-                <div class="model-card" @click="goToModelDetail(m.tid,m.progress)">
-                    <div class="icon">
-                        1
-                    </div>
-                    <div class="name">
-                        {{msgs[m.progress]}}
-                    </div>
-                </div>
-            </el-col>-->
             <template>
                 <el-table
                         :data="list"

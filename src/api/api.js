@@ -20,10 +20,13 @@ export const getProjectListPage = params => { return axios.get(`${base}/project/
 
 export const  newProject = params => { return axios.post(`${base}/project/create`, params).then(res => res.data); };
 
+
+export const  createModel = params => { return axios.post(`${base}/model/create`, params).then(res => res.data); };
+
 export const getProject = params => { return axios.get(`${base}/project/detail/${params.projectId}`, { }).then(res => res.data); };
 
 
-export const getModelExplainList = params => { return axios.get(`${base}/model/explain/list/${params.projectId}`, { }).then(res => res.data); };
+export const getModelExplainList = params => { return axios.get(`${base}/model/explain/list/${params.jobId}`, { }).then(res => res.data); };
 
 export const getJobList = params => { return axios.get(`${base}/project/get-job-list`, { params: params }).then(res => res.data); };
 

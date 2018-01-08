@@ -22,7 +22,7 @@
                     </el-col>
                 </el-col>
             </el-col>
-            <el-col :span="20" :offset="2" class="main">
+            <el-col class="main">
                 <transition name="fade" mode="out-in">
                     <router-view></router-view>
                 </transition>
@@ -108,6 +108,7 @@
 
 <style lang="scss" type="text/scss">
     @import '~scss_vars';
+
     .help{
         width: 32px;
         height: 80px;
@@ -125,21 +126,19 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        display: none;
     }
     .help:hover{
         background: #1166b7;
     }
     #mainView{
-        background-color: #e4e9f3;
         overflow: auto;
-        height: 100%;
-        position: absolute;
         top: 0px;
         bottom: 0px;
         width: 100%;
         .header {
             line-height: 60px;
-            background: #006bc7;
+            background: #262932;
             color:#fff;
             z-index: 200;
             .el-menu{
@@ -156,12 +155,11 @@
                 border-bottom: none;
             }
             .el-menu--horizontal>.el-menu-item.is-active, .el-menu--horizontal>.el-submenu.is-active .el-submenu__title {
-                border-bottom: none;
-                background: #20a0ff;
                 color: white;
+                border-buttom:2px solid white;
             }
             .el-menu--horizontal .el-menu-item:focus, .el-menu--horizontal .el-menu-item:hover {
-                background-color: #1d8ce0;
+                background-color: transparent;
             }
             .userinfo {
                 text-align: right;
@@ -216,9 +214,7 @@
             }
         }
         .main{
-            margin-top:30px;
             z-index: 100;
-			margin-bottom: 100px;
         }
         .footer{
             z-index: 100;

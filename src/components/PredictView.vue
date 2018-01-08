@@ -1,5 +1,96 @@
 <template>
-    <section id="predictView">
+    <section id="predictView" ref="predictView">
+        <div class="left">
+            <div class="step-bar">
+                <el-steps :active="active" finish-status="success" simple>
+                    <el-step title="准备数据"></el-step>
+                    <el-step title="检查数据"></el-step>
+                    <el-step title="正在运行"></el-step>
+                    <el-step title="准备预测"></el-step>
+                </el-steps>
+            </div>
+            <div class="file-chooser">
+                <div class="box">
+                    <div class="data-source">
+                        <div id="serverUpload" class="icon">
+
+                        </div>
+                        <div class="name">
+                            <el-button @click="fromServer" type="primary">数据库文件</el-button>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="data-source">
+                        <div id="localUpload" class="icon">
+
+                        </div>
+                        <div class="name">
+                            <el-upload
+                                    class="upload-file"
+                                    :action="uploadAction"
+                                    :headers="myHeaders"
+                                    :show-file-list=false
+                                    :before-upload="beforeUpload"
+                                    :on-progress="onUploadProgress"
+                                    :on-success="handleUploadSuccess"
+                                    multiple
+                            >
+                                <el-button type="primary">本地文件</el-button>
+                            </el-upload>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="data-source">
+                        <div id="historyUpload" class="icon">
+
+                        </div>
+                        <div class="name">
+                            <el-button @click="fromHistory" type="primary">历史文件</el-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="right">
+            <div class="file-list">
+                <div class="title">文件传清单</div>
+                <div class="tool-bar">
+                    <el-row>
+                        <el-col :span="12">
+                            <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                <i class="el-icon-delete"></i>
+                                <a style="cursor: pointer;color: #20a0ff;" @click="deleteFile">删除</a>
+                            </div>
+                        </el-col>
+                        <el-col :span="12">
+                            <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                <i class="el-icon-circle-plus-outline"></i>
+                                <a style="cursor: pointer;color: #20a0ff;" @click="addFile">继续添加</a>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
+                <div class="content">
+                    <div class="file-item" v-for="file in predictFiles" :key="file.tid" @click="queryPredictResultAndDetail(file.tid)">
+                        <el-row>
+                            <el-col :span="24" style="overflow: hidden">
+                                {{file.srcFile}}
+                            </el-col>
+                            <el-col :span="12" style="text-align: center">
+                                {{file.fileSize}}
+                            </el-col>
+                            <el-col :span="12" style="text-align: center">
+                                {{file.status || '已上传'}}
+                            </el-col>
+                        </el-row>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!--<section id="predictView">
         <div class="step-bar">
             <el-steps :active="active" finish-status="success" align-center>
                 <el-step title="准备数据"></el-step>
@@ -11,40 +102,7 @@
         <div class="box">
             <el-row>
                 <el-col :span="6">
-                    <div class="file-list">
-                        <div class="title">文件传清单</div>
-                        <div class="tool-bar">
-                            <el-row>
-                                <el-col :span="12">
-                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                        <i class="el-icon-delete"></i>
-                                        <a style="cursor: pointer;color: #20a0ff;" @click="deleteFile">删除</a>
-                                    </div>
-                                </el-col>
-                                <el-col :span="12">
-                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                        <i class="el-icon-circle-plus-outline"></i>
-                                        <a style="cursor: pointer;color: #20a0ff;" @click="addFile">继续添加</a>
-                                    </div>
-                                </el-col>
-                            </el-row>
-                        </div>
-                        <div class="content">
-                            <div class="file-item" v-for="file in predictFiles" :key="file.tid" @click="queryPredictResultAndDetail(file.tid)">
-                                <el-row>
-                                    <el-col :span="24" style="overflow: hidden">
-                                        {{file.srcFile}}
-                                    </el-col>
-                                    <el-col :span="12" style="text-align: center">
-                                        {{file.fileSize}}
-                                    </el-col>
-                                    <el-col :span="12" style="text-align: center">
-                                        {{file.status || '已上传'}}
-                                    </el-col>
-                                </el-row>
-                            </div>
-                        </div>
-                    </div>
+
                 </el-col>
                 <el-col :span="18">
                     <div class="predict" v-show="!showFileChooser">
@@ -120,7 +178,7 @@
                 </el-col>
             </el-row>
         </div>
-    </section>
+    </section>-->
 
 </template>
 
@@ -369,6 +427,9 @@
             }
         },
         mounted(){
+            let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            this.$refs.predictView.style.height=(h-60)+'px';
+
             this.projectId = this.$route.params.projectId;
             this.jobId = this.$route.params.jobId;
             this.jobSequence = this.$route.params.sequence;
@@ -391,16 +452,25 @@
 
 <style lang="scss" type="text/scss">
     #predictView{
+        overflow: hidden;
+        .left,.right{
+            min-height: 100%;
+        }
+        .left{
+            width: 80%;
+            float:left;
+        }
+        .right{
+            float:right;
+            width:20%;
+            background-color: #262932;
+        }
         .step-bar{
-            padding: 30px 15px;
+            .el-steps--simple {
+                border-radius:0;
+            }
         }
-        .box {
-            height: 500px;
-            background: white;
-            border: 1px solid #1d8ce0;
-            margin-top: 15px;
-            overflow: hidden;
-        }
+
         .predict{
             height: 450px;
             overflow: hidden;
@@ -410,51 +480,17 @@
             overflow: scroll;
         }
         .data-source{
-            height: 180px;
-            width:257px;
-            border:2px solid #1d8ce0;
-            border-radius: 5px;
-            .icon{
-                color:#1d8ce0;
-                text-align: center;
-                font-size: 22px;
-                line-height: 60px;
-                height: 60px;
-                width: 257px;
-                margin-bottom: 20px;
-                margin-top:40px;
-            }
-            .name{
-                text-align: center;
-                color:#20a0ff;
-            }
-            #serverUpload{
-                background: url("../assets/server-upload.png") no-repeat center center;
-                background-size: contain;
-                background-repeat: no-repeat;
-            }
-
-            #localUpload{
-                background: url("../assets/local-upload.png") no-repeat center center;
-                background-size: contain;
-                background-repeat: no-repeat;
-            }
-
-            #historyUpload{
-                background: url("../assets/history-upload.png") no-repeat center center;
-                background-size: contain;
-                background-repeat: no-repeat;
-            }
 
         }
         .file-chooser{
-            margin: 30px;
-            margin-top: 150px;
+            display: flex;
+            justify-content: center;
+            margin-top: 100px;
+            .box{
+                margin:60px 30px;
+            }
         }
         .file-list {
-            height: 500px;
-            border: 1px solid #1d8ce0;
-            background: #174574;
             padding: 0 5px;
             .title {
                 height: 40px;

@@ -1,8 +1,5 @@
 //test
-export const getCount = state => {
-    return state.count
+export const getProjectId = state => {
+    return state.projectId
 }
 
-export const getFile = state => {
-    return state.file
-}

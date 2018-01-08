@@ -1,114 +1,110 @@
 <template>
-    <section id="uploadView">
-        <div class="step-bar">
-            <el-steps :active="active" finish-status="success" align-center>
-                <el-step title="准备数据"></el-step>
-                <el-step title="检查数据"></el-step>
-                <el-step title="正在运行"></el-step>
-                <el-step title="准备预测"></el-step>
-            </el-steps>
+    <div id="uploadView" ref="uploadView">
+        <div class="left">
+            <div class="step-bar">
+                <el-steps :active="active" finish-status="success"  simple >
+                    <el-step title="准备数据"></el-step>
+                    <el-step title="检查数据"></el-step>
+                    <el-step title="正在运行"></el-step>
+                    <el-step title="准备预测"></el-step>
+                </el-steps>
+            </div>
+            <div class="file-chooser">
+                <div class="box">
+                    <div class="data-source">
+                        <div id="serverUpload" class="icon">
+
+                        </div>
+                        <div class="name">
+                            <el-button @click="fromServer" type="primary">数据库文件</el-button>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="data-source">
+                        <div id="localUpload" class="icon">
+
+                        </div>
+                        <div class="name">
+                            <el-upload
+                                    class="upload-file"
+                                    :action="uploadAction"
+                                    :headers="myHeaders"
+                                    :show-file-list=false
+                                    :before-upload="beforeUpload"
+                                    :on-progress="onUploadProgress"
+                                    :on-success="handleUploadSuccess"
+                                    multiple
+                            >
+                                <el-button type="primary">本地文件</el-button>
+                            </el-upload>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="data-source">
+                        <div id="historyUpload" class="icon">
+
+                        </div>
+                        <div class="name">
+                            <el-button @click="fromHistory" type="primary">历史文件</el-button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="box">
-            <el-row>
-                <el-col :span="18">
-                    <div class="file-chooser">
-                        <el-row>
-                            <el-col :span="8" class="card">
-                                <div>
-                                    <div class="title">服务器</div>
-                                    <div class="data-source">
-                                        <div id="serverUpload" class="icon">
-
-                                        </div>
-                                        <div class="name">
-                                            <a style="cursor: pointer" @click="fromServer">点击上传</a>
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="right">
+            <div class="file-list" ref="fileListDiv">
+                <div class="title">文件传清单</div>
+                <div class="tool-bar">
+                    <el-row>
+                        <el-col :span="24">
+                            <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
+                                <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="next" v-show="jobFiles.length>0" :loading="isLoading">下一步</el-button>
+                            </div>
+                        </el-col>
+                    </el-row>
+                </div>
+                <div class="content">
+                    <div>
+                        <el-row v-for="file in jobFiles" :key="file.tid"  class="file-item">
+                            <el-col :span="22">
+                                <el-row>
+                                    <el-col :span="24" style="overflow: hidden">
+                                        {{file.filename}}
+                                    </el-col>
+                                    <el-col :span="12" style="text-align: center">
+                                        {{file.fileSize}}
+                                    </el-col>
+                                    <el-col :span="12" style="text-align: center">
+                                        {{file.status || '已上传'}}
+                                    </el-col>
+                                    <el-col :span="24" v-if="file.status">
+                                        <el-progress :percentage="uploadProgress[file.tid]" :show-text="false"></el-progress>
+                                    </el-col>
+                                </el-row>
                             </el-col>
-                            <el-col :span="8" class="card">
-                                <div>
-                                    <div class="title">本地</div>
-                                    <div class="data-source">
-                                        <div id="localUpload" class="icon">
-
-                                        </div>
-                                        <div class="name">
-                                            <el-upload
-                                                    class="upload-file"
-                                                    :action="uploadAction"
-                                                    :headers="myHeaders"
-                                                    :show-file-list=false
-                                                    :before-upload="beforeUpload"
-                                                    :on-progress="onUploadProgress"
-                                                    :on-success="handleUploadSuccess"
-                                                    multiple
-                                                    >
-                                                <a>点击上传</a>
-                                                <div slot="tip" class="el-upload__tip">只能上传txt/csv文件</div>
-                                            </el-upload>
-                                        </div>
-                                    </div>
-                                </div>
-                            </el-col>
-                            <el-col :span="8" class="card">
-                                <div>
-                                    <div class="title">历史库</div>
-                                    <div class="data-source">
-                                        <div id="historyUpload" class="icon">
-
-                                        </div>
-                                        <div class="name">
-                                            <a style="cursor: pointer" @click="fromHistory">点击上传</a>
-                                        </div>
-                                    </div>
-                                </div>
+                            <el-col :span="2">
+                                <span class="del-btn" @click="deleteFile(file.tid)">×</span>
                             </el-col>
                         </el-row>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--<section id="uploadView">
+        <div class="box">
+            <el-row>
+                <el-col :span="18">
+
                 </el-col>
                 <el-col :span="6">
-                    <div class="file-list">
-                        <div class="title">文件传清单</div>
-                        <div class="tool-bar">
-                            <el-row>
-                                <el-col :span="24">
-                                    <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                        <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="next" v-show="jobFiles.length>0" :loading="isLoading">下一步</el-button>
-                                    </div>
-                                </el-col>
-                            </el-row>
-                        </div>
-                        <div class="content">
-                            <div>
-                                <el-row v-for="file in jobFiles" :key="file.tid"  class="file-item">
-                                    <el-col :span="22">
-                                        <el-row>
-                                            <el-col :span="24" style="overflow: hidden">
-                                                {{file.filename}}
-                                            </el-col>
-                                            <el-col :span="12" style="text-align: center">
-                                                {{file.fileSize}}
-                                            </el-col>
-                                            <el-col :span="12" style="text-align: center">
-                                                {{file.status || '已上传'}}
-                                            </el-col>
-                                            <el-col :span="24" v-if="file.status">
-                                                <el-progress :percentage="uploadProgress[file.tid]" :show-text="false"></el-progress>
-                                            </el-col>
-                                        </el-row>
-                                    </el-col>
-                                    <el-col :span="2">
-                                        <span class="del-btn" @click="deleteFile(file.tid)">×</span>
-                                    </el-col>
-                                </el-row>
-                            </div>
-                        </div>
-                    </div>
+
                 </el-col>
             </el-row>
         </div>
-    </section>
+    </section>-->
 
 </template>
 
@@ -325,7 +321,13 @@
 
             }
         },
+        created(){
+            //let w = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+
+        },
         mounted(){
+            let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            this.$refs.uploadView.style.height=(h-60)+'px';
             //var token = sessionStorage.getItem('token');
             var token = localStorage.getItem('token');
             this.myHeaders = {Authorization: token};
@@ -341,21 +343,39 @@
 </script>
 
 <style lang="scss" type="text/scss">
-
+    #uploadView{
+        overflow: hidden;
+        .left,.right{
+            min-height: 100%;
+        }
+        .left{
+            width: 80%;
+            float:left;
+        }
+        .right{
+            float:right;
+            width:20%;
+            background-color: #262932;
+        }
+    }
+    #uploadView {
+        overflow: hidden;
+    }
     #uploadView .step-bar {
-        padding: 30px 15px;
+        .el-steps--simple {
+            border-radius:0;
+        }
     }
-
-    #uploadView .box {
-        height: 500px;
-        background: white;
-        border: 1px solid #1d8ce0;
-        margin-top: 15px;
+    #uploadView {
+        overflow: hidden;
     }
-
     #uploadView .file-chooser {
-        height: 500px;
-        margin-top: 150px;
+        display: flex;
+        justify-content: center;
+        margin-top: 100px;
+        .box{
+            margin:60px 30px;
+        }
     }
 
     #uploadView .card {
@@ -368,52 +388,10 @@
         padding: 10px 0;
     }
 
-    #uploadView .data-source {
-        height: 180px;
-        width: 257px;
-        border: 2px solid #1d8ce0;
-        border-radius: 5px;
-    }
-
-    #uploadView .icon {
-        color: #1d8ce0;
-        text-align: center;
-        font-size: 22px;
-        line-height: 60px;
-        height: 60px;
-        width: 257px;
-        margin-bottom: 20px;
-        margin-top: 40px;
-    }
-
-    #uploadView .name {
-        text-align: center;
-        color: #20a0ff;
-    }
-
-    #uploadView #serverUpload {
-        background: url("../assets/server-upload.png") no-repeat center center;
-        background-size: contain;
-        background-repeat: no-repeat;
-    }
-
-    #uploadView #localUpload {
-        background: url("../assets/local-upload.png") no-repeat center center;
-        background-size: contain;
-        background-repeat: no-repeat;
-    }
-
-    #uploadView #historyUpload {
-        background: url("../assets/history-upload.png") no-repeat center center;
-        background-size: contain;
-        background-repeat: no-repeat;
-    }
-
     #uploadView .file-list {
-        height: 500px;
-        border: 1px solid #1d8ce0;
-        background: #174574;
+        background: #262932;
         padding: 0 5px;
+        border-top:solid 1px #ccc;
     }
     #uploadView .file-list .el-icon-circle-plus-outline{
         color:white;

@@ -1,11 +1,4 @@
 //test
-export const increment = ({commit}) => {
-    commit('INCREMENT')
-}
-export const decrement = ({commit}) => {
-    commit('DECREMENT')
-}
-
-export const setFile = ({commit}) => {
-    commit('SETFILE')
+export const setProjectId = ({commit}) => {
+    commit('SET_PROJECT_ID')
 }

@@ -1,41 +1,32 @@
 <template>
     <section id="modelListView">
-        <div class="_healder">模型库</div>
-        <div class="panel">
-            <div style="padding: 15px;">
-                <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="showNewModelDialog">新建</el-button>
-            </div>
-            <el-row v-show="isLoading">
-                <el-col :span="24" style="display: flex;justify-content: center;align-items: center;">
-                    <i class="el-icon-loading"></i>
-                </el-col>
-            </el-row>
-            <el-row v-show="!isLoading" style="height: 350px">
+        <el-row>
+            <el-col :span="20" :offset="2">
+                <el-row>
+                    <el-col :span="6" class="box">
+                        <div class="model-card new-model-btn" @click="showNewModelDialog()">
+                            <div>
+                                <i class="el-icon-plus"></i>
+                            </div>
+                        </div>
+                    </el-col>
+                    <el-col :span="6" class="box" v-for="p in projectPageInfo.list" :key="p.tid">
+                        <div class="model-card" @click="goToModelDetail($event,p.tid,p.status)">
+                            <div class="icon">
+                                <i class="el-icon-setting"></i>
+                            </div>
+                            <div class="name">
+                                {{p.projectName}}
+                            </div>
+                            <div>
+                                {{p.createTime}}
+                            </div>
+                        </div>
+                    </el-col>
+                </el-row>
+            </el-col>
+        </el-row>
 
-                <el-col :span="6" class="box" v-for="p in projectPageInfo.list" :key="p.tid">
-                    <div class="model-card" @click="goToModelDetail($event,p.tid,p.status)">
-                        <div class="icon">
-                            1
-                        </div>
-                        <div class="name">
-                            {{p.projectName}}
-                        </div>
-                    </div>
-                </el-col>
-            </el-row>
-            <el-row v-show="!isLoading">
-                <el-col :span="24" style="text-align: center;margin-top: 30px;">
-                    <el-pagination
-                            background
-                            layout="prev, pager, next"
-                            :total="projectPageInfo.total"
-                            :page-size="8"
-                            @current-change="pageChange"
-                    >
-                    </el-pagination>
-                </el-col>
-            </el-row>
-        </div>
         <el-dialog  :visible.sync="dialogNewModelVisible">
             <el-form :model="projectForm" :rules="rules" ref="projectForm" label-width="100px">
                 <el-form-item label="模型名称" prop="projectName">
@@ -150,6 +141,7 @@
         ._healder{
             height: 50px;background: #9bc3ed;font-size:20px;color:white;text-align: center;line-height: 50px;
         }
+        padding-top: 50px;
         .panel{
             border: 2px solid #56bbf6;
         }
@@ -163,25 +155,19 @@
             margin-top: 190px;
         }*/
         .model-card{
-            height: 133px;
-            width:201px;
+            height: 180px;
+            width:250px;
             text-align: center;
             border:1px solid #cccccc;
-            margin: 15px;
+            margin: 30px;
             border-radius: 5px;
             cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
             .icon{
-                color:#1d8ce0;
-                text-align: center;
-                font-size: 22px;
-                line-height: 60px;
-                height: 60px;
-                width: 201px;
-                background: url("../assets/model-icon2.png") no-repeat center center;
-                background-size: contain;
-                background-repeat: no-repeat;
-                margin-bottom: 20px;
-                margin-top:10px;
+                font-size:32px;
             }
             .name{
                 font-size:20px;
@@ -190,8 +176,15 @@
                 overflow: hidden;
             }
         }
+        .new-model-btn{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            color: #ccc;
+        }
         .model-card:hover{
-            background: #cccccc;
+           cursor: pointer;
         }
     }
 </style>
