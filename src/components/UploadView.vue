@@ -10,6 +10,16 @@
                         <el-step title="准备预测"></el-step>
                     </el-steps>
                 </div>
+                <!--<div style="display: flex;justify-content: center;align-items: center;">
+                    <div style="width: 400px;">
+                        <el-alert
+                                title="警告提示的文案"
+                                type="warning"
+                                description="文字说明文字说明文字说明文字说明文字说明文字说明"
+                                show-icon>
+                        </el-alert>
+                    </div>
+                </div>-->
                 <div class="file-chooser" v-show="showFileChooser">
                     <div class="box">
                         <div class="data-source">
@@ -27,15 +37,16 @@
 
                             </div>
                             <div class="name">
-                                <el-upload
+                                <el-upload ref="upload"
                                         class="upload-file"
                                         :action="uploadAction"
                                         :headers="myHeaders"
                                         :show-file-list=false
+                                        :on-change="onFileChange"
                                         :before-upload="beforeUpload"
                                         :on-progress="onUploadProgress"
                                         :on-success="handleUploadSuccess"
-                                        multiple
+                                        :auto-upload="true"
                                 >
                                     <el-button type="primary">本地文件</el-button>
                                 </el-upload>
@@ -88,10 +99,10 @@
                                             {{file.fileSize}}
                                         </el-col>
                                         <el-col :span="12" style="text-align: center">
-                                            {{file.status || '已上传'}}
+                                            {{file.state || '已上传'}}
                                         </el-col>
-                                        <el-col :span="24" v-if="file.status">
-                                            <el-progress :percentage="uploadProgress[file.tid]" :text-inside="true" :stroke-width="1"></el-progress>
+                                        <el-col :span="24" v-if="file.state">
+                                            <el-progress :percentage="uploadProgress[file.tid]" :show-text="false" :stroke-width="5"></el-progress>
                                         </el-col>
                                     </el-row>
                                 </el-col>
@@ -206,7 +217,7 @@
 </template>
 
 <script>
-    import { newProject, newJob, getJobFiles, updateJobFiles,runJobStep,getDataResult,getFileData,getJobInfo,getJobProgress,validateFiles } from '../api/api';
+    import { newProject, newJob, getJobFiles, updateJobFiles,runJobStep,getDataResult,getFileData,getJobInfo,getJobProgress,validateFiles,deleteJobFile } from '../api/api';
     import util from '@/common/js/util';
     import echarts from 'echarts';
     import DynamicTable from "@/components/DynamicTable";
@@ -225,6 +236,7 @@
         },
         data() {
             return {
+                arr:['1'],
                 currentPage: 'uploadView',
                 showFileChooser:true,
                 active: 0,
@@ -242,7 +254,7 @@
                 percentage: 0,
                 jobFiles: [],
                 jobFileIds: [],
-                uploadProgress: {},
+                uploadProgress:{},
                 checkList: {},
                 isLoading: false,
                 activeTab: 'first',
@@ -274,44 +286,38 @@
                         });
                     } else {
                         that.jobFiles = data.data;
+                        that.jobFileIds=[];
                         for (var i = 0; i < that.jobFiles.length; i++) {
                             that.jobFileIds.push(that.jobFiles[i].tid);
                         }
-                        //调用验证文件
-                        this.validateUploadFile();
+                        that.validateUploadFile(function(){
+                            //console.log("")
+                        });
                     }
                 });
             },
-            onFileChange(value){
-                if (this.checkList[value]) {
-                    delete this.checkList[value];
-                } else {
-                    this.checkList[value] = value;
-                }
+            onFileChange(file,$event){
+                this.$set(this.uploadProgress,file.uid,file.percentage);
             },
             handleRemove(file, fileList) {
                 console.log(file, fileList);
             },
             beforeUpload(file){
-                this.uploadProgress[file.uid] = 1;
+                var  that = this;
+                this.$set(this.uploadProgress,file.uid,1);
                 var f = {
                     tid: file.uid,
                     filename: file.name,
                     fileSize: util.formatFileSize(file.size),
-                    status: '正在上传',
+                    state: '正在上传',
                 };
-                this.jobFiles.push(f);
-                this.showFileChooser = false;
+                that.jobFiles.push(f);
             },
             onUploadProgress(event, file, fileList){
-                if( parseInt(event.percent)<=100){
-                    this.uploadProgress[file.uid] = parseInt(event.percent);
-                }
-                //console.log(this.jobFiles);
-                console.log(this.uploadProgress[file.uid]);
+                console.log(file)
             },
             handleUploadSuccess(response, file, fileList){
-                this.showFileChooser=false;
+                var that = this;
                 if (response.data.code > 0) {
                     this.$message({
                         message: '未登录',
@@ -320,9 +326,9 @@
                     });
                     this.$router.push({path: '/login'});
                 }
-                this.jobFileIds.push(response.data.tid);
+                that.jobFileIds.push(response.data.tid);
                 //上传成功更新job文件
-                var param = {tid: this.jobId, fileList: this.jobFileIds.join(",")};
+                var param = {tid: that.jobId, fileList: that.jobFileIds.join(",")};
                 updateJobFiles(param).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
@@ -332,13 +338,15 @@
                         });
                     } else {
                         //更新文件成功刷新文件列表
-                        this.queryJobInfo();
+                        that.queryJobInfo();
+
                     }
                 });
+
             },
-            validateUploadFile(){
+            validateUploadFile(cb){
                 let param={
-                    fileIds:this.jobFileIds.join(",")
+                    jobId:this.jobId,
                 };
                 validateFiles(param).then(data => {
                     let {msg, code} = data;
@@ -348,7 +356,7 @@
                             type: 'error'
                         });
                     } else {
-                        this.validateFileMsg=data.data;
+                        cb();
                     }
                 });
             },
@@ -406,10 +414,10 @@
                     }
                 }
                 var pm = {
-                    tid: this.jobId,
-                    fileList: this.jobFileIds.join(',')
+                    jobId: this.jobId,
+                    fileId:tid
                 };
-                updateJobFiles(pm).then(data => {
+                deleteJobFile(pm).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
                         this.$message({
@@ -672,7 +680,6 @@
             }
         },
             created(){
-                console.log(1111);
                 this.uploadAction = process.env.API_ROOT + '/filelist/upload';
                 console.log(this.uploadAction);
             },
@@ -770,7 +777,7 @@
         }
 
         .file-item {
-            height: 60px;
+            height: 65px;
             border-bottom: 1px solid #ccc;
 
             line-height: 23px;

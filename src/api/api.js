@@ -54,6 +54,7 @@ export const getPredictHistory = params => { return axios.get(`${base}/model/pre
 
 export const getJobProgress = params => { return axios.get(`${base}/project/get-job-progress`,{ params: params }).then(res => res.data); };
 
+export const deleteJobFile = params => { return axios.get(`${base}/model/delete-job-file`,{ params: params }).then(res => res.data); };
 
 export const getSourceFileDataResult = params => { return axios.get(`${base}/project/get-source-file-data`, { params: params }).then(res => res.data); };
 
