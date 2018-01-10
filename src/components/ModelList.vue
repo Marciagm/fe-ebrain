@@ -107,7 +107,7 @@
             },
             createJob(projectId){
                 var that = this;
-                newJob(that.projectId,[]).then(data=>{
+                newJob(projectId,[]).then(data=>{
                     let { msg, code } = data;
                     if (code > 0) {
                         that.$message({

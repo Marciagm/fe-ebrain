@@ -27,10 +27,10 @@
                     </div>
                     <div style="text-align: center">
                        <el-row>
-                           <el-col :span="6">{{currentModel.explain.precise || '-'}}</el-col>
-                           <el-col :span="6">{{currentModel.explain.auc || '-'}}</el-col>
-                           <el-col :span="6">{{currentModel.explain.model_size || '-'}}</el-col>
-                           <el-col :span="6">{{currentModel.explain.train_time || '-'}}</el-col>
+                           <el-col :span="6">{{currentModel.precise_recall.precise || '-'}}</el-col>
+                           <el-col :span="6">{{currentModel.roc.auc || '-'}}</el-col>
+                           <el-col :span="6">{{currentModel.model_size || '-'}}</el-col>
+                           <el-col :span="6">{{currentModel.train_time || '-'}}</el-col>
                        </el-row>
                         <el-row>
                             <el-col :span="6">准确率</el-col>
@@ -49,7 +49,9 @@
                             选择模型版本：
                             </el-col>
                             <el-col :span="20">
-                                <el-button size="mini" round  :type="m.sequence== currentVersion ? 'primary':'default'"  @click="changeVersion(m,$event)" v-for="m in modelJobList">v{{m.sequence}}</el-button>
+                                <el-button size="mini" round  :type="m.sequence== currentVersion ? 'primary':'default'"
+                                           v-for="(m,index) in modelJobList"
+                                           @click="changeVersion(m,index,0)" :index="parentIndex">v{{m.sequence}}</el-button>
                             </el-col>
                         </el-row>
                         <el-row>
@@ -57,11 +59,12 @@
                             选择算法：
                             </el-col>
                             <el-col :span="20">
-                                <el-button size="mini" round v-for="mm in modelList" :type="mm.model_name== currentAlgorithm ? 'primary':'default'" >{{mm.model_name}}</el-button>
+                                <el-button size="mini" round v-for="(mm,subIndex) in modelList" :type="mm.model_name== currentAlgorithm ? 'primary':'default'"
+                                           @click="changeVersion(mm,parentIndex,subIndex)" :index="subIndex">{{mm.model_name}}</el-button>
                             </el-col>
                         </el-row>
                     </div>
-                </el-card>
+                </el-card>index
             </el-col>
         </el-row>
 
@@ -265,28 +268,19 @@
                 modelJobList:[],
                 modelList:[],
                 currentModel:{
-                    jobStatus:'',
-                    createTime:'-',
-                    model_name:'未完成',
-                    auc:'-',
-                    precise:'-',
-                    model_size:'-',
-                    train_time:'-',
-                    explain:{
-                        jobStatus:'',
-                        createTime:'-',
-                        model_name:'未完成',
-                        auc:'-',
-                        precise:'-',
-                        model_size:'-',
-                        train_time:'-',
-                    }
+                    precise_recall:{
+                        precise:0
+                    },
+                    roc:{},
+
                 },
                 algorithmList:[],
                 currentAlgorithm:'-',
                 tabActive:"1",
                 predictTableData:[],
                 confusion_matrix:{},
+                parentIndex:0,
+                subIndex:0,
             }
         },
         methods: {
@@ -310,7 +304,7 @@
             },
             viewModel(){//查看未完成模型
                 if(this.runningJob.progress=='0'){
-                    this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence});
+                    this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName});
                 }else if(this.runningJob.progress=='feature_analyse'){
                     this.$router.push({ path: '/main/dataCheckView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence});
                 }else if(this.runningJob.progress=='train'){
@@ -320,30 +314,21 @@
                 }
             },
 
-            changeVersion(v,$event){
+            changeVersion(v,index,subIndex){
+                console.log('changeVersion');
                 this.currentVersion = v.sequence;
                 let param={
                     projectId:v.projectId,
                     jobId:v.tid,
                     sequence:v.sequence,
                 };
-                this.currentModel = v;
-                this.currentModel.explain={
-                    jobStatus:'',
-                    createTime:'-',
-                    model_name:'未完成',
-                    auc:'-',
-                    precise:'-',
-                    model_size:'-',
-                    train_time:'-',
-                };
-                if(v.jobStatus=='success'){
-                    this.queryModelExplain(param);
+
+                if(v.jobStatus=='finish'){
+                    this.queryModelExplain(param,index,subIndex);
                 }
 
             },
             predict(model){
-               // console.log()
                 this.$router.push({ path: '/main/predictView/'+model.projectId+'/'+model.tid+'/'+model.sequence+"/"+model.explain.model_name });
             },
             queryProjectInfo(){ //查询模型基本信息
@@ -377,48 +362,29 @@
                             type: 'error'
                         });
                     } else {
-                        //console.log(data);
                         this.modelJobList = data.data;
                         this.currentVersion = this.modelJobList[0].sequence;
-                        this.currentModel=this.modelJobList[0];
-                        this.currentModel.explain={
-                            jobStatus:'',
-                            createTime:'-',
-                            model_name:'未完成',
-                            auc:'-',
-                            precise:'-',
-                            model_size:'-',
-                            train_time:'-',
-                        };
-                        console.log(this.currentModel);
-                        if(this.currentModel.jobStatus == 'success' || this.currentModel.jobStatus == 'SUCCESS'){
+
+                        if(this.modelJobList[0].jobStatus == 'finish'){
+                            console.log(1)
                             this.hasRunning=false;
-                            //console.log(this.modelJobList[0]);
                             let param={
                                 projectId:this.projectId,
                                 jobId:  this.currentModel.tid,
                                 sequence:this.currentVersion,
                             };
-                            this.queryModelExplain(param);
+                            this.queryModelExplain(param,0);
                         }else{
+                            console.log(2)
                             this.hasRunning=true;
                             this.runningJob = this.modelJobList[0];
-                            this.currentModel.explain={
-                                jobStatus:'',
-                                createTime:'-',
-                                model_name:'未完成',
-                                auc:'-',
-                                precise:'-',
-                                model_size:'-',
-                                train_time:'-',
-                            }
                         }
 
                     }
                 });
 
             },
-            queryModelExplain(param){
+            queryModelExplain(param,index,subIndex){
                 getModelExplain(param).then(data=>{
                     this.isLoading=false;
                     let { msg, code } = data;
@@ -428,19 +394,16 @@
                             type: 'error'
                         });
                     } else {
-                       // //console.log(JSON.parse(data.data.modelExplain));
                         var modelExplain = JSON.parse(data.data.modelExplain);
                         this.modelList = modelExplain.models;
-
-                        this.currentModel.explain=this.modelList[0];
-
-                        console.log(this.currentModel);
-                        this.currentAlgorithm =  this.currentModel.explain.model_name;
-                        //console.log(this.currentModel);
+                        this.currentModel=modelExplain.models[subIndex];
+                        this.currentAlgorithm =  this.currentModel.model_name;
                         this.queryPredictHistory(param);
-                        this.drawChart(this.currentModel.explain);
+                        this.drawChart(this.currentModel);
                     }
                 });
+
+
             },
             queryPredictHistory(param){//查询预测历史
                 getPredictHistory(param).then(data=>{

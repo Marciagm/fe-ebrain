@@ -40,7 +40,6 @@
 </script>
 <style scoped lang="scss" type="text/scss">
     table{
-        overflow: hidden;
         width: 100%;
         max-width: 100%;
         background-color: #fff;

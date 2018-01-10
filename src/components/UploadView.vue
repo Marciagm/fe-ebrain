@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <div id="uploadView" ref="uploadView" v-show="currentPage=='uploadView'">
+    <div id="uploadPage">
+        <div id="uploadView" ref="uploadView">
             <div class="left">
                 <div class="step-bar">
                     <el-steps :active="active" finish-status="success"  simple >
@@ -10,66 +10,151 @@
                         <el-step title="准备预测"></el-step>
                     </el-steps>
                 </div>
-                <!--<div style="display: flex;justify-content: center;align-items: center;">
-                    <div style="width: 400px;">
-                        <el-alert
-                                title="警告提示的文案"
-                                type="warning"
-                                description="文字说明文字说明文字说明文字说明文字说明文字说明"
-                                show-icon>
-                        </el-alert>
-                    </div>
-                </div>-->
-                <div class="file-chooser" v-show="showFileChooser">
-                    <div class="box">
-                        <div class="data-source">
-                            <div id="serverUpload" class="icon">
+               <div class="container" ref="container">
+                   <div class="file-chooser" v-show="currentPage=='uploadView'">
+                        <div class="box">
+                            <div class="data-source">
+                                <div id="serverUpload" class="icon">
 
+                                </div>
+                                <div class="name">
+                                    <el-button @click="fromServer" type="primary">数据库文件</el-button>
+                                </div>
                             </div>
-                            <div class="name">
-                                <el-button @click="fromServer" type="primary">数据库文件</el-button>
+                        </div>
+                        <div class="box">
+                            <div class="data-source">
+                                <div id="localUpload" class="icon">
+
+                                </div>
+                                <div class="name">
+                                    <el-upload ref="upload"
+                                            class="upload-file"
+                                            :action="uploadAction"
+                                            :headers="myHeaders"
+                                            :show-file-list=false
+                                            :on-change="onFileChange"
+                                            :before-upload="beforeUpload"
+                                            :on-progress="onUploadProgress"
+                                            :on-success="handleUploadSuccess"
+                                            :auto-upload="true"
+                                    >
+                                        <el-button type="primary">本地文件</el-button>
+                                    </el-upload>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="data-source">
+                                <div id="historyUpload" class="icon">
+
+                                </div>
+                                <div class="name">
+                                    <el-button @click="fromHistory" type="primary">历史文件</el-button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="box">
-                        <div class="data-source">
-                            <div id="localUpload" class="icon">
-
+                   <div class="file-info-list"  v-show="currentPage=='progressView'">
+                            <div><span><i class="el-icon-loading" style="font-size: 60px;"></i></span></div>
+                            <p v-for="p in progressInfoList" style="font-size:24px;color:gray">
+                                {{p}}
+                            </p>
+                   </div>
+                   <div id="dataCheckView"  v-show="currentPage=='dataCheckView'">
+                        <div class="box">
+                            <div>
+                                <div style="height: 30px">你想预测什么？</div>
+                                <el-row>
+                                    <el-col :span="24">
+                                        <el-autocomplete
+                                                class="inline-input predict-label-input"
+                                                v-model="predict_label"
+                                                :fetch-suggestions="querySearch"
+                                                value-key="feature_name"
+                                                placeholder="请输入标签名称"
+                                                :trigger-on-focus="false"
+                                                @select="handleTagSelect"
+                                        ></el-autocomplete>
+                                    </el-col>
+                                </el-row>
+                                <div v-show="showStartbtn">
+                                    <el-row>
+                                        <el-col :span="8">
+                                            <div id="chart0" v-show="chartType==0"></div>
+                                        </el-col>
+                                        <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
+                                            <p>
+                                            <h3>{{tips}}</h3>
+                                            </p>
+                                        </el-col>
+                                        <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
+                                            <el-button type="primary" class="start-btn" @click="startTrain" :disabled="isLoading">开始</el-button>
+                                        </el-col>
+                                    </el-row>
+                                </div>
                             </div>
-                            <div class="name">
-                                <el-upload ref="upload"
-                                        class="upload-file"
-                                        :action="uploadAction"
-                                        :headers="myHeaders"
-                                        :show-file-list=false
-                                        :on-change="onFileChange"
-                                        :before-upload="beforeUpload"
-                                        :on-progress="onUploadProgress"
-                                        :on-success="handleUploadSuccess"
-                                        :auto-upload="true"
-                                >
-                                    <el-button type="primary">本地文件</el-button>
-                                </el-upload>
+                            <div style="margin-top:15px;">
+                                <template>
+                                    <el-tabs v-model="activeTab" type="card">
+                                        <el-tab-pane label="数据报告" name="first">
+                                            <el-table
+                                                    :data="tableData1"
+                                                    border
+                                                    style="width: 100%;height: 350px;overflow: auto;">
+                                                <el-table-column
+                                                        label="特征"
+                                                        width="180"
+                                                        @cell-click="selectTag()">
+                                                    <template scope="scope">
+                                                        <span style="cursor: pointer" @click="selectTag(scope.row.feature_name,scope.row.column_index)">{{scope.row.feature_name}}</span>
+                                                    </template>
+                                                </el-table-column>
+                                                <el-table-column
+                                                        prop="type"
+                                                        label="特征类型"
+                                                        width="180"
+                                                        :formatter="labelTypeFormat">
+                                                </el-table-column>
+                                                <el-table-column
+                                                        prop="value_count"
+                                                        label="单一个数">
+                                                </el-table-column>
+                                                <el-table-column
+                                                        prop="miss"
+                                                        label="缺少情况">
+                                                </el-table-column>
+                                                <el-table-column
+                                                        prop="max"
+                                                        label="最大值">
+                                                </el-table-column>
+                                                <el-table-column
+                                                        prop="min"
+                                                        label="最小值">
+                                                </el-table-column>
+                                                <el-table-column
+                                                        prop="mean"
+                                                        label="均值">
+                                                </el-table-column>
+                                                <el-table-column
+                                                        prop="std"
+                                                        label="方差">
+                                                </el-table-column>
+                                            </el-table>
+                                        </el-tab-pane>
+                                        <el-tab-pane label="原始数据" name="second" style="height: 500px;">
+                                            <template>
+                                                <dynamic-table  :headers="[]" :list="this.sourceDataResult.dataList"></dynamic-table>
+                                            </template>
+                                        </el-tab-pane>
+                                    </el-tabs>
+                                </template>
                             </div>
                         </div>
                     </div>
-                    <div class="box">
-                        <div class="data-source">
-                            <div id="historyUpload" class="icon">
-
-                            </div>
-                            <div class="name">
-                                <el-button @click="fromHistory" type="primary">历史文件</el-button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="file-info-list" v-show="!showFileChooser" >
-                        <p>
-                            {{validateFileMsg}}
-                        </p>
-                </div>
+               </div>
             </div>
+
             <div class="right">
                 <div class="file-list" ref="fileListDiv">
                     <div class="title">{{projectName || '文件清单'}}</div>
@@ -77,7 +162,7 @@
                         <el-row>
                             <el-col :span="12">
                                 <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="showFileChooser=true" v-show="jobFiles.length>0">继续添加</el-button>
+                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="currentPage='uploadView'" v-show="jobFiles.length>0">继续添加</el-button>
                                 </div>
                             </el-col>
                             <el-col :span="12">
@@ -115,104 +200,7 @@
                 </div>
             </div>
         </div>
-        <section id="dataCheckView"  v-show="currentPage=='dataCheckView'">
-            <div class="step-bar">
-                <el-steps :active="active" finish-status="success" simple>
-                    <el-step title="准备数据"></el-step>
-                    <el-step title="检查数据"></el-step>
-                    <el-step title="正在运行"></el-step>
-                    <el-step title="准备预测"></el-step>
-                </el-steps>
-            </div>
-            <div class="box">
-                <div>
-                    <div style="height: 30px">你想预测什么？</div>
-                    <!--<el-input v-model="predict_label" size="medium" style="width: 200px"></el-input>-->
-                    <div>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-autocomplete
-                                        class="inline-input predict-label-input"
-                                        v-model="predict_label"
-                                        :fetch-suggestions="querySearch"
-                                        value-key="feature_name"
-                                        placeholder="请输入标签名称"
-                                        :trigger-on-focus="false"
-                                        @select="handleTagSelect"
-                                ></el-autocomplete>
-                            </el-col>
-                            <el-col :span="8">
-                                <div id="chart0" v-show="chartType==0"></div>
-                            </el-col>
-                            <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
-                                <p>
-                                <h3>{{tips}}</h3>
-                                </p>
-                            </el-col>
-                            <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
-                                <el-button type="primary" class="start-btn" @click="startTrain" :loading="isLoading">开始</el-button>
-                            </el-col>
-                        </el-row>
-                    </div>
-                </div>
-                <div style="margin-top:15px;">
-                    <template>
-                        <el-tabs v-model="activeTab" type="card">
-                            <el-tab-pane label="数据报告" name="first">
-                                <el-table
-                                        :data="tableData1"
-                                        border
-                                        style="width: 100%;height: 350px;overflow: auto;">
-                                    <el-table-column
-                                            label="特征"
-                                            width="180"
-                                            @cell-click="selectTag()">
-                                        <template scope="scope">
-                                            <span style="cursor: pointer" @click="selectTag(scope.row.feature_name,scope.row.column_index)">{{scope.row.feature_name}}</span>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="type"
-                                            label="特征类型"
-                                            width="180"
-                                            :formatter="labelTypeFormat">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="value_count"
-                                            label="单一个数">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="miss"
-                                            label="缺少情况">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="max"
-                                            label="最大值">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="min"
-                                            label="最小值">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="mean"
-                                            label="均值">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="std"
-                                            label="方差">
-                                    </el-table-column>
-                                </el-table>
-                            </el-tab-pane>
-                            <el-tab-pane label="原始数据" name="second">
-                                <template>
-                                    <dynamic-table  :headers="[]" :list="this.sourceDataResult.dataList"></dynamic-table>
-                                </template>
-                            </el-tab-pane>
-                        </el-tabs>
-                    </template>
-                </div>
-            </div>
-        </section>
+
     </div>
 </template>
 
@@ -236,9 +224,7 @@
         },
         data() {
             return {
-                arr:['1'],
                 currentPage: 'uploadView',
-                showFileChooser:true,
                 active: 0,
                 projectName: '',
                 uploadAction: '',
@@ -251,7 +237,6 @@
                 screenLoading: {},
                 dialogVisible: false,
                 msg: '运行中...',
-                percentage: 0,
                 jobFiles: [],
                 jobFileIds: [],
                 uploadProgress:{},
@@ -267,7 +252,8 @@
                 startBtnDisabled: true,
                 chartType: 0,
                 tips:'',
-                validateFileMsg:''
+                progressInfoList:['start data check'],
+                showStartbtn:false,
             };
         },
         methods: {
@@ -297,7 +283,7 @@
                 });
             },
             onFileChange(file,$event){
-                this.$set(this.uploadProgress,file.uid,file.percentage);
+                //this.$set(this.uploadProgress,file.uid,file.percentage);
             },
             handleRemove(file, fileList) {
                 console.log(file, fileList);
@@ -314,7 +300,8 @@
                 that.jobFiles.push(f);
             },
             onUploadProgress(event, file, fileList){
-                console.log(file)
+                //console.log(file);
+                this.$set(this.uploadProgress,file.uid,file.percentage);
             },
             handleUploadSuccess(response, file, fileList){
                 var that = this;
@@ -431,15 +418,17 @@
                 });
             },
             dataCheck(){
-                this.active = 1;
-                this.showFileChooser = false;
+                var  that = this;
+                that.active = 1;
+                that.currentPage = 'progressView';
+                //this.progresInfoList = 'Data moving successed\r\nExtract column name successed\r\nFeature analyse successed\r\nData merge successed'.split("\r\n");
+                //return;
                 var pm = {
-                    projectId: this.projectId,
-                    jobId: this.jobId,
-                    sequence: this.sequence,
+                    projectId: that.projectId,
+                    jobId: that.jobId,
+                    sequence: that.sequence,
                     step: 'dataCheck',
                 };
-                this.isLoading = true;
                 runJobStep(pm).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
@@ -454,20 +443,27 @@
                                 let {msg, code} = data;
                                 if (code > 0) {
                                     window.clearInterval(timer);
-                                    this.$message({
+                                    that.$message({
                                         message: msg,
                                         type: 'error'
                                     });
                                 } else {
                                     if (data.data.progress != '0') {
                                         window.clearInterval(timer);
-                                        this.currentPage = 'dataCheckView';
-                                        this.queryDataResult();
-                                        this.querySourceFileData();
+                                        that.progressInfoList = data.data.reason.split("\r\n");
+                                        //延时进入下一页
+                                        setTimeout(function(){
+                                            that.currentPage = 'dataCheckView';
+                                            that.queryDataResult();
+                                            that.querySourceFileData();
+                                        },5000);
+
+                                    }else{
+                                        that.progressInfoList = data.data.reason.split("\r\n");
                                     }
                                 }
                             });
-                        }, 5000);
+                        }, 3000);
                     }
                 });
             },
@@ -477,7 +473,7 @@
             selectTag(feature_name, columnIndex){
                 this.predict_label = feature_name;
                 this.labelIndex = columnIndex;
-                this.startBtnDisabled = false;
+                this.showStartbtn = true;
                 var xAxisData = [];
                 var seriesData = [];
                 for (var i = 0; i < this.tableData1[this.labelIndex].value_top_frequence.length; i++) {
@@ -491,6 +487,8 @@
                     this.drawBarChart(xAxisData, seriesData, '样本数', '目标类型');
                     if(this.tableData1[this.labelIndex].value_count>9){
                         this.tips = '您选择的标签是离散类型，离散值共'+this.tableData1[this.labelIndex].value_count+'个，数量较多不适合作为训练标签';
+                    }else{
+                        this.tips="";
                     }
                 } else {
                     this.drawLineChart(xAxisData, seriesData, '样本数', '目标类型');
@@ -558,6 +556,8 @@
                 });
             },
             startTrain(){
+                var that = this;
+                that.isLoading = true;
                 var param = {
                     projectId: this.projectId,
                     jobId: this.jobId,
@@ -565,7 +565,6 @@
                     step: 'train',
                     labelIndex: (this.labelIndex + 1),
                 };
-                this.isLoading = true;
                 runJobStep(param).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
@@ -574,28 +573,9 @@
                             type: 'error'
                         });
                     } else {
-                        window.clearInterval(window.timer);
-                        window.timer = setInterval(() => { //每分钟查询一次任务状态
-                            var param = {jobId: this.jobId};
-                            getJobProgress(param).then(data => {
-                                let {msg, code} = data;
-                                if (code > 0) {
-                                    this.isLoading = false;
-                                    window.clearInterval(window.timer);
-                                    this.$message({
-                                        message: msg,
-                                        type: 'error'
-                                    });
-                                } else {
-                                    if (data.data.progress != 'feature_analyse') {
-                                        this.isLoading = false;
-                                        window.clearInterval(window.timer);
-                                        this.$router.push({path: '/main/modelDetail/' + this.projectId + "/" + this.jobId + "/" + this.sequence + "/false"});
-                                    }
-                                }
-                            });
-                        }, 5000);
-
+                        setTimeout(function(){
+                            that.$router.push({ path: '/main/trainingView/'+that.projectId+"/"+that.jobId+"/"+that.sequence});
+                        },6000);
                     }
                 });
             },
@@ -681,12 +661,12 @@
         },
             created(){
                 this.uploadAction = process.env.API_ROOT + '/filelist/upload';
-                console.log(this.uploadAction);
             },
             mounted(){
 
                 let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
                 this.$refs.uploadView.style.height = (h - 60) + 'px';
+                this.$refs.container.style.height = (h - 60) + 'px';
                 var token = localStorage.getItem('token');
                 this.myHeaders = {Authorization: token};
 
@@ -709,128 +689,134 @@
 </script>
 
 <style lang="scss" type="text/scss">
-    #uploadView{
-        overflow: hidden;
-        .left,.right{
-            min-height: 100%;
-        }
-        .left{
-            width: 80%;
-            float:left;
-        }
-        .right{
-            float:right;
-            width:20%;
-            background-color: #262932;
-        }
+    #uploadPage {
 
-        .step-bar {
-            .el-steps--simple {
-                border-radius:0;
+        #uploadView {
+            overflow: hidden;
+            .left, .right {
+                min-height: 100%;
+            }
+            .left {
+                width: 80%;
+                float: left;
+            }
+            .container {
+                overflow-y: scroll;
+                overflow-x: hidden;
+            }
+            .right {
+                float: right;
+                width: 20%;
+                background-color: #262932;
+            }
+
+            .step-bar {
+                .el-steps--simple {
+                    border-radius: 0;
+                }
+            }
+
+            .el-progress-bar__outer {
+                border-radius: 0;
+            }
+
+            .file-chooser {
+                display: flex;
+                justify-content: center;
+                margin-top: 100px;
+                .box {
+                    margin: 60px 30px;
+                }
+            }
+
+            .card {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .file-list {
+                background: #262932;
+                padding: 0 5px;
+                border-top: solid 1px #ccc;
+            }
+            .file-list .el-icon-circle-plus-outline {
+                color: white;
+            }
+
+            .title {
+                padding: 10px 0;
+                height: 40px;
+                font-size: 18px;
+                text-align: center;
+                color: white;
+                line-height: 40px;
+            }
+
+            .tool-bar {
+                height: 40px;
+                padding: 5px 0;
+                line-height: 22px;
+            }
+
+            .file-item {
+                height: 65px;
+                border-bottom: 1px solid #ccc;
+
+                line-height: 23px;
+                color: white;
+            }
+            .file-item:first-child {
+                border-top: 1px solid #ccc;
+            }
+            .file-item .del-btn {
+                line-height: 60px;
+                cursor: pointer;
+                color: #1d8ce0;
+                padding: 2px 6px;
+            }
+            .file-item .del-btn:hover {
+                color: white;
+            }
+            .el-checkbox {
+                color: white;
+            }
+
+            .file-list .content {
+                overflow-y: auto;
+                overflow-x: hidden;
+                height: 390px;
+            }
+
+            .file-info-list {
+                text-align: center;
+                margin-top: 200px;
             }
         }
+        #dataCheckView {
 
-        .el-progress-bar__outer{
-            border-radius:0;
-        }
-
-        .file-chooser {
-            display: flex;
-            justify-content: center;
-            margin-top: 100px;
-            .box{
-                margin:60px 30px;
+            .step-bar {
+                el-steps--simple {
+                    border-radius: 0;
+                }
             }
-        }
-
-        .card {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .title {
-            padding: 10px 0;
-        }
-
-        .file-list {
-            background: #262932;
-            padding: 0 5px;
-            border-top:solid 1px #ccc;
-        }
-        .file-list .el-icon-circle-plus-outline{
-            color:white;
-        }
-
-        .title {
-            height: 40px;
-            font-size: 18px;
-            text-align: center;
-            color: white;
-            line-height: 40px;
-        }
-
-        .tool-bar {
-            height: 40px;
-            padding: 5px 0;
-            line-height: 22px;
-        }
-
-        .file-item {
-            height: 65px;
-            border-bottom: 1px solid #ccc;
-
-            line-height: 23px;
-            color: white;
-        }
-        .file-item:first-child{
-            border-top: 1px solid #ccc;
-        }
-        .file-item .del-btn{
-            line-height: 60px;
-            cursor: pointer;
-            color:#1d8ce0;
-            padding:2px 6px;
-        }
-        .file-item .del-btn:hover{
-            color:white;
-        }
-        .el-checkbox {
-            color: white;
-        }
-
-        .file-list .content{
-            overflow-y: auto;
-            overflow-x: hidden;
-            height: 390px;
-        }
-
-        .file-info-list{
-            text-align: center;
-            margin-top: 200px;
-        }
-    }
-    #dataCheckView{
-        .step-bar{
-            el-steps--simple {
-                border-radius:0;
+            .box {
+                padding: 30px;
             }
-        }
-        .box{
-            padding:30px;
-        }
-        .start-btn{
-            border-radius: 100px;
-            height:100px;
-            width:100px;
-        }
-        .predict-label-input input{
-            min-width:200px ;
-            width: 100%;
-        }
-        #chart0,#chart1{
-            width:400px;
-            height:300px;
+            .start-btn {
+                border-radius: 100px;
+                height: 150px;
+                width: 150px;
+                font-size: 40px;
+            }
+            .predict-label-input input {
+                min-width: 200px;
+                width: 100%;
+            }
+            #chart0, #chart1 {
+                width: 300px;
+                height: 300px;
+            }
         }
     }
 </style>

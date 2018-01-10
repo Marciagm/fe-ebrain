@@ -4,7 +4,7 @@
             <el-col :span="24" class="header">
                 <el-col :span="20" :offset="2">
                     <el-col :span="4" class="logo" style="padding-left:0" >
-                        <a href="#/main/modelList">预测精灵</a>
+                        <a href="#/main/modelList"><img :src="'../static/logo-ebrain.png'"></img></a>
                     </el-col>
                     <el-col :span="10" >
                         <el-menu :default-active="activeIndex" mode="horizontal" @select="handleSelect">
@@ -187,7 +187,7 @@
                 padding-left:20px;
                 padding-right:20px;
                 img {
-                    width: 40px;
+                    width: 100px;
                     float: left;
                     margin: 10px 10px 10px 18px;
                 }
