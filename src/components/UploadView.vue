@@ -233,6 +233,7 @@
                 projectId: "",
                 jobId: "",
                 sequence: 0,
+                progress:'0',
                 file: {},
                 screenLoading: {},
                 dialogVisible: false,
@@ -674,6 +675,12 @@
                 this.jobId = this.$route.params.jobId;
                 this.sequence = this.$route.params.sequence;
                 this.projectName = this.$route.params.name;
+                this.progress = this.$route.params.progress;
+
+                //如果当前在数据监测，则显示特征列表页
+                if(this.progress=='feature_analyse'){
+                    this.currentPage = 'dataCheckView';
+                }
                 this.queryJobInfo();
                 var that = this;
                 window.onresize = function(){

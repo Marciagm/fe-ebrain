@@ -244,7 +244,7 @@
             return {
                 active:2,
                 timeMeter:6,
-                timeMeterTimer,
+                timeMeterTimer:false,
                 formatTimeMeter:'00:00:00',
                 activeName:'tab1',
                 projectId:0,
@@ -271,8 +271,8 @@
                 };
                 var date = new Date();
                 that.timeMeterTimer = window.setInterval(function(){
-                    formatTimeMeter(date);
-                },3000);
+                    that.formatTimer(date);
+                },1000);
 
 
                 this.timer = window.setInterval(function(){
@@ -280,7 +280,7 @@
                 },3000);
 
             },
-            formatTimeMeter(date){
+            formatTimer(date){
                 var that = this;
                 var newDate = new Date();
                 var h=newDate.getHours()-date.getHours();
@@ -309,7 +309,7 @@
                         });
                     } else {
                         var job = data.data;
-                        if(job.jobStatus=='finish'){
+                        if(job.jobStatus=='finish' && job.progress=='train'){
                             window.clearInterval(that.timer);
                             window.clearInterval(that.timeMeterTimer);
                             that.modelJobList = JSON.parse(job.reason);

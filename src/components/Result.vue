@@ -64,7 +64,7 @@
                             </el-col>
                         </el-row>
                     </div>
-                </el-card>index
+                </el-card>
             </el-col>
         </el-row>
 
@@ -295,27 +295,29 @@
                         });
                     } else {
                         that.jobId  = data.data.tid;
-                        that.sequence = data.data.sequence;
+                        that.sequence = data.data.sequence+1;
                         //job状态保存，退出再进使用
-                        var jobInfo = this.projectId+"/"+this.jobId+"/"+this.sequence;
+                        var jobInfo = this.projectId+"/"+this.jobId+"/"+this.sequence+"/"+this.projectInfo.projectName+"/0";
                         this.$router.push({ path: '/main/uploadView/'+jobInfo });
                     }
                 });
             },
             viewModel(){//查看未完成模型
                 if(this.runningJob.progress=='0'){
-                    this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName});
-                }else if(this.runningJob.progress=='feature_analyse'){
-                    this.$router.push({ path: '/main/dataCheckView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence});
+                    console.log("1progress=="+this.runningJob.progress);
+                    this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName+"/"+this.runningJob.progress});
                 }else if(this.runningJob.progress=='train'){
-                    this.$router.push({ path: '/main/modelDetail/'+this.runningJob.projectId+'/'+this.runningJob.tid+'/'+this.runningJob.sequence+"/false" });
+                    console.log("2progress=="+this.runningJob.progress);
+                    this.$router.push({ path: '/main/trainingView/'+this.projectId+"/"+this.jobId+"/"+this.sequence});
+                    //this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName+"/"+this.runningJob.progress});
                 }else{
-                    this.$router.push({ path: '/main/modelDetail/'+this.runningJob.projectId+'/'+this.runningJob.tid+'/'+this.runningJob.sequence+"/true" });
+                    console.log("3progress=="+this.runningJob.progress);
+                    this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName+"/"+this.runningJob.progress});
+                   // this.$router.push({ path: '/main/modelDetail/'+this.runningJob.projectId+'/'+this.runningJob.tid+'/'+this.runningJob.sequence+"/true" });
                 }
             },
 
             changeVersion(v,index,subIndex){
-                console.log('changeVersion');
                 this.currentVersion = v.sequence;
                 let param={
                     projectId:v.projectId,
@@ -323,8 +325,12 @@
                     sequence:v.sequence,
                 };
 
-                if(v.jobStatus=='finish'){
+                if(v.jobStatus=='finish' && v.progress=='train'){
                     this.queryModelExplain(param,index,subIndex);
+                }else{
+                    if(subIndex>0){
+                        this.modelList=[];
+                    }
                 }
 
             },
@@ -364,13 +370,12 @@
                     } else {
                         this.modelJobList = data.data;
                         this.currentVersion = this.modelJobList[0].sequence;
-
-                        if(this.modelJobList[0].jobStatus == 'finish'){
+                        if(this.modelJobList[0].jobStatus == 'finish' && this.modelJobList[0].progress=='train'){
                             console.log(1)
                             this.hasRunning=false;
                             let param={
                                 projectId:this.projectId,
-                                jobId:  this.currentModel.tid,
+                                jobId: this.this.modelJobList[0].tid,
                                 sequence:this.currentVersion,
                             };
                             this.queryModelExplain(param,0);

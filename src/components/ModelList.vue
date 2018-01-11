@@ -119,7 +119,7 @@
                         that.jobId  = data.data.tid;
                         that.sequence = data.data.sequence;
                         //job状态保存，退出再进使用
-                        var jobInfo = projectId+"/"+this.jobId+"/"+this.sequence+"/"+that.projectForm.projectName;
+                        var jobInfo = projectId+"/"+this.jobId+"/"+this.sequence+"/"+that.projectForm.projectName+"/0";
                         this.$router.push({ path: '/main/uploadView/'+jobInfo });
                     }
                 });
