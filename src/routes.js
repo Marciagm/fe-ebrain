@@ -53,7 +53,7 @@ let routes = [
             { path: '/main/modelDetail/:projectId/:jobId/:sequence/:state', component: ModelDetail, name: '模型详情' },
             { path: '/main/resultView/:projectId/:jobId/:sequence/:fileId', component: ResultView, name: '模型结果' },
             { path: '/main/uploadView/:projectId/:jobId/:sequence/:name/:progress', component: UploadView, name: '文件上传' },
-            { path: '/main/predictView/:projectId/:jobId/:sequence/:modelName', component: PredictView, name: '文件上传' },
+            { path: '/main/predictView/:projectId/:jobId/:sequence/:algorithm', component: PredictView, name: '文件上传' },
             { path: '/main/help', component: Help, name: '帮助' },
             { path: '/main/dataView', component: DataView, name: '帮助' },
         ]

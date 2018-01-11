@@ -50,7 +50,7 @@ export const savePredictHistory = params => { return axios.post(`${base}/predict
 
 export const getPredictResultAndDetail = params => { return axios.get(`${base}/predict/result/${params.tid}`,{}).then(res => res.data); };
 
-export const getPredictHistory = params => { return axios.get(`${base}/model/predict-history/${params.jobId}/${params.sequence}`,{}).then(res => res.data); };
+export const getPredictHistory = params => { return axios.get(`${base}/model/predict-history`,{ params: params }).then(res => res.data); };
 
 export const getJobProgress = params => { return axios.get(`${base}/project/get-job-progress`,{ params: params }).then(res => res.data); };
 

@@ -35,7 +35,7 @@
                                         <el-col :span="4">{{job.model_size || '-'}}</el-col>
                                         <el-col :span="4">{{job.auc || '-'}}</el-col>
                                         <el-col :span="3">{{job.train_time || '-'}}</el-col>
-                                        <el-col :span="3" style="text-align: center">预测</el-col>
+                                        <el-col :span="3" style="text-align: center"><el-button type="text" @click="goPredict(job.algorithm)">预测</el-button></el-col>
                                     </el-row>
                                 </template>
                                 <div style="padding:15px;background: #e6ebf5">
@@ -546,7 +546,7 @@
                 });
             },
             drawFeatureBarChart(target,data) {
-                console.log(target)
+                //console.log(target)
                 var featureBar = echarts.init(document.getElementById(target));
                 featureBar.setOption({
                     title: {
@@ -577,7 +577,7 @@
                 });
             },
             drawLineChart(targetId,chartData) {
-                console.log(targetId);
+                //console.log(targetId);
                 this.chartLine = echarts.init(document.getElementById(targetId));
                 this.chartLine.setOption({
                     tooltip: {
@@ -607,6 +607,9 @@
             },
             handleClick(row){
                 this.$router.push({ path: '/main/modelDetail/'+this.projectId+"/"+this.jobId+"/"+this.sequence });
+            },
+            goPredict(modelName){
+                this.$router.push({ path: '/main/predictView/'+this.projectId+'/'+this.jobId+'/'+this.sequence+"/"+modelName });
             }
         },
         mounted(){

@@ -22,7 +22,7 @@
                         <span>v{{currentVersion}}-{{currentModel.model_name}}</span>
                         <span style="float: right; padding: 3px 0">
                             <span style="padding-right: 15px;">创建时间：{{currentModel.createTime}}</span>
-                            <el-button type="primary" :disabled="currentModel.jobStatus!='success'" @click="predict(currentModel)">预测</el-button>
+                            <el-button type="primary" :disabled="!canPredict" @click="predict(currentModel)">预测</el-button>
                         </span>
                     </div>
                     <div style="text-align: center">
@@ -70,7 +70,7 @@
 
        <el-row>
             <el-col :span="24">
-                <el-card class="box-card">
+                <el-card class="box-card" v-show="canPredict">
                     <div>
                         <el-tabs v-model="tabActive" type="card">
                             <el-tab-pane label="预测历史" name="1">
@@ -257,7 +257,9 @@
         data() {
             return {
                 projectInfo:{},
+                currentJob:{},
                 runningJob:{},
+                canPredict:false,
                 currentVersion:'-',
                 isLoading:false,
                 hasRunning:false,
@@ -281,6 +283,7 @@
                 confusion_matrix:{},
                 parentIndex:0,
                 subIndex:0,
+                chartList:{},
             }
         },
         methods: {
@@ -304,20 +307,20 @@
             },
             viewModel(){//查看未完成模型
                 if(this.runningJob.progress=='0'){
-                    console.log("1progress=="+this.runningJob.progress);
+                    //console.log("1progress=="+this.runningJob.progress);
                     this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName+"/"+this.runningJob.progress});
                 }else if(this.runningJob.progress=='train'){
-                    console.log("2progress=="+this.runningJob.progress);
+                    //console.log("2progress=="+this.runningJob.progress);
                     this.$router.push({ path: '/main/trainingView/'+this.projectId+"/"+this.jobId+"/"+this.sequence});
                     //this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName+"/"+this.runningJob.progress});
                 }else{
-                    console.log("3progress=="+this.runningJob.progress);
+                    //console.log("3progress=="+this.runningJob.progress);
                     this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName+"/"+this.runningJob.progress});
                    // this.$router.push({ path: '/main/modelDetail/'+this.runningJob.projectId+'/'+this.runningJob.tid+'/'+this.runningJob.sequence+"/true" });
                 }
             },
-
             changeVersion(v,index,subIndex){
+                //console.log(subIndex+"=subIndex")
                 this.currentVersion = v.sequence;
                 let param={
                     projectId:v.projectId,
@@ -326,16 +329,25 @@
                 };
 
                 if(v.jobStatus=='finish' && v.progress=='train'){
+                    this.canPredict = true;
                     this.queryModelExplain(param,index,subIndex);
                 }else{
-                    if(subIndex>0){
-                        this.modelList=[];
-                    }
+                    this.canPredict = false;
+                    this.modelList=[];
+                    this.currentModel={
+                        precise_recall:{
+                            precise:0
+                        },
+                        roc:{},
+                    };
+                    this.currentAlgorithm = '-';
+                    this.clearChart();
                 }
 
             },
             predict(model){
-                this.$router.push({ path: '/main/predictView/'+model.projectId+'/'+model.tid+'/'+model.sequence+"/"+model.explain.model_name });
+                //console.log('/main/predictView/'+this.currentJob.projectId+'/'+this.currentJob.tid+'/'+this.currentVersion+"/"+this.currentAlgorithm);
+                this.$router.push({ path: '/main/predictView/'+this.currentJob.projectId+'/'+this.currentJob.tid+'/'+this.currentVersion+"/"+this.currentAlgorithm });
             },
             queryProjectInfo(){ //查询模型基本信息
                 let param = {
@@ -369,19 +381,21 @@
                         });
                     } else {
                         this.modelJobList = data.data;
+                        this.currentJob = this.modelJobList[0];
                         this.currentVersion = this.modelJobList[0].sequence;
                         if(this.modelJobList[0].jobStatus == 'finish' && this.modelJobList[0].progress=='train'){
-                            console.log(1)
                             this.hasRunning=false;
+                            this.canPredict = true;
                             let param={
                                 projectId:this.projectId,
-                                jobId: this.this.modelJobList[0].tid,
+                                jobId: this.modelJobList[0].tid,
                                 sequence:this.currentVersion,
                             };
-                            this.queryModelExplain(param,0);
+                            this.queryModelExplain(param,0,0);
                         }else{
-                            console.log(2)
+                            //console.log(2)
                             this.hasRunning=true;
+                            this.canPredict = false;
                             this.runningJob = this.modelJobList[0];
                         }
 
@@ -401,7 +415,9 @@
                     } else {
                         var modelExplain = JSON.parse(data.data.modelExplain);
                         this.modelList = modelExplain.models;
-                        this.currentModel=modelExplain.models[subIndex];
+                        this.currentModel=this.modelList[subIndex];
+                        //console.log(this.currentModel)
+
                         this.currentAlgorithm =  this.currentModel.model_name;
                         this.queryPredictHistory(param);
                         this.drawChart(this.currentModel);
@@ -554,8 +570,9 @@
                 this.drawLineChart("chart3",recallChartData);
             },
             drawBarChart(xAxisData,barSeriesData) {
-                this.chartBar = echarts.init(document.getElementById('chart1'));
-                this.chartBar.setOption({
+                var chartBar = echarts.init(document.getElementById('chart1'));
+                this.chartList['chart1'] = chartBar;
+                chartBar.setOption({
                     title: {
                         text: '待预测目标类型分布',
                         subtext: ''
@@ -590,6 +607,7 @@
             },
             drawFeatureBarChart(target,data) {
                 var featureBar = echarts.init(document.getElementById(target));
+                this.chartList[target] = featureBar;
                 featureBar.setOption({
                     title: {
                         text: '特征重要性',
@@ -620,8 +638,9 @@
             },
             drawLineChart(targetId,chartData) {
                 //console.log(targetId);
-                this.chartLine = echarts.init(document.getElementById(targetId));
-                this.chartLine.setOption({
+                var chartLine = echarts.init(document.getElementById(targetId));
+                this.chartList[targetId] = chartLine;
+                chartLine.setOption({
                     tooltip: {
                         trigger: 'axis'
                     },
@@ -647,6 +666,14 @@
                     series: chartData.seriesData
                 });
             },
+            clearChart(){
+                for(var c in this.chartList){
+                    try{
+                        this.chartList[c].dispose();
+                    }catch(e){}
+
+                }
+            }
         },
         mounted(){
             this.projectId = this.$route.params.projectId;

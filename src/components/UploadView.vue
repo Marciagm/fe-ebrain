@@ -287,7 +287,7 @@
                 //this.$set(this.uploadProgress,file.uid,file.percentage);
             },
             handleRemove(file, fileList) {
-                console.log(file, fileList);
+                //console.log(file, fileList);
             },
             beforeUpload(file){
                 var  that = this;
@@ -349,7 +349,7 @@
                 });
             },
             uploadError(){
-                console.log("upload error")
+                //console.log("upload error")
             },
             handleExceed(files, fileList) {
                 this.$message.warning(`当前限制选择 3 个文件，本次选择了 ${files.length} 个文件，共选择了 ${files.length + fileList.length} 个文件`);
@@ -482,7 +482,7 @@
                     xAxisData.push(obj.value);
                     seriesData.push(obj.frequence);
                 }
-                console.log(this.tableData1[this.labelIndex].type)
+                //console.log(this.tableData1[this.labelIndex].type)
                 if (this.tableData1[this.labelIndex].type == 0) {
                     this.chartType = 0;
                     this.drawBarChart(xAxisData, seriesData, '样本数', '目标类型');
@@ -527,7 +527,7 @@
                     } else {
                         this.sourceData = data.data;
                         this.sourceDataResult = JSON.parse(data.data.dataResult);
-                        // console.log(this.sourceDataResult)
+                        // //console.log(this.sourceDataResult)
                     }
                 });
             },
@@ -536,7 +536,7 @@
                 var param = {projectId: this.projectId, jobId: this.jobId, sequence: this.sequence};
                 getDataResult(param).then(data => {
                     let {msg, code} = data;
-                    // console.log(data)
+                    // //console.log(data)
                     if (code > 0) {
                         this.$message({
                             message: msg,
