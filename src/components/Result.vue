@@ -73,27 +73,6 @@
                 <el-card class="box-card" v-show="canPredict">
                     <div>
                         <el-tabs v-model="tabActive" type="card">
-                            <el-tab-pane label="预测历史" name="1">
-                                <el-table
-                                        :data="predictTableData"
-                                        border
-                                        style="width: 100%">
-                                    <el-table-column
-                                            prop="srcFile"
-                                            label="预测文件"
-                                            width="180">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="modelName"
-                                            label="使用模型"
-                                            width="180">
-                                    </el-table-column>
-                                    <el-table-column
-                                            prop="createTime"
-                                            label="时间">
-                                    </el-table-column>
-                                </el-table>
-                            </el-tab-pane>
                             <el-tab-pane label="特征重要性" name="2">
                                 <div>
                                     <el-row>

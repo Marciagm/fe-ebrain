@@ -4,8 +4,9 @@
     <list default="true" id="2cad41ad-c569-4c35-96ab-13f0b8f11434" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/DataView.vue" afterPath="$PROJECT_DIR$/src/components/DataView.vue" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/DynamicTable.vue" afterPath="$PROJECT_DIR$/src/components/DynamicTable.vue" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/PredictView.vue" afterPath="$PROJECT_DIR$/src/components/PredictView.vue" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/ModelList.vue" afterPath="$PROJECT_DIR$/src/components/ModelList.vue" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/Result.vue" afterPath="$PROJECT_DIR$/src/components/Result.vue" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/components/UploadView.vue" afterPath="$PROJECT_DIR$/src/components/UploadView.vue" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -23,20 +24,20 @@
       <file leaf-file-name="Result.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/Result.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6441">
-              <caret line="606" column="14" lean-forward="false" selection-start-line="606" selection-start-column="14" selection-end-line="606" selection-end-column="14" />
+            <state relative-caret-position="116">
+              <caret line="75" column="0" lean-forward="false" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
               <folding>
-                <element signature="e#14116#14232#0" expanded="true" />
-                <element signature="e#15703#16481#0" expanded="false" />
-                <element signature="e#19132#19743#0" expanded="false" />
-                <element signature="e#19771#21279#0" expanded="false" />
-                <element signature="e#21332#22210#0" expanded="false" />
-                <element signature="e#22250#22751#0" expanded="false" />
-                <element signature="e#22788#28073#0" expanded="false" />
-                <element signature="e#28125#29335#0" expanded="false" />
-                <element signature="e#29382#30445#0" expanded="false" />
-                <element signature="e#30493#31568#0" expanded="false" />
-                <element signature="e#31594#31784#0" expanded="false" />
+                <element signature="e#12960#13076#0" expanded="true" />
+                <element signature="e#14547#15325#0" expanded="false" />
+                <element signature="e#17976#18587#0" expanded="false" />
+                <element signature="e#18615#20123#0" expanded="false" />
+                <element signature="e#20176#21054#0" expanded="false" />
+                <element signature="e#21094#21595#0" expanded="false" />
+                <element signature="e#21632#26917#0" expanded="false" />
+                <element signature="e#26969#28179#0" expanded="false" />
+                <element signature="e#28226#29289#0" expanded="false" />
+                <element signature="e#29337#30412#0" expanded="false" />
+                <element signature="e#30438#30628#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -74,7 +75,7 @@
       <file leaf-file-name="DynamicTable.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/DynamicTable.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
+            <state relative-caret-position="1007">
               <caret line="53" column="33" lean-forward="false" selection-start-line="53" selection-start-column="33" selection-end-line="53" selection-end-column="33" />
               <folding />
             </state>
@@ -94,11 +95,11 @@
       <file leaf-file-name="DataView.vue" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/components/DataView.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="418">
-              <caret line="22" column="27" lean-forward="false" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
+            <state relative-caret-position="513">
+              <caret line="27" column="18" lean-forward="true" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
               <folding>
                 <element signature="n#style#0;n#el-table#0;n#section#0;n#template#0;n#!!top" expanded="true" />
-                <element signature="e#1040#1086#0" expanded="true" />
+                <element signature="e#1071#1117#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -107,8 +108,18 @@
       <file leaf-file-name="ModelList.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/ModelList.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="201">
-              <caret line="122" column="10" lean-forward="false" selection-start-line="122" selection-start-column="10" selection-end-line="122" selection-end-column="10" />
+            <state relative-caret-position="285">
+              <caret line="27" column="44" lean-forward="false" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="UploadView.vue" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/components/UploadView.vue">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="1807">
+              <caret line="684" column="0" lean-forward="false" selection-start-line="684" selection-start-column="0" selection-end-line="684" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -117,7 +128,7 @@
       <file leaf-file-name="FileSelectView.vue" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/components/FileSelectView.vue">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
+            <state relative-caret-position="2128">
               <caret line="112" column="4" lean-forward="false" selection-start-line="112" selection-start-column="4" selection-end-line="112" selection-end-column="70" />
               <folding>
                 <element signature="e#4668#4734#0" expanded="true" />
@@ -234,14 +245,14 @@
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/src/components/Main.vue" />
         <option value="$PROJECT_DIR$/src/components/ModelDetail.vue" />
-        <option value="$PROJECT_DIR$/src/components/ModelList.vue" />
         <option value="$PROJECT_DIR$/src/routes.js" />
         <option value="$PROJECT_DIR$/src/api/api.js" />
         <option value="$PROJECT_DIR$/src/components/TrainingView.vue" />
-        <option value="$PROJECT_DIR$/src/components/UploadView.vue" />
-        <option value="$PROJECT_DIR$/src/components/Result.vue" />
         <option value="$PROJECT_DIR$/src/components/PredictView.vue" />
         <option value="$PROJECT_DIR$/src/components/DynamicTable.vue" />
+        <option value="$PROJECT_DIR$/src/components/Result.vue" />
+        <option value="$PROJECT_DIR$/src/components/UploadView.vue" />
+        <option value="$PROJECT_DIR$/src/components/ModelList.vue" />
         <option value="$PROJECT_DIR$/src/components/DataView.vue" />
       </list>
     </option>
@@ -296,7 +307,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -361,6 +371,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -537,12 +548,13 @@
       <workItem from="1515654801064" duration="22308000" />
       <workItem from="1515747684454" duration="7651000" />
       <workItem from="1515890149741" duration="65000" />
-      <workItem from="1516000152683" duration="1770000" />
+      <workItem from="1516000152683" duration="1772000" />
+      <workItem from="1516023813127" duration="1959000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="550502000" />
+    <option name="totallyTimeSpent" value="552463000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -560,13 +572,13 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17123288" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3295583" sideWeight="0.49788582" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.15292841" sideWeight="0.5021142" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -873,38 +885,11 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/UploadView.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="545" column="39" lean-forward="false" selection-start-line="545" selection-start-column="39" selection-end-line="545" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/api/api.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="950">
           <caret line="50" column="38" lean-forward="false" selection-start-line="50" selection-start-column="13" selection-end-line="50" selection-end-column="38" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/components/Result.vue">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6441">
-          <caret line="606" column="14" lean-forward="false" selection-start-line="606" selection-start-column="14" selection-end-line="606" selection-end-column="14" />
-          <folding>
-            <element signature="e#14116#14232#0" expanded="true" />
-            <element signature="e#15703#16481#0" expanded="false" />
-            <element signature="e#19132#19743#0" expanded="false" />
-            <element signature="e#19771#21279#0" expanded="false" />
-            <element signature="e#21332#22210#0" expanded="false" />
-            <element signature="e#22250#22751#0" expanded="false" />
-            <element signature="e#22788#28073#0" expanded="false" />
-            <element signature="e#28125#29335#0" expanded="false" />
-            <element signature="e#29382#30445#0" expanded="false" />
-            <element signature="e#30493#31568#0" expanded="false" />
-            <element signature="e#31594#31784#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -937,7 +922,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/components/DynamicTable.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
+        <state relative-caret-position="1007">
           <caret line="53" column="33" lean-forward="false" selection-start-line="53" selection-start-column="33" selection-end-line="53" selection-end-column="33" />
           <folding />
         </state>
@@ -953,7 +938,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/components/FileSelectView.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
+        <state relative-caret-position="2128">
           <caret line="112" column="4" lean-forward="false" selection-start-line="112" selection-start-column="4" selection-end-line="112" selection-end-column="70" />
           <folding>
             <element signature="e#4668#4734#0" expanded="true" />
@@ -961,21 +946,49 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/Result.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116">
+          <caret line="75" column="0" lean-forward="false" selection-start-line="75" selection-start-column="0" selection-end-line="75" selection-end-column="0" />
+          <folding>
+            <element signature="e#12960#13076#0" expanded="true" />
+            <element signature="e#14547#15325#0" expanded="false" />
+            <element signature="e#17976#18587#0" expanded="false" />
+            <element signature="e#18615#20123#0" expanded="false" />
+            <element signature="e#20176#21054#0" expanded="false" />
+            <element signature="e#21094#21595#0" expanded="false" />
+            <element signature="e#21632#26917#0" expanded="false" />
+            <element signature="e#26969#28179#0" expanded="false" />
+            <element signature="e#28226#29289#0" expanded="false" />
+            <element signature="e#29337#30412#0" expanded="false" />
+            <element signature="e#30438#30628#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/components/UploadView.vue">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1807">
+          <caret line="684" column="0" lean-forward="false" selection-start-line="684" selection-start-column="0" selection-end-line="684" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/components/ModelList.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="201">
-          <caret line="122" column="10" lean-forward="false" selection-start-line="122" selection-start-column="10" selection-end-line="122" selection-end-column="10" />
+        <state relative-caret-position="285">
+          <caret line="27" column="44" lean-forward="false" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/components/DataView.vue">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="418">
-          <caret line="22" column="27" lean-forward="false" selection-start-line="22" selection-start-column="27" selection-end-line="22" selection-end-column="27" />
+        <state relative-caret-position="513">
+          <caret line="27" column="18" lean-forward="true" selection-start-line="27" selection-start-column="18" selection-end-line="27" selection-end-column="18" />
           <folding>
             <element signature="n#style#0;n#el-table#0;n#section#0;n#template#0;n#!!top" expanded="true" />
-            <element signature="e#1040#1086#0" expanded="true" />
+            <element signature="e#1071#1117#0" expanded="true" />
           </folding>
         </state>
       </provider>

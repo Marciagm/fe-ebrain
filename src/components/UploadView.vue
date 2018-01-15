@@ -682,11 +682,6 @@
                     this.currentPage = 'dataCheckView';
                 }
                 this.queryJobInfo();
-                var that = this;
-                window.onresize = function(){
-                    let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-                    that.$refs.uploadView.style.height = (h - 60) + 'px';
-                };
             },
             destroyed(){
                 window.clearInterval(window.timer);

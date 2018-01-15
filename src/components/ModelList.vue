@@ -10,7 +10,7 @@
                             </div>
                         </div>
                     </el-col>
-                    <el-col :span="6" class="box" v-for="p in projectPageInfo.list" :key="p.tid">
+                    <el-col :span="6" class="box" v-for="p in dataList" :key="p.tid">
                         <div class="model-card" @click="goToModelDetail($event,p.tid,p.status)">
                             <div class="icon">
                                 <i class="el-icon-setting"></i>
@@ -24,6 +24,13 @@
                         </div>
                     </el-col>
                 </el-row>
+
+                <el-pagination v-if="total>7"
+                        background
+                        layout="prev, pager, next"
+                        :page-size="7"
+                        :total="total">
+                </el-pagination>
             </el-col>
         </el-row>
 
@@ -57,6 +64,7 @@
             ElButton},
         data() {
             return {
+                total:0,
                 dialogNewModelVisible:false,
                 isLoading:false,
                 projectForm: {
@@ -73,11 +81,9 @@
                         {min: 1, max: 100, message: '长度在 3 到 5 个字符', trigger: 'blur'}
                     ],
                 },
-                projectPageInfo:{
-                    hasNextPage:true,
-                    pageSize:8,
-                    pageNum:1,
-                },
+                dataList:[],
+                pageSize:7,
+                pageNum:1,
             }
         },
         methods: {
@@ -129,8 +135,8 @@
             },
             queryProject(){
                 var param = {
-                    "pageNum": this.projectPageInfo.pageNum,
-                    "pageSize": this.projectPageInfo.pageSize,
+                    "pageNum": this.pageNum,
+                    "pageSize": this.pageSize,
                 };
                 this.isLoading=true;
                 getProjectListPage(param).then(data=>{
@@ -142,7 +148,8 @@
                             type: 'error'
                         });
                     } else {
-                        this.projectPageInfo= data.data;
+                        this.dataList= data.data.list;
+                        this.total = data.data.total;
                     }
                 });
             },
@@ -203,6 +210,9 @@
         .model-card:hover{
            cursor: pointer;
         }
-
+        .el-pagination{
+            text-align: center;
+            nargin:15px;
+        }
     }
 </style>
