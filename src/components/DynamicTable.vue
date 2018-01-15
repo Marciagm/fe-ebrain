@@ -39,36 +39,40 @@
     }
 </script>
 <style scoped lang="scss" type="text/scss">
-    table{
-        width: 100%;
-        max-width: 100%;
-        background-color: #fff;
-        border: 1px solid #dfe6ec;
-        font-size: 14px;
-        color: #1f2d3d;
-        tr{
+    .dynamic-table-section{
+        overflow-x: scroll;
+        table{
+            width: 100%;
+            max-width: 100%;
             background-color: #fff;
-            td{
-                height: 40px;
-                min-width: 80px;
-                text-overflow: ellipsis;
-                vertical-align: middle;
-                border-bottom: 1px solid #dfe6ec;
-                transition: background-color .25s ease;
-                box-sizing: border-box;
-                white-space: nowrap;
-                position: relative;
-                .cell{
-                    padding-left: 18px;
-                    padding-right: 18px;
-                    box-sizing: border-box;
+            border: 1px solid #dfe6ec;
+            font-size: 14px;
+            color: #1f2d3d;
+            tr{
+                background-color: #fff;
+                td{
+                    height: 40px;
+                    min-width: 80px;
                     text-overflow: ellipsis;
+                    vertical-align: middle;
+                    border-bottom: 1px solid #dfe6ec;
+                    transition: background-color .25s ease;
+                    box-sizing: border-box;
+                    white-space: nowrap;
+                    position: relative;
+                    .cell{
+                        padding-left: 18px;
+                        padding-right: 18px;
+                        box-sizing: border-box;
+                        text-overflow: ellipsis;
+                    }
                 }
             }
-        }
-        thead tr:first-child{
-            background-color: #eef1f6;
-            color: #1f2d3d;
+            thead tr:first-child{
+                background-color: #eef1f6;
+                color: #1f2d3d;
+            }
         }
     }
+
 </style>
