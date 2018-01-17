@@ -29,7 +29,7 @@
                         background
                         layout="prev, pager, next"
                         :page-size="7"
-                        :total="total">
+                        :total="total" @current-change="pageChange">
                 </el-pagination>
             </el-col>
         </el-row>
@@ -153,6 +153,10 @@
                     }
                 });
             },
+            pageChange(val){
+                this.pageNum=val;
+                this.queryProject();
+            }
         },
         mounted(){
             this.queryProject();

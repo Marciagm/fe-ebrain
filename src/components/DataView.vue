@@ -30,7 +30,8 @@
                 background
                 :page-size="7"
                 layout="prev, pager, next"
-                :total="total" @current-change="pageChange">
+                :total="total"
+                @current-change="pageChange">
         </el-pagination>
     </section>
 

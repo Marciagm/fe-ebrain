@@ -7,7 +7,7 @@
                              label-width="60px" size="small">
                         <el-row style="height: 60px">
                             <el-col :span="4">
-                                <div class="grid-content signin-label"><a href="#/login" style="cursor:pointer">登陆</a>
+                                <div class="grid-content signin-label"><a @click="link" style="cursor:pointer">登陆</a>
                                 </div>
                             </el-col>
                             <el-col :span="4">
@@ -171,6 +171,9 @@
                         return false;
                     }
                 });
+            },
+            link(){
+                this.$router.push({path:'/login'});
             }
         }
     }

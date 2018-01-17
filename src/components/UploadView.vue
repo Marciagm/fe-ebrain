@@ -89,7 +89,10 @@
                                             </p>
                                         </el-col>
                                         <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
-                                            <el-button type="primary" class="start-btn" @click="startTrain" :disabled="isLoading">开始</el-button>
+                                            <el-button type="primary" class="start-btn" @click="startTrain" v-show="!isLoading">开始</el-button>
+                                            <el-button type="primary" class="start-btn" v-show="isLoading" >
+                                                <i class="el-icon-loading"></i>
+                                            </el-button>
                                         </el-col>
                                     </el-row>
                                 </div>
@@ -167,7 +170,7 @@
                             </el-col>
                             <el-col :span="12">
                                 <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="dataCheck" v-show="jobFiles.length>0" :loading="isLoading">下一步</el-button>
+                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="dataCheck" v-show="jobFiles.length>0" :disabled="isLoading">下一步</el-button>
                                 </div>
                             </el-col>
                         </el-row>
@@ -278,7 +281,9 @@
                             that.jobFileIds.push(that.jobFiles[i].tid);
                         }
                         that.validateUploadFile(function(){
-                            //console.log("")
+                            that.currentPage = "dataCheckView";
+                            that.queryDataResult();
+                            that.querySourceFileData();
                         });
                     }
                 });
@@ -396,6 +401,13 @@
                 this.historyDialogVisible = false;
             },
             deleteFile(tid){ //删除文件
+                if(this.currentpage == 'progressView'){
+                    this.$message({
+                        message: '当前任务正在进行，不可删除文件',
+                        type: 'error'
+                    });
+                    return;
+                }
                 for (var i = 0; i < this.jobFileIds.length; i++) {
                     if (this.jobFileIds[i] == tid) {
                         this.jobFileIds.splice(i, 1);
@@ -594,7 +606,7 @@
                         }
                     },
                     grid: {
-                        left: '8%',
+                        left: '12%',
                         right: '8%',
                         bottom: '8%',
                         containLabel: true

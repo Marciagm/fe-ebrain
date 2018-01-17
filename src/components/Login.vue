@@ -10,7 +10,7 @@
                                 <div class="grid-content signin-label" style="color:#d3dce6;">登陆</div>
                             </el-col>
                             <el-col :span="4">
-                                <div class="grid-content signup-label"><a href="#/regist" style="cursor:pointer">注册</a>
+                                <div class="grid-content signup-label"><a @click="link" style="cursor:pointer">注册</a>
                                 </div>
                             </el-col>
                         </el-row>
@@ -113,13 +113,16 @@
                         return false;
                     }
                 });
+            },
+            link(){
+                this.$router.push({path:'/regist'});
             }
         }
     }
 
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     @import '~scss_vars';
 
     #loginView {
