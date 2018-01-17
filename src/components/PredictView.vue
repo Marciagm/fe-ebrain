@@ -129,9 +129,9 @@
                                             <div @click="showResult(file,index)">{{file.srcFile}}</div>
                                         </el-col>
                                         <el-col :span="2" style="overflow: hidden">
-                                            <el-button v-if="file.status=='waiting'">等待</el-button>
-                                            <el-button v-if="file.status=='success'">成功</el-button>
-                                            <el-button v-if="file.status=='fail'" @click="showReason(file)">失败</el-button>
+                                            <el-button v-if="file.status=='waiting'" size="mini" type="text">等待</el-button>
+                                            <el-button v-if="file.status=='success'" size="mini" type="text">成功</el-button>
+                                            <el-button v-if="file.status=='fail'" @click="showReason(file)" size="mini" type="text">失败</el-button>
                                         </el-col>
                                         <el-col :span="24" v-if="file.state">
                                             <el-progress :percentage="uploadProgress[file.tid]" :show-text="false" :stroke-width="5" v-show="uploadProgress[file.tid]<100"></el-progress>
