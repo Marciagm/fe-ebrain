@@ -2,15 +2,15 @@
     <section id="resultPage">
         <el-card class="box-card">
             <div slot="header" class="clearfix">
-                <span style="font-size:20px;">模型名称：{{projectInfo.projectName}}</span>
+                <span class="model-name">模型名称：{{projectInfo.projectName}}</span>
                 <span style="float: right; padding: 3px 0">
                     <span style="padding-right: 15px;">创建时间：{{projectInfo.createTime}}</span>
-                    <el-button @click="updateModel" v-if="!hasRunning">更新模型</el-button>
-                    <el-button @click="viewModel" v-if="hasRunning">未完成模型</el-button>
+                    <el-button @click="updateModel" v-if="!hasRunning" type="primary">更新模型</el-button>
+                    <el-button @click="viewModel" v-if="hasRunning" type="primary">未完成模型</el-button>
                 </span>
             </div>
             <div>
-                <p>
+                <p class="model-desc">
                    模型描述：{{projectInfo.projectDesc}}
                 </p>
             </div>
@@ -19,10 +19,10 @@
             <el-col :span="12">
                 <el-card class="box-card">
                     <div slot="header" class="clearfix">
-                        <span>v{{currentVersion}}-{{currentModel.model_name}}</span>
+                        <span style="font-size: 18px">算法：v{{currentVersion}}-{{currentModel.model_name}}</span>
                         <span style="float: right; padding: 3px 0">
                             <span style="padding-right: 15px;">创建时间：{{currentModel.createTime}}</span>
-                            <el-button type="primary" :disabled="!canPredict" @click="predict(currentModel)">预测</el-button>
+                            <el-button type="primary" :disabled="!canPredict" @click="predict(cmodel)">预测</el-button>
                         </span>
                     </div>
                     <div style="text-align: center">
@@ -60,7 +60,7 @@
                             </el-col>
                             <el-col :span="20">
                                 <el-button size="mini" round v-for="(mm,subIndex) in modelList" :type="mm.model_name== currentAlgorithm ? 'primary':'default'"
-                                           @click="changeVersion(mm,parentIndex,subIndex)" :index="subIndex">{{mm.model_name}}</el-button>
+                                           @click="changeVersion(modelJobList[parentIndex],parentIndex,subIndex)" :index="subIndex">{{mm.model_name}}</el-button>
                             </el-col>
                         </el-row>
                     </div>
@@ -263,6 +263,7 @@
                 parentIndex:0,
                 subIndex:0,
                 chartList:{},
+                cmodel:{},
             }
         },
         methods: {
@@ -277,7 +278,7 @@
                         });
                     } else {
                         that.jobId  = data.data.tid;
-                        that.sequence = data.data.sequence+1;
+                        that.sequence = data.data.sequence;
                         //job状态保存，退出再进使用
                         var jobInfo = this.projectId+"/"+this.jobId+"/"+this.sequence+"/"+this.projectInfo.projectName+"/0";
                         this.$router.push({ path: '/main/uploadView/'+jobInfo });
@@ -299,34 +300,29 @@
                 }
             },
             changeVersion(v,index,subIndex){
-                //console.log(subIndex+"=subIndex")
+                console.log(v)
+                this.cmodel = v;
                 this.currentVersion = v.sequence;
-                let param={
-                    projectId:v.projectId,
-                    jobId:v.tid,
-                    sequence:v.sequence,
-                };
 
                 if(v.jobStatus=='finish' && v.progress=='train'){
+                    let param={
+                        projectId:v.projectId,
+                        jobId:v.tid,
+                        sequence:v.sequence,
+                    };
                     this.canPredict = true;
                     this.queryModelExplain(param,index,subIndex);
                 }else{
                     this.canPredict = false;
-                    this.modelList=[];
-                    this.currentModel={
-                        precise_recall:{
-                            precise:0
-                        },
-                        roc:{},
-                    };
-                    this.currentAlgorithm = '-';
+                   // this.modelList=[];
                     this.clearChart();
                 }
 
             },
             predict(model){
+                console.log(model);
                 //console.log('/main/predictView/'+this.currentJob.projectId+'/'+this.currentJob.tid+'/'+this.currentVersion+"/"+this.currentAlgorithm);
-                this.$router.push({ path: '/main/predictView/'+this.currentJob.projectId+'/'+this.currentJob.tid+'/'+this.currentVersion+"/"+this.currentAlgorithm });
+                this.$router.push({ path: '/main/predictView/'+model.projectId+'/'+model.tid+'/'+model.sequence+"/"+this.currentAlgorithm });
             },
             queryProjectInfo(){ //查询模型基本信息
                 let param = {
@@ -363,6 +359,7 @@
                         this.currentJob = this.modelJobList[0];
                         this.currentVersion = this.modelJobList[0].sequence;
                         if(this.modelJobList[0].jobStatus == 'finish' && this.modelJobList[0].progress=='train'){
+                            this.cmodel = this.modelJobList[0];
                             this.hasRunning=false;
                             this.canPredict = true;
                             let param={
@@ -667,6 +664,23 @@
         background: white;
         padding:15px;
         line-height: 35px;
+
+        .model-name{
+            font-size: 24px;
+            font-weight: normal;
+            font-stretch: normal;
+            line-height: 27px;
+            letter-spacing: 1px;
+            color: #2f2e2e;
+        }
+        .model-desc{
+            font-size: 18px;
+            font-weight: normal;
+            font-stretch: normal;
+            line-height: 27px;
+            letter-spacing: 0px;
+            color: #413f3f;
+        }
 
         .box-card{
             margin:15px;

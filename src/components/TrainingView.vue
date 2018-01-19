@@ -3,10 +3,9 @@
         <div class="left" ref="left">
             <div class="step-bar">
                 <el-steps :active="active" finish-status="success" simple>
-                    <el-step title="准备数据"></el-step>
-                    <el-step title="检查数据"></el-step>
-                    <el-step title="正在运行"></el-step>
-                    <el-step title="准备预测"></el-step>
+                    <el-step title="数据上传"></el-step>
+                    <el-step title="数据检查"></el-step>
+                    <el-step title="模型训练"></el-step>
                 </el-steps>
             </div>
             <div>
@@ -18,7 +17,7 @@
                 </div>
                 <div class="model-table">
                     <el-row class="header">
-                        <el-col :span="4">模型名称</el-col>
+                        <el-col :span="4"><el-button type="text" @click="gotoResult">模型名称</el-button></el-col>
                         <el-col :span="4">准确率</el-col>
                         <el-col :span="4">模型大小</el-col>
                         <el-col :span="4">AUC</el-col>
@@ -207,7 +206,7 @@
                         当前进程：{{modelJobList.length}}
                     </el-col>
                     <el-col :span="12">
-                        训练记时：<span>{{formatTimeMeter}}</span>
+                        训练计时：<span>{{formatTimeMeter}}</span>
                     </el-col>
                 </el-row>
                 <div class="content">
@@ -610,6 +609,9 @@
             },
             goPredict(modelName){
                 this.$router.push({ path: '/main/predictView/'+this.projectId+'/'+this.jobId+'/'+this.sequence+"/"+modelName });
+            },
+            gotoResult(){
+                this.$router.push({ path: '/main/result/'+this.projectId });
             }
         },
         mounted(){

@@ -2,29 +2,21 @@
     <div id="predictPage">
         <div id="uploadView" ref="uploadView">
             <div class="left">
-                <div class="step-bar">
-                    <el-steps :active="active" finish-status="success"  simple >
-                        <el-step title="准备数据"></el-step>
-                        <el-step title="检查数据"></el-step>
-                        <el-step title="正在运行"></el-step>
-                        <el-step title="准备预测"></el-step>
-                    </el-steps>
-                </div>
                 <div class="container" ref="container">
                     <div class="uploadView" v-show="currentPage=='uploadView'">
                         <el-row>
                             <el-col :span="12">
                                 <el-card class="box-card project">
-                                    <div>
+                                    <div class="model-name">
                                         模型名称：{{projectInfo.projectName}}
                                     </div>
-                                    <p>
+                                    <p class="model-desc">
                                         模型描述：{{projectInfo.projectDesc}}
                                     </p>
                                 </el-card>
                             </el-col>
                             <el-col :span="12">
-                                <el-card class="box-card model" style="line-height: 30px;text-align: center">
+                                <el-card class="box-card model-info" style="line-height: 30px;text-align: center">
                                     <el-row>
                                         <el-col :span="4">v{{sequence || '-'}}</el-col>
                                         <el-col :span="5">{{currentModel.precise_recall.precise || '-'}}</el-col>
@@ -117,7 +109,7 @@
                         <el-button type="text" @click="newPredict">新建预测</el-button>
                     </div>
                     <div class="content">
-                        <div>
+                        <div v-show="!loadHistory">
                             <el-row v-for="(file,index) in predictHistoryList" :key="file.tid"
                                     :class="currentSelectFileIndex==index ? 'file-item active' : 'file-item'">
                                 <el-col :span="24">
@@ -139,6 +131,9 @@
                                     </el-row>
                                 </el-col>
                             </el-row>
+                        </div>
+                        <div v-show="loadHistory">
+                            <i class="el-icon-loading"></i>正在加载预测历史...
                         </div>
                     </div>
                 </div>
@@ -196,7 +191,8 @@
                 runningCount:1,//当前未完成的预测
                 currentSelectFileIndex:-1,
                 detailFile:'',
-                predictFile:''
+                predictFile:'',
+                loadHistory:true,
             };
         },
         methods: {
@@ -249,6 +245,7 @@
                      sequence:this.sequence,
                     modelName:this.algorithm,
                 };
+                this.loadHistory=true;
                 getPredictHistory(param).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
@@ -257,6 +254,7 @@
                             type: 'error'
                         });
                     } else {
+                        this.loadHistory=false;
                         this.predictHistoryList = data.data;
                         this.runningCount=0;
                         for(var i=0;i<this.predictHistoryList.length;i++){
@@ -491,6 +489,34 @@
             .left {
                 width: 80%;
                 float: left;
+
+                .project{
+                    .model-name{
+                        font-size: 30px;
+                        font-weight: normal;
+                        font-stretch: normal;
+                        line-height: 27px;
+                        letter-spacing: 1px;
+                        color: #2f2e2e;
+                    }
+                    .model-desc{
+                        font-size: 18px;
+                        font-weight: normal;
+                        font-stretch: normal;
+                        line-height: 27px;
+                        letter-spacing: 0px;
+                        color: #413f3f;
+                    }
+                }
+
+                .model-info{
+                    font-size: 18px;
+                    font-weight: normal;
+                    font-stretch: normal;
+                    line-height: 27px;
+                    letter-spacing: 0px;
+                    color: #413f3f;
+                }
             }
             .container {
                 overflow-y: scroll;

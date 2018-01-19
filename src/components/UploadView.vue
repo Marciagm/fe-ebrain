@@ -4,10 +4,9 @@
             <div class="left">
                 <div class="step-bar">
                     <el-steps :active="active" finish-status="success"  simple >
-                        <el-step title="准备数据"></el-step>
-                        <el-step title="检查数据"></el-step>
-                        <el-step title="正在运行"></el-step>
-                        <el-step title="准备预测"></el-step>
+                        <el-step title="数据上传"></el-step>
+                        <el-step title="数据检查"></el-step>
+                        <el-step title="模型训练"></el-step>
                     </el-steps>
                 </div>
                <div class="container" ref="container">
@@ -64,7 +63,7 @@
                    <div id="dataCheckView"  v-show="currentPage=='dataCheckView'">
                         <div class="box">
                             <div>
-                                <div style="height: 30px">你想预测什么？</div>
+                                <div style="height: 30px">想预测什么？</div>
                                 <el-row>
                                     <el-col :span="24">
                                         <el-autocomplete
@@ -89,7 +88,7 @@
                                             </p>
                                         </el-col>
                                         <el-col :span="8" v-show="chartType==0" style="display: flex;align-items: center;justify-content: center;height: 300px;">
-                                            <el-button type="primary" class="start-btn" @click="startTrain" v-show="!isLoading">开始</el-button>
+                                            <el-button type="primary" class="start-btn" @click="startTrain" v-show="!isLoading" :disabled="startBtnDisabled">开始</el-button>
                                             <el-button type="primary" class="start-btn" v-show="isLoading" >
                                                 <i class="el-icon-loading"></i>
                                             </el-button>
@@ -121,11 +120,11 @@
                                                 </el-table-column>
                                                 <el-table-column
                                                         prop="value_count"
-                                                        label="单一个数">
+                                                        label="取值个数">
                                                 </el-table-column>
                                                 <el-table-column
                                                         prop="miss"
-                                                        label="缺少情况">
+                                                        label="缺少数量">
                                                 </el-table-column>
                                                 <el-table-column
                                                         prop="max"
@@ -165,12 +164,12 @@
                         <el-row>
                             <el-col :span="12">
                                 <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="currentPage='uploadView'" v-show="jobFiles.length>0">继续添加</el-button>
+                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="currentPage='uploadView'">继续添加</el-button>
                                 </div>
                             </el-col>
                             <el-col :span="12">
                                 <div style="display: flex;flex-direction:column;justify-content: center;align-items: center">
-                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="dataCheck" v-show="jobFiles.length>0" :disabled="isLoading">下一步</el-button>
+                                    <el-button type="text" style="cursor: pointer;color: #20a0ff;" @click="dataCheck" :disabled="isLoading">下一步</el-button>
                                 </div>
                             </el-col>
                         </el-row>
@@ -227,7 +226,7 @@
         },
         data() {
             return {
-                currentPage: 'uploadView',
+                currentPage: 'uploadView', //uploadView
                 active: 0,
                 projectName: '',
                 uploadAction: '',
@@ -256,7 +255,7 @@
                 startBtnDisabled: true,
                 chartType: 0,
                 tips:'',
-                progressInfoList:['start data check'],
+                progressInfoList:['开始数据检查'],
                 showStartbtn:false,
             };
         },
@@ -281,9 +280,9 @@
                             that.jobFileIds.push(that.jobFiles[i].tid);
                         }
                         that.validateUploadFile(function(){
-                            that.currentPage = "dataCheckView";
-                            that.queryDataResult();
-                            that.querySourceFileData();
+//                            that.currentPage = "dataCheckView";
+//                            that.queryDataResult();
+//                            that.querySourceFileData();
                         });
                     }
                 });
@@ -498,10 +497,12 @@
                 if (this.tableData1[this.labelIndex].type == 0) {
                     this.chartType = 0;
                     this.drawBarChart(xAxisData, seriesData, '样本数', '目标类型');
-                    if(this.tableData1[this.labelIndex].value_count>9){
+                    if(this.tableData1[this.labelIndex].value_count !=2){
+                        this.startBtnDisabled=true;
                         this.tips = '您选择的标签是离散类型，离散值共'+this.tableData1[this.labelIndex].value_count+'个，数量较多不适合作为训练标签';
                     }else{
                         this.tips="";
+                        this.startBtnDisabled=false;
                     }
                 } else {
                     this.drawLineChart(xAxisData, seriesData, '样本数', '目标类型');
@@ -512,9 +513,8 @@
                 }
 
             },
-            handleTagSelect(tag){
-                this.predict_label = tag.feature_name;
-                this.startBtnDisabled = false;
+            handleTagSelect(item){
+                this.selectTag(item.feature_name, item.column_index)
             },
             querySearch(queryString, cb) {
                 var tagSuggestions = this.tableData1;

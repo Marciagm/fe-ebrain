@@ -6,12 +6,8 @@
                     <el-form :model="registForm" status-icon :rules="registFormRules" ref="registForm"
                              label-width="60px" size="small">
                         <el-row style="height: 60px">
-                            <el-col :span="4">
-                                <div class="grid-content signin-label"><a @click="link" style="cursor:pointer">登陆</a>
-                                </div>
-                            </el-col>
-                            <el-col :span="4">
-                                <div class="grid-content signup-label" style="color:#d3dce6;">注册</div>
+                            <el-col :span="24">
+                                <div class="grid-content signup-label" style="color:darkgray;">欢迎使用预测机器人</div>
                             </el-col>
                         </el-row>
                         <el-row>
@@ -81,6 +77,13 @@
                                 <el-button class="login-btn" @click.native.prevent="handleSubmit">提交</el-button>
                             </el-col>
                         </el-row>
+                        <el-row>
+                            <el-col :span="24">
+                                <div style="color: black">
+                                    已经有账号？ <a href="#/login" style="color: #1d8ce0">登陆</a>
+                                </div>
+                            </el-col>
+                        </el-row>
                     </el-form>
                 </div>
             </el-col>
@@ -88,11 +91,11 @@
         <div>
             <el-row>
                 <el-col :span="24" class="footer">
-                    <div>
-                        联系方式：platform@ebrain.ai
+                    <div class="slogan">
+                        预测机器人，智铀科技提供，让预测无处不在
                     </div>
                     <div>
-                        地址：北京市海淀区中关村科学院南路2号融科咨询中心B座11层
+                        Copyright©2017 wisutech.com. All Rights Reserved.
                     </div>
                 </el-col>
             </el-row>
@@ -180,10 +183,10 @@
 
 </script>
 
-<style lang="scss">
+<style lang="scss" type="text/scss">
     #registView {
         background-color: #3485c5;
-        background-image: url("../assets/login-bg2.png");
+        background-image: url("../assets/bg9.jpg");
         background-size: 100%;
         background-repeat: no-repeat;
         height: 100%;
@@ -193,7 +196,7 @@
             overflow: hidden;
             float: right;
             margin-right: 141px;
-            margin-top: 60px;
+            margin-top: 150px;
             background-color: rgba(1, 1, 1, 0.5);
             padding: 20px;
             .el-form {
@@ -248,11 +251,7 @@
                 }
                 .signin-label, .signup-label {
                     font-size: 20px;
-
-                }
-                .signup-label {
-                    font-size: 20px;
-                    text-align: right;
+                    text-align: center;
                 }
                 .login-btn {
                     width: 100%;

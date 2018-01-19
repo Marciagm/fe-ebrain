@@ -5,13 +5,9 @@
                 <div class="login-form-wrapper">
                     <el-form :model="loginForm" status-icon :rules="loginFormRules" ref="loginForm" label-width="80px"
                              size="small">
-                        <el-row style="height: 80px">
-                            <el-col :span="4">
-                                <div class="grid-content signin-label" style="color:#d3dce6;">登陆</div>
-                            </el-col>
-                            <el-col :span="4">
-                                <div class="grid-content signup-label"><a @click="link" style="cursor:pointer">注册</a>
-                                </div>
+                        <el-row style="height: 60px">
+                            <el-col :span="24">
+                                <div class="grid-content signin-label" style="color:darkgray;text-align: center;">欢迎使用预测机器人</div>
                             </el-col>
                         </el-row>
                         <el-row>
@@ -38,6 +34,13 @@
                         </el-row>
                         <el-row>
                             <el-col :span="24">
+                                <div style="color: black">
+                                    还没有账号？ <a href="#/regist" style="color: #1d8ce0">注册</a>
+                                </div>
+                            </el-col>
+                        </el-row>
+                        <el-row>
+                            <el-col :span="24">
                                 <el-button class="login-btn" @click.native.prevent="handleSubmit">确定</el-button>
                             </el-col>
                         </el-row>
@@ -48,11 +51,11 @@
         </el-row>
         <el-row>
             <el-col :span="24" class="footer">
-                <div>
-                    联系方式：platform@ebrain.ai
+                <div class="slogan">
+                    预测机器人，智铀科技提供，让预测无处不在
                 </div>
                 <div>
-                    地址：北京市海淀区中关村科学院南路2号融科咨询中心B座11层
+                    Copyright©2017 wisutech.com. All Rights Reserved.
                 </div>
             </el-col>
         </el-row>
@@ -127,7 +130,7 @@
 
     #loginView {
         background-color: #3485c5;
-        background-image: url("../assets/login-bg2.png");
+        background-image: url("../assets/bg9.jpg");
         background-size: 100%;
         background-repeat: no-repeat;
         height: 100%;
@@ -137,7 +140,7 @@
             overflow: hidden;
             float: right;
             margin-right: 141px;
-            margin-top: 122px;
+            margin-top: 200px;
             background-color: rgba(1, 1, 1, 0.5);
             padding: 20px;
             .el-form {

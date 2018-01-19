@@ -145,7 +145,7 @@
                 background: transparent;
             }
             .el-menu-item{
-                font-size: 20px;
+                font-size: 24px;
                 color:white;
             }
             .el-menu-item a{
