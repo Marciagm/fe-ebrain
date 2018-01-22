@@ -280,10 +280,9 @@
                             that.jobFileIds.push(that.jobFiles[i].tid);
                         }
                         that.validateUploadFile(function(){
-//                            that.currentPage = "dataCheckView";
-//                            that.queryDataResult();
-//                            that.querySourceFileData();
+                            console.log("文件验证结束");
                         });
+
                     }
                 });
             },
@@ -628,6 +627,11 @@
                     series: [
                         {
                             type: 'bar',
+                            itemStyle:{
+                                normal:{
+                                    color:'#01579b'
+                                }
+                            },
                             data: seriesData
                         }
                     ]
@@ -819,9 +823,12 @@
             }
             .start-btn {
                 border-radius: 100px;
-                height: 150px;
-                width: 150px;
+                height: 200px;
+                width: 200px;
                 font-size: 40px;
+                background: transparent;
+                color: black;
+                border: 2px solid;
             }
             .predict-label-input input {
                 min-width: 200px;

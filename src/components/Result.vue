@@ -76,7 +76,7 @@
                             <el-tab-pane label="特征重要性" name="2">
                                 <div>
                                     <el-row>
-                                        <el-col :span="8" class="block">
+                                        <el-col :span="12" class="block left-block">
                                             <div class="explain">
                                                 <div>预测结果是由特征来决定的，<br/>
                                                     哪些特征对结果影响最大，<br/>
@@ -84,7 +84,7 @@
                                                 </div>
                                             </div>
                                         </el-col>
-                                        <el-col :span="16" class="block">
+                                        <el-col :span="12" class="block">
                                             <div id="chart0"></div>
                                         </el-col>
                                     </el-row>
@@ -93,7 +93,7 @@
                             <el-tab-pane label="准确率&召回率" name="3">
                                     <div>
                                         <el-row>
-                                            <el-col :span="12">
+                                            <el-col :span="12" class="left-block">
                                                 <div id="chart3"></div>
                                             </el-col>
                                             <el-col :span="12" class="block">
@@ -150,7 +150,7 @@
                             <el-tab-pane label="ROC曲线" name="5">
                                     <div>
                                         <el-row>
-                                            <el-col :span="12">
+                                            <el-col :span="12" class="left-block">
                                                 <div id="chart4"></div>
                                             </el-col>
                                             <el-col :span="12" class="block">
@@ -170,7 +170,7 @@
                             <el-tab-pane label="提升图" name="6">
                                     <div>
                                         <el-row>
-                                            <el-col :span="12">
+                                            <el-col :span="12" class="left-block">
                                                 <div id="chart2"></div>
                                             </el-col>
                                             <el-col :span="12" class="block">
@@ -194,7 +194,7 @@
                             <el-tab-pane label="KS曲线" name="7">
                                     <div>
                                         <el-row>
-                                            <el-col :span="12">
+                                            <el-col :span="12" class="left-block">
                                                 <div id="chart5"></div>
                                             </el-col>
                                             <el-col :span="12" class="block">
@@ -576,6 +576,11 @@
                     series: [
                         {
                             type: 'bar',
+                            itemStyle:{
+                                normal:{
+                                    color:'#01579b'
+                                }
+                            },
                             data: barSeriesData
                         }
                     ]
@@ -706,9 +711,14 @@
         }
         .block{
             display: flex;
-            justify-content: center;
+            justify-content: left;
             align-items: center;
             min-height: 500px;
+        }
+        .left-block{
+            display: flex;
+            justify-content: right;
+            align-items: center;
         }
         .explain{
             font-size: 20px;

@@ -1,104 +1,102 @@
 <template>
     <section id="registView">
-        <el-row>
-            <el-col :span="24">
-                <div class="login-form-wrapper">
-                    <el-form :model="registForm" status-icon :rules="registFormRules" ref="registForm"
-                             label-width="60px" size="small">
-                        <el-row style="height: 60px">
-                            <el-col :span="24">
-                                <div class="grid-content signup-label" style="color:darkgray;">欢迎使用预测机器人</div>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="13">
-                                <el-form-item label="" labelWidth="0" prop="nickname">
-                                    <el-input
-                                            name="nickname"
-                                            placeholder="昵称"
-                                            v-model="registForm.nickname"
-                                            class="username-input">
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                            <el-col :span="11" style="line-height: 38px;">
-                                <template>
-                                    <el-radio v-model="registForm.sex" label="1">男士</el-radio>
-                                    <el-radio v-model="registForm.sex" label="2">女士</el-radio>
-                                </template>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-form-item label="" labelWidth="0" prop="email">
-                                    <el-input
-                                            name="email"
-                                            placeholder="邮箱"
-                                            v-model="registForm.email">
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-form-item label="" labelWidth="0" prop="phone">
-                                    <el-input
-                                            name="phone"
-                                            placeholder="手机"
-                                            v-model="registForm.phone">
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-form-item label="" labelWidth="0" prop="company">
-                                    <el-input
-                                            name="company"
-                                            placeholder="公司"
-                                            v-model="registForm.company">
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-form-item label="" labelWidth="0" prop="title">
-                                    <el-input
-                                            name="title"
-                                            placeholder="职位"
-                                            v-model="registForm.title">
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-button class="login-btn" @click.native.prevent="handleSubmit">提交</el-button>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <div style="color: black">
-                                    已经有账号？ <a href="#/login" style="color: #1d8ce0">登陆</a>
-                                </div>
-                            </el-col>
-                        </el-row>
-                    </el-form>
-                </div>
-            </el-col>
-        </el-row>
-        <div>
+        <div ref="registForm">
             <el-row>
-                <el-col :span="24" class="footer">
-                    <div class="slogan">
-                        预测机器人，智铀科技提供，让预测无处不在
-                    </div>
-                    <div>
-                        Copyright©2017 wisutech.com. All Rights Reserved.
+                <el-col :span="24">
+                    <div class="login-form-wrapper">
+                        <el-form :model="registForm" status-icon :rules="registFormRules" ref="registForm"
+                                 label-width="60px" size="small">
+                            <el-row style="height: 60px">
+                                <el-col :span="24">
+                                    <div class="grid-content signup-label" style="color:darkgray;">欢迎使用预测机器人</div>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="13">
+                                    <el-form-item label="" labelWidth="0" prop="nickname">
+                                        <el-input
+                                                name="nickname"
+                                                placeholder="昵称"
+                                                v-model="registForm.nickname"
+                                                class="username-input">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                                <el-col :span="11" style="line-height: 38px;">
+                                    <template>
+                                        <el-radio v-model="registForm.sex" label="1">男士</el-radio>
+                                        <el-radio v-model="registForm.sex" label="2">女士</el-radio>
+                                    </template>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="email">
+                                        <el-input
+                                                name="email"
+                                                placeholder="邮箱"
+                                                v-model="registForm.email">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="phone">
+                                        <el-input
+                                                name="phone"
+                                                placeholder="手机"
+                                                v-model="registForm.phone">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="company">
+                                        <el-input
+                                                name="company"
+                                                placeholder="公司"
+                                                v-model="registForm.company">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="title">
+                                        <el-input
+                                                name="title"
+                                                placeholder="职位"
+                                                v-model="registForm.title">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-button class="login-btn" @click.native.prevent="handleSubmit">提交</el-button>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <div style="color: black">
+                                        已经有账号？ <el-button type="text" @click="link" style="color: #1d8ce0;cursor: pointer">登陆</el-button>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                        </el-form>
                     </div>
                 </el-col>
             </el-row>
+        </div>
+        <div class="footer">
+            <div class="slogan">
+                预测机器人，智铀科技提供，让预测无处不在
+            </div>
+            <div>
+                Copyright©2017 wisutech.com. All Rights Reserved.
+            </div>
         </div>
     </section>
 </template>
@@ -178,6 +176,11 @@
             link(){
                 this.$router.push({path:'/login'});
             }
+        },
+        mounted(){
+            let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            this.$refs.registForm.style.height = (h - 90) + 'px';
+
         }
     }
 
@@ -195,6 +198,7 @@
             display: inline-block;
             overflow: hidden;
             float: right;
+            z-index: 1000;
             margin-right: 141px;
             margin-top: 150px;
             background-color: rgba(1, 1, 1, 0.5);
@@ -267,13 +271,16 @@
             }
         }
         .footer {
-            position: fixed;
-            bottom: 0;
+            height:90px;
             text-align: center;
             line-height: 30px;
-            background: #d3dce6;
-            color: #255da3;
+            background: white;
+            color: gray;
             padding:15px;
+            .slogan{
+                font-size:22px;
+                color:black;
+            }
         }
     }
 </style>

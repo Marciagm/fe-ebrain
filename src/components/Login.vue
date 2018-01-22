@@ -1,64 +1,64 @@
 <template>
     <section id="loginView">
-        <el-row>
-            <el-col :span="24">
-                <div class="login-form-wrapper">
-                    <el-form :model="loginForm" status-icon :rules="loginFormRules" ref="loginForm" label-width="80px"
-                             size="small">
-                        <el-row style="height: 60px">
-                            <el-col :span="24">
-                                <div class="grid-content signin-label" style="color:darkgray;text-align: center;">欢迎使用预测机器人</div>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-form-item label="" labelWidth="0" prop="username">
-                                    <el-input name="username"
-                                              placeholder="用户名"
-                                              v-model="loginForm.username">
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-form-item label="" labelWidth="0" prop="password">
-                                    <el-input
-                                            name="password"
-                                            type="password"
-                                            placeholder="密码"
-                                            v-model="loginForm.password">
-                                    </el-input>
-                                </el-form-item>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <div style="color: black">
-                                    还没有账号？ <a href="#/regist" style="color: #1d8ce0">注册</a>
-                                </div>
-                            </el-col>
-                        </el-row>
-                        <el-row>
-                            <el-col :span="24">
-                                <el-button class="login-btn" @click.native.prevent="handleSubmit">确定</el-button>
-                            </el-col>
-                        </el-row>
+        <div  ref="loginFormView">
+            <el-row>
+                <el-col :span="24">
+                    <div class="login-form-wrapper">
+                        <el-form :model="loginForm" status-icon :rules="loginFormRules" ref="loginForm" label-width="80px"
+                                 size="small">
+                            <el-row style="height: 60px">
+                                <el-col :span="24">
+                                    <div class="grid-content signin-label" style="color:darkgray;text-align: center;">欢迎使用预测机器人</div>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="username">
+                                        <el-input name="username"
+                                                  placeholder="用户名"
+                                                  v-model="loginForm.username">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="password">
+                                        <el-input
+                                                name="password"
+                                                type="password"
+                                                placeholder="密码"
+                                                v-model="loginForm.password">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <div style="color: black">
+                                        还没有账号？ <el-button type="text"  @click="link" style="color: #1d8ce0;cursor: pointer;">注册</el-button>
+                                    </div>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-button class="login-btn" @click.native.prevent="handleSubmit">确定</el-button>
+                                </el-col>
+                            </el-row>
 
-                    </el-form>
-                </div>
-            </el-col>
-        </el-row>
-        <el-row>
-            <el-col :span="24" class="footer">
-                <div class="slogan">
-                    预测机器人，智铀科技提供，让预测无处不在
-                </div>
-                <div>
-                    Copyright©2017 wisutech.com. All Rights Reserved.
-                </div>
-            </el-col>
-        </el-row>
+                        </el-form>
+                    </div>
+                </el-col>
+            </el-row>
+        </div>
+        <div class="footer">
+            <div class="slogan">
+                预测机器人，智铀科技提供，让预测无处不在
+            </div>
+            <div>
+                Copyright©2017 wisutech.com. All Rights Reserved.
+            </div>
+        </div>
     </section>
 </template>
 
@@ -120,6 +120,11 @@
             link(){
                 this.$router.push({path:'/regist'});
             }
+        },
+        mounted(){
+            let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            this.$refs.loginFormView.style.height = (h - 90) + 'px';
+
         }
     }
 
@@ -139,8 +144,9 @@
             display: inline-block;
             overflow: hidden;
             float: right;
+            z-index: 1000;
             margin-right: 141px;
-            margin-top: 200px;
+            margin-top: 150px;
             background-color: rgba(1, 1, 1, 0.5);
             padding: 20px;
             .el-form {
@@ -190,13 +196,15 @@
             }
         }
         .footer {
-            position: fixed;
-            bottom: 0;
             text-align: center;
             line-height: 30px;
-            background: #d3dce6;
-            color: #255da3;
+            background: white;
+            color: gray;
             padding:15px;
+            .slogan{
+                font-size:22px;
+                color:black;
+            }
         }
     }
 </style>
