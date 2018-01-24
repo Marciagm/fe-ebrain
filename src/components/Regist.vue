@@ -1,9 +1,9 @@
 <template>
     <section id="registView">
-        <div ref="registForm">
+        <div class="regist-form-wrapper">
             <el-row>
-                <el-col :span="24">
-                    <div class="login-form-wrapper">
+                <el-col :span="6" :offset="18">
+                    <div class="form-wrap">
                         <el-form :model="registForm" status-icon :rules="registFormRules" ref="registForm"
                                  label-width="60px" size="small">
                             <el-row style="height: 60px">
@@ -81,7 +81,9 @@
                             <el-row>
                                 <el-col :span="24">
                                     <div style="color: black">
-                                        已经有账号？ <el-button type="text" @click="link" style="color: #1d8ce0;cursor: pointer">登陆</el-button>
+                                        已经有账号？
+                                        <el-button type="text" @click="link" style="color: #1d8ce0;cursor: pointer">登陆
+                                        </el-button>
                                     </div>
                                 </el-col>
                             </el-row>
@@ -174,12 +176,12 @@
                 });
             },
             link(){
-                this.$router.push({path:'/login'});
+                this.$router.push({path: '/login'});
             }
         },
         mounted(){
-            let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            this.$refs.registForm.style.height = (h - 90) + 'px';
+           // let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            //this.$refs.registForm.style.height = (h - 90) + 'px';
 
         }
     }
@@ -188,24 +190,22 @@
 
 <style lang="scss" type="text/scss">
     #registView {
-        background-color: #3485c5;
-        background-image: url("../assets/bg9.jpg");
-        background-size: 100%;
-        background-repeat: no-repeat;
-        height: 100%;
-        width: 100%;
-        .login-form-wrapper {
-            display: inline-block;
-            overflow: hidden;
-            float: right;
-            z-index: 1000;
-            margin-right: 141px;
-            margin-top: 150px;
-            background-color: rgba(1, 1, 1, 0.5);
-            padding: 20px;
+        .regist-form-wrapper {
+            background-image: url("../assets/bg9.jpg");
+            background-size: 100%;
+            background-repeat: no-repeat;
+            padding: 150px 200px;
+            .form-wrap{
+                padding:20px;
+                background: rgba(1,1,1,0.6);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 354px;
+            }
             .el-form {
                 background-color: white;
-                width: 296px;
+                width: 100%;
                 padding: 15px 30px;
                 .el-row {
                     height: 60px;
@@ -271,15 +271,15 @@
             }
         }
         .footer {
-            height:90px;
+            height: 90px;
             text-align: center;
             line-height: 30px;
             background: white;
             color: gray;
-            padding:15px;
-            .slogan{
-                font-size:22px;
-                color:black;
+            padding: 15px;
+            .slogan {
+                font-size: 22px;
+                color: black;
             }
         }
     }

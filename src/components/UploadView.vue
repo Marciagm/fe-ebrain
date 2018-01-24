@@ -423,6 +423,7 @@
                             type: 'error'
                         });
                     } else {
+                        this.progressInfoList=['开始数据检查'];
                         //更新文件成功刷新文件列表
                         this.queryJobInfo();
                     }

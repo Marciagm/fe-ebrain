@@ -300,7 +300,8 @@
                 }
             },
             changeVersion(v,index,subIndex){
-                console.log(v)
+                console.log(v,index,subIndex)
+                this.parentIndex = index;
                 this.cmodel = v;
                 this.currentVersion = v.sequence;
 

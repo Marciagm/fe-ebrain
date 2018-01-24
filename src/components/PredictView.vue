@@ -8,7 +8,7 @@
                             <el-col :span="12">
                                 <el-card class="box-card project">
                                     <div class="model-name">
-                                        模型名称：{{projectInfo.projectName}}
+                                        模型名称：<el-button type="text" @click="gotoResult">{{projectInfo.projectName}}</el-button>
                                     </div>
                                     <p class="model-desc">
                                         模型描述：{{projectInfo.projectDesc}}
@@ -105,34 +105,29 @@
 
             <div class="right">
                 <div class="file-list" ref="fileListDiv">
-                    <div style="border-bottom: 1px solid #ccc;">
+                    <div style="border-bottom: 1px solid #ccc;padding: 5px;display: flex;justify-content: space-between;">
                         <el-button type="text" @click="newPredict">新建预测</el-button>
+                        <el-button type="text"  size="mini" @click="gotoResult">返回</el-button>
                     </div>
                     <div class="content">
                         <div v-show="!loadHistory">
                             <el-row v-for="(file,index) in predictHistoryList" :key="file.tid"
                                     :class="currentSelectFileIndex==index ? 'file-item active' : 'file-item'">
-                                <el-col :span="24">
-                                    <el-row  style="cursor: pointer;" >
-                                        <el-col :span="2" style="overflow: hidden">
-                                            <i class="el-icon-loading" v-show="file.status =='running'"></i>
-                                        </el-col>
-                                        <el-col :span="20" style="overflow: hidden">
-                                            <div @click="showResult(file,index)">{{file.srcFile}}</div>
-                                        </el-col>
-                                        <el-col :span="2" style="overflow: hidden">
-                                            <el-button v-if="file.status=='waiting'" size="mini" type="text">等待</el-button>
-                                            <el-button v-if="file.status=='success'" size="mini" type="text">成功</el-button>
-                                            <el-button v-if="file.status=='fail'" @click="showReason(file)" size="mini" type="text">失败</el-button>
-                                        </el-col>
-                                        <el-col :span="24" v-if="file.state">
-                                            <el-progress :percentage="uploadProgress[file.tid]" :show-text="false" :stroke-width="5" v-show="uploadProgress[file.tid]<100"></el-progress>
-                                        </el-col>
-                                    </el-row>
+                                <el-col :span="22">
+                                    <i class="el-icon-loading" v-show="file.status =='running'"></i>
+                                    <div @click="showResult(file,index)">{{file.srcFile}}</div>
+                                </el-col>
+                                <el-col :span="2">
+                                    <el-button v-if="file.status=='waiting'" size="mini" type="text">等待</el-button>
+                                    <el-button v-if="file.status=='success'" size="mini" type="text">成功</el-button>
+                                    <el-button v-if="file.status=='fail'" @click="showReason(file)" size="mini" type="text">失败</el-button>
+                                </el-col>
+                                <el-col :span="24" v-if="file.state">
+                                    <el-progress :percentage="uploadProgress[file.tid]" :show-text="false" :stroke-width="5" v-show="uploadProgress[file.tid]<100"></el-progress>
                                 </el-col>
                             </el-row>
                         </div>
-                        <div v-show="loadHistory">
+                        <div v-show="loadHistory" style="color:white">
                             <i class="el-icon-loading"></i>正在加载预测历史...
                         </div>
                     </div>
@@ -163,7 +158,7 @@
         },
         data() {
             return {
-                currentPage: 'uploadView',
+                currentPage: 'uploadView',//resultView  uploadView
                 active: 3,
                 projectInfo:{},
                 predictHistoryList:[],
@@ -396,7 +391,7 @@
                             that.predictDetail = JSON.parse(data.data.detail).dataList;
 
                             that.predictFile = data.data.predictFile;
-                            that.detailFile = data.data.predictDetail;
+                            that.detailFile = data.data.detailFile;
 
                     }
                 });
@@ -426,7 +421,9 @@
                     type: 'error'
                 });
             },
-
+            gotoResult(){
+                this.$router.push({ path: '/main/result/'+this.projectId });
+            }
         },
         created(){
             this.uploadAction = process.env.API_ROOT + '/filelist/upload';
