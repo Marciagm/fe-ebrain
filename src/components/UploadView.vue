@@ -309,6 +309,7 @@
             },
             handleUploadSuccess(response, file, fileList){
                 var that = this;
+
                 if (response.data.code > 0) {
                     this.$message({
                         message: '未登录',
@@ -406,6 +407,18 @@
                     });
                     return;
                 }
+
+                //重新上传文件，清除标签
+                this.predict_label = "";
+                this.labelIndex = 0;
+                this.startBtnDisabled = true;
+                this.chartType = -1;
+                this.showStartbtn = false;
+                this.currentPage = 'uploadView';
+                try{
+
+                }catch(e){}
+
                 for (var i = 0; i < this.jobFileIds.length; i++) {
                     if (this.jobFileIds[i] == tid) {
                         this.jobFileIds.splice(i, 1);
@@ -460,7 +473,13 @@
                                         type: 'error'
                                     });
                                 } else {
-                                    if (data.data.progress != '0') {
+                                    if(data.data.jobStatus == 'failed'){
+                                        window.clearInterval(timer);
+                                        that.$message({
+                                            message: data.data.reason,
+                                            type: 'error'
+                                        });
+                                    }else if (data.data.progress != '0') {
                                         window.clearInterval(timer);
                                         that.progressInfoList = data.data.reason.split("\r\n");
                                         //延时进入下一页
@@ -507,6 +526,7 @@
                 } else {
                     this.drawLineChart(xAxisData, seriesData, '样本数', '目标类型');
                     this.chartType = 0;
+                    this.startBtnDisabled=false;
                     if(this.tableData1[this.labelIndex].value_count>9){
                         this.tips = '您选择的标签是连续类型';
                     }
