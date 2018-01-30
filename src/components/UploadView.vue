@@ -494,7 +494,7 @@
                                     }
                                 }
                             });
-                        }, 3000);
+                        }, 2000);
                     }
                 });
             },
@@ -601,14 +601,16 @@
                 runJobStep(param).then(data => {
                     let {msg, code} = data;
                     if (code > 0) {
-                        this.$message({
+                        that.$message({
                             message: msg,
                             type: 'error'
                         });
                     } else {
                         setTimeout(function(){
+                            that.isLoading = false;
                             that.$router.push({ path: '/main/trainingView/'+that.projectId+"/"+that.jobId+"/"+that.sequence});
                         },6000);
+
                     }
                 });
             },
@@ -719,6 +721,25 @@
                     this.currentPage = 'dataCheckView';
                 }
                 this.queryJobInfo();
+                var param = {jobId: this.jobId};
+                var that = this;
+                getJobProgress(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        window.clearInterval(timer);
+                        that.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        if(data.data.jobStatus=='failed'){
+                            that.$message({
+                                message: data.data.reason,
+                                type: 'error'
+                            });
+                        }
+                    }
+                });
             },
             destroyed(){
                 window.clearInterval(window.timer);

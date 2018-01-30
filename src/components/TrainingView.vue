@@ -276,7 +276,7 @@
 
                 this.timer = window.setInterval(function(){
                     that.queryProgress(param);
-                },3000);
+                },2000);
 
             },
             formatTimer(date){
@@ -308,7 +308,13 @@
                         });
                     } else {
                         var job = data.data;
-                        if(job.jobStatus=='finish' && job.progress=='train'){
+                        if(data.data.jobStatus == 'failed'){
+                            window.clearInterval(timer);
+                            that.$message({
+                                message: data.data.reason,
+                                type: 'error'
+                            });
+                        }else if(job.jobStatus=='finish' && job.progress=='train'){
                             window.clearInterval(that.timer);
                             window.clearInterval(that.timeMeterTimer);
                             that.modelJobList = JSON.parse(job.reason);

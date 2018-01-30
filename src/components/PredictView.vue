@@ -449,7 +449,7 @@
                 if(that.runningCount>0){
                     that.queryHistory();
                 }
-            },5000);
+            },1000);
             var that = this;
             window.onresize = function(){
                 let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
