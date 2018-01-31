@@ -143,7 +143,7 @@
                 width="50%">
             <div style="height: 300px;overflow: auto">
                 <el-radio-group v-model="checkedFileIndex">
-                    <el-row v-for="(row,index) in historyFileList">
+                    <el-row v-for="(row,index) in historyFileList" style="height: 20px;">
                         <el-col :span="20">
                             <el-radio :label="index" :key="index">{{row.filename}}</el-radio>
                         </el-col>
@@ -268,32 +268,31 @@
                      sequence:this.sequence,
                     modelName:this.algorithm,
                 };
-                that.loadHistory=true;
-                if(that.runningCount>0){
-                    getPredictHistory(param).then(data => {
-                        let {msg, code} = data;
-                        if (code > 0) {
-                            this.$message({
-                                message: msg,
-                                type: 'error'
-                            });
-                        } else {
-                            that.loadHistory=false;
-                            //文件处理过程中，新上传的文件有可能查询不出来，所以放弃本次循环，防止界面出现短暂新上传文件丢失
-                            if(data.length < that.predictHistoryList.length){
-                                return;
+                //that.loadHistory=true;
+                getPredictHistory(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        that.loadHistory=false;
+                        var runningCount=0;
+                        for(var i=0;i<data.data.length;i++){
+                            if(data.data[i].status=='running' || data.data[i].status=='waiting'){
+                                runningCount++;
                             }
-                            that.predictHistoryList = data.data;
-                            var runningCount=0;
-                            for(var i=0;i<that.predictHistoryList.length;i++){
-                                if(that.predictHistoryList[i].status=='running' || that.predictHistoryList[i].status=='waiting'){
-                                     runningCount++;
-                                }
-                            }
-                            that.runningCount = runningCount;
                         }
-                    });
-                }
+                       /* console.log(that.runningCount+"return "+runningCount);
+                        if(data.data.length < that.predictHistoryList.length){
+                            console.log(that.runningCount+"return "+runningCount);
+                            return;
+                        }*/
+                        that.runningCount = runningCount;
+                        that.predictHistoryList = data.data;
+                    }
+                });
 
             },
             fromHistory(){

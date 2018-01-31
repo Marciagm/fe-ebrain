@@ -141,7 +141,7 @@
 
     #loginView {
         .login-form-wrapper {
-            background-image: url("../assets/bg9.jpg");
+            background-image: url("../assets/bg8.jpg");
             background-size: 100%;
             background-repeat: no-repeat;
             padding: 200px;
