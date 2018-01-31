@@ -113,14 +113,16 @@
                         <div v-show="!loadHistory">
                             <el-row v-for="(file,index) in predictHistoryList" :key="file.tid"
                                     :class="currentSelectFileIndex==index ? 'file-item active' : 'file-item'">
-                                <el-col :span="22">
-                                    <i class="el-icon-loading" v-show="file.status =='running'"></i>
-                                    <div @click="showResult(file,index)">{{file.srcFile}}</div>
+                                <el-col :span="20">
+                                    <div @click="showResult(file,index)" :title="file.reason">
+                                        <i class="el-icon-loading" v-show="file.status =='running'|| file.status =='waiting'"></i>
+                                        {{file.srcFile}}
+                                    </div>
                                 </el-col>
-                                <el-col :span="2">
+                                <el-col :span="4">
                                     <el-button v-if="file.status=='waiting'" size="mini" type="text">等待</el-button>
                                     <el-button v-if="file.status=='success'" size="mini" type="text">成功</el-button>
-                                    <el-button v-if="file.status=='fail'" @click="showReason(file)" size="mini" type="text">失败</el-button>
+                                    <el-button v-if="file.status=='failed'" @click="showReason(file)" size="mini" type="text">失败</el-button>
                                 </el-col>
                                 <el-col :span="24" v-if="file.state">
                                     <el-progress :percentage="uploadProgress[file.tid]" :show-text="false" :stroke-width="5" v-show="uploadProgress[file.tid]<100"></el-progress>
@@ -135,11 +137,32 @@
             </div>
         </div>
 
+        <el-dialog
+                title="从历史库选择"
+                :visible.sync="historyDialogVisible"
+                width="50%">
+            <div style="height: 300px;overflow: auto">
+                <el-radio-group v-model="checkedFileIndex">
+                    <el-row v-for="(row,index) in historyFileList">
+                        <el-col :span="20">
+                            <el-radio :label="index" :key="index">{{row.filename}}</el-radio>
+                        </el-col>
+                        <el-col :span="4">
+                            {{row.fileSize}}
+                        </el-col>
+                    </el-row>
+                </el-radio-group>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button size="mini"  @click="historyDialogVisible = false">取 消</el-button>
+                <el-button size="mini"  type="primary" @click="confirmFromServer">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <script>
-    import { getProject,getModelExplain,getPredictHistory,savePredictHistory,getPredictResult,runJobStep,getPredictResultAndDetail } from '../api/api';
+    import { getProject,getModelExplain,getPredictHistory,savePredictHistory,getPredictResult,runJobStep,getPredictResultAndDetail,getHistoryFileList } from '../api/api';
     import util from '@/common/js/util';
     import echarts from 'echarts';
     import DynamicTable from "@/components/DynamicTable";
@@ -188,6 +211,10 @@
                 detailFile:'',
                 predictFile:'',
                 loadHistory:true,
+                historyFileList:[],
+                serverFileList:[],
+                checkedFileIndex:-1,
+                historyDialogVisible:false,
             };
         },
         methods: {
@@ -234,32 +261,40 @@
                 });
             },
             queryHistory(){
+                 var that = this;
                  var param={
                     projectId:this.projectId,
                     jobId:this.jobId,
                      sequence:this.sequence,
                     modelName:this.algorithm,
                 };
-                this.loadHistory=true;
-                getPredictHistory(param).then(data => {
-                    let {msg, code} = data;
-                    if (code > 0) {
-                        this.$message({
-                            message: msg,
-                            type: 'error'
-                        });
-                    } else {
-                        this.loadHistory=false;
-                        this.predictHistoryList = data.data;
-                        this.runningCount=0;
-                        for(var i=0;i<this.predictHistoryList.length;i++){
-                            if(this.predictHistoryList[i].status=='running'){
-                                this.runningCount++;
+                that.loadHistory=true;
+                if(that.runningCount>0){
+                    getPredictHistory(param).then(data => {
+                        let {msg, code} = data;
+                        if (code > 0) {
+                            this.$message({
+                                message: msg,
+                                type: 'error'
+                            });
+                        } else {
+                            that.loadHistory=false;
+                            //文件处理过程中，新上传的文件有可能查询不出来，所以放弃本次循环，防止界面出现短暂新上传文件丢失
+                            if(data.length < that.predictHistoryList.length){
+                                return;
                             }
+                            that.predictHistoryList = data.data;
+                            var runningCount=0;
+                            for(var i=0;i<that.predictHistoryList.length;i++){
+                                if(that.predictHistoryList[i].status=='running' || that.predictHistoryList[i].status=='waiting'){
+                                     runningCount++;
+                                }
+                            }
+                            that.runningCount = runningCount;
                         }
+                    });
+                }
 
-                    }
-                });
             },
             fromHistory(){
                 this.historyDialogVisible = true;
@@ -292,9 +327,29 @@
                             type: 'error'
                         });
                     } else {
-                        this.serverFileList = data.data;
+                        this.historyFileList = data.data;
                     }
                 });
+            },
+            confirmFromServer(){ //
+                var that = this;
+                that.historyDialogVisible = false;
+                if(this.checkedFileIndex<0){
+                    return;
+                }
+                this.runningCount++;
+                var file = this.historyFileList[this.checkedFileIndex];
+                console.log(file);
+                var pm={
+                    projectId:this.projectId,
+                    jobId:this.jobId,
+                    jobSequence:this.sequence,
+                    modelName:this.algorithm,
+                    srcFile:file.filename,
+                    filePath:file.filepath,
+                    step:"predict"
+                };
+                this.startPredict(pm);
             },
             onFileChange(file,$event){
             },
@@ -443,13 +498,13 @@
             that.queryProjectInfo();
             that.queryModelExplain();
 
-            //循环查询是否有未完成的任务
             window.timer = window.setInterval(function(){
-                //console.log("========"+that.runningCount);
+                console.log("========"+that.runningCount);
                 if(that.runningCount>0){
                     that.queryHistory();
                 }
-            },1000);
+            },3000);
+
             var that = this;
             window.onresize = function(){
                 let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -601,7 +656,7 @@
             .file-list .content {
                 overflow-y: auto;
                 overflow-x: hidden;
-                height: 390px;
+                min-height: 600px;
             }
 
             .file-info-list {

@@ -274,7 +274,7 @@
                 },1000);
 
 
-                this.timer = window.setInterval(function(){
+                window.timer = window.setInterval(function(){
                     that.queryProgress(param);
                 },2000);
 
@@ -309,13 +309,13 @@
                     } else {
                         var job = data.data;
                         if(data.data.jobStatus == 'failed'){
-                            window.clearInterval(timer);
+                            window.clearInterval(window.timer);
                             that.$message({
                                 message: data.data.reason,
                                 type: 'error'
                             });
                         }else if(job.jobStatus=='finish' && job.progress=='train'){
-                            window.clearInterval(that.timer);
+                            window.clearInterval(window.timer);
                             window.clearInterval(that.timeMeterTimer);
                             that.modelJobList = JSON.parse(job.reason);
                             that.queryTrainResult();
@@ -642,6 +642,7 @@
         },
         destroyed(){
             window.clearInterval(this.timer);
+            window.clearInterval(window.timer);
         }
     }
 </script>

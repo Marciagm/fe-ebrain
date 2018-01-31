@@ -51,7 +51,7 @@
                                     </el-form-item>
                                 </el-col>
                             </el-row>
-                            <el-row>
+                            <!--<el-row>
                                 <el-col :span="24">
                                     <el-form-item label="" labelWidth="0" prop="company">
                                         <el-input
@@ -61,7 +61,7 @@
                                         </el-input>
                                     </el-form-item>
                                 </el-col>
-                            </el-row>
+                            </el-row>-->
                             <el-row>
                                 <el-col :span="24">
                                     <el-form-item label="" labelWidth="0" prop="title">
@@ -69,6 +69,28 @@
                                                 name="title"
                                                 placeholder="职位"
                                                 v-model="registForm.title">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="password">
+                                        <el-input type="password"
+                                                name="password"
+                                                placeholder="密码"
+                                                v-model="registForm.password">
+                                        </el-input>
+                                    </el-form-item>
+                                </el-col>
+                            </el-row>
+                            <el-row>
+                                <el-col :span="24">
+                                    <el-form-item label="" labelWidth="0" prop="checkPass">
+                                        <el-input type="password"
+                                                  name="checkPass"
+                                                  placeholder="确认密码"
+                                                  v-model="registForm.checkPass">
                                         </el-input>
                                     </el-form-item>
                                 </el-col>
@@ -108,6 +130,15 @@
     //import NProgress from 'nprogress'
     export default {
         data() {
+            var validatePass2 = (rule, value, callback) => {
+                if (value === '') {
+                    callback(new Error('请再次输入密码'));
+                } else if (value !== this.registForm.password) {
+                    callback(new Error('两次输入密码不一致!'));
+                } else {
+                    callback();
+                }
+            };
             return {
                 logining: false,
                 registForm: {
@@ -116,7 +147,9 @@
                     phone: '',
                     company: '',
                     title: '',
-                    sex: '1'
+                    sex: '1',
+                    password:'',
+                    checkPass:''
                 },
                 registFormRules: {
                     nickname: [
@@ -134,7 +167,13 @@
                     ],
                     title: [
                         {required: true, message: '请输入职位', trigger: 'blur'},
-                    ]
+                    ],
+                    password: [
+                        {required: true, message: '请输入确认密码', trigger: 'blur'},
+                    ],
+                    checkPass: [
+                        { validator: validatePass2, trigger: 'blur' }
+                    ],
                 }
             };
         },
@@ -154,7 +193,8 @@
                             email: this.registForm.email,
                             phone: this.registForm.phone,
                             company: this.registForm.company,
-                            title: this.registForm.company
+                            title: this.registForm.company,
+                            password: this.registForm.password
                         };
                         regist(param).then(data => {
                             this.logining = false;
@@ -244,7 +284,17 @@
                     background-position: -1px, -1px;
                 }
                 .el-input__inner[name=title] {
-                    background-image: url("../assets/title.png");
+                      background-image: url("../assets/title.png");
+                      background-repeat: no-repeat;
+                      background-position: -1px, -1px;
+                  }
+                .el-input__inner[name=password] {
+                    background-image: url("../assets/key.png");
+                    background-repeat: no-repeat;
+                    background-position: -1px, -1px;
+                }
+                .el-input__inner[name=checkPass] {
+                    background-image: url("../assets/key.png");
                     background-repeat: no-repeat;
                     background-position: -1px, -1px;
                 }

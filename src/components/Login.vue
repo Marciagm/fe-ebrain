@@ -18,7 +18,7 @@
                                 <el-col :span="24">
                                     <el-form-item label="" labelWidth="0" prop="username">
                                         <el-input name="username"
-                                                  placeholder="用户名"
+                                                  placeholder="注册邮箱/Email"
                                                   v-model="loginForm.username">
                                         </el-input>
                                     </el-form-item>

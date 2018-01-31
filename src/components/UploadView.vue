@@ -202,12 +202,32 @@
                 </div>
             </div>
         </div>
-
+        <el-dialog
+                title="从历史库选择"
+                :visible.sync="historyDialogVisible"
+                width="50%">
+            <div style="height: 300px;overflow: auto">
+                <el-checkbox-group v-model="checkFileList">
+                    <el-row v-for="(row,index) in historyFileList">
+                        <el-col :span="20">
+                            <el-checkbox :label="row.tid" :key="index">{{row.filename}}</el-checkbox>
+                        </el-col>
+                        <el-col :span="4">
+                            {{row.fileSize}}
+                        </el-col>
+                    </el-row>
+                </el-checkbox-group>
+            </div>
+            <span slot="footer" class="dialog-footer">
+                <el-button size="mini"  @click="historyDialogVisible = false">取 消</el-button>
+                <el-button size="mini"  type="primary" @click="confirmFromServer">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <script>
-    import { newProject, newJob, getJobFiles, updateJobFiles,runJobStep,getDataResult,getFileData,getJobInfo,getJobProgress,validateFiles,deleteJobFile } from '../api/api';
+    import { newProject, newJob, getJobFiles, updateJobFiles,runJobStep,getDataResult,getFileData,getJobInfo,getJobProgress,validateFiles,deleteJobFile,getHistoryFileList } from '../api/api';
     import util from '@/common/js/util';
     import echarts from 'echarts';
     import DynamicTable from "@/components/DynamicTable";
@@ -257,6 +277,9 @@
                 tips:'',
                 progressInfoList:['开始数据检查'],
                 showStartbtn:false,
+                historyDialogVisible:false,
+                historyFileList:[],
+                checkFileList:[],
             };
         },
         methods: {
@@ -393,6 +416,32 @@
                         });
                     } else {
                         this.historyFileList = data.data.list;
+                    }
+                });
+            },
+            checkboxChange(val){
+                console.log(val);
+            },
+            confirmFromServer(){ //
+                var that = this;
+
+                that.historyDialogVisible = false;
+                for(var i=0;i< that.checkFileList.length;i++){
+                    that.jobFileIds.push(that.checkFileList[i]);
+                }
+                console.log(that.jobFileIds.join(","));
+                //上传成功更新job文件
+               var param = {tid: that.jobId, fileList: that.jobFileIds.join(",")};
+                updateJobFiles(param).then(data => {
+                    let {msg, code} = data;
+                    if (code > 0) {
+                        this.$message({
+                            message: msg,
+                            type: 'error'
+                        });
+                    } else {
+                        //更新文件成功刷新文件列表
+                        that.queryJobInfo();
                     }
                 });
             },
@@ -606,9 +655,29 @@
                             type: 'error'
                         });
                     } else {
+
                         setTimeout(function(){
                             that.isLoading = false;
-                            that.$router.push({ path: '/main/trainingView/'+that.projectId+"/"+that.jobId+"/"+that.sequence});
+                            getJobProgress(param).then(data => {
+                                let {msg, code} = data;
+                                if (code > 0) {
+                                    that.$message({
+                                        message: msg,
+                                        type: 'error'
+                                    });
+                                } else {
+                                    var job = data.data;
+                                    if (data.data.jobStatus == 'failed') {
+                                        that.$message({
+                                            message: data.data.reason,
+                                            type: 'error'
+                                        });
+                                    }else{
+                                        that.$router.push({ path: '/main/trainingView/'+that.projectId+"/"+that.jobId+"/"+that.sequence});
+                                    }
+                                }
+                            });
+
                         },6000);
 
                     }
