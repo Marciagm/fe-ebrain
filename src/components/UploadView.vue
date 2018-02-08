@@ -528,7 +528,7 @@
                                             message: data.data.reason,
                                             type: 'error'
                                         });
-                                    }else if (data.data.progress != '0') {
+                                    }else if (data.data.jobStatus== 'finish' && data.data.progress == 'feature_analyse') {
                                         window.clearInterval(timer);
                                         that.progressInfoList = data.data.reason.split("\r\n");
                                         //延时进入下一页

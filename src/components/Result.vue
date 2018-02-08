@@ -309,17 +309,12 @@
                 });
             },
             viewModel(){//查看未完成模型
-                if (this.runningJob.progress == '0') {
-                    //console.log("1progress=="+this.runningJob.progress);
+                if ( this.jobStatus == 'running') {
                     this.$router.push({path: '/main/uploadView/' + this.runningJob.projectId + "/" + this.runningJob.tid + "/" + this.runningJob.sequence + "/" + this.projectInfo.projectName + "/" + this.runningJob.progress});
-                } else if (this.runningJob.progress == 'train') {
-                    //console.log("2progress=="+this.runningJob.progress);
+                } else if (this.jobStatus == 'finish' && this.runningJob.progress == 'train') {
                     this.$router.push({path: '/main/trainingView/' + this.projectId + "/" + this.jobId + "/" + this.sequence});
-                    //this.$router.push({ path: '/main/uploadView/'+this.runningJob.projectId+"/"+this.runningJob.tid+"/"+this.runningJob.sequence+"/"+this.projectInfo.projectName+"/"+this.runningJob.progress});
                 } else {
-                    //console.log("3progress=="+this.runningJob.progress);
                     this.$router.push({path: '/main/uploadView/' + this.runningJob.projectId + "/" + this.runningJob.tid + "/" + this.runningJob.sequence + "/" + this.projectInfo.projectName + "/" + this.runningJob.progress});
-                    // this.$router.push({ path: '/main/modelDetail/'+this.runningJob.projectId+'/'+this.runningJob.tid+'/'+this.runningJob.sequence+"/true" });
                 }
             },
             changeVersion(v, index, subIndex){
