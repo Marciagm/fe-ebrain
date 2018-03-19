@@ -91,25 +91,29 @@
                 this.dialogNewModelVisible = true;
             },
             saveModel(){
-                var that = this;
-                this.dialogNewModelVisible=false;
-                var param = {
-                    "projectName": this.projectForm.projectName,
-                    "projectDesc": this.projectForm.projectDesc,
-                };
-                newProject(param).then(data=>{
-                    let { msg, code } = data;
-                    if (code > 0) {
-                        this.$message({
-                            message: msg,
-                            type: 'error'
-                        });
+                this.$refs['projectForm'].validate((valid) => {
+                    if (valid) {
+                        this.dialogNewModelVisible=false;
+                        var param = {
+                            "projectName": this.projectForm.projectName,
+                            "projectDesc": this.projectForm.projectDesc,
+                        };
+                        newProject(param).then(data=>{
+                            let { msg, code } = data;
+                            if (code > 0) {
+                                this.$message({
+                                    message: msg,
+                                    type: 'error'
+                                });
+                            } else {
+                                //this.$router.push({ path: '/main/fileSelectView/'+data.data.tid });
+                                this.createJob(data.data.tid);
+                            }
+                        });        
                     } else {
-                        //this.$router.push({ path: '/main/fileSelectView/'+data.data.tid });
-                        this.createJob(data.data.tid);
+                        return false;
                     }
-                });
-
+                })
             },
             createJob(projectId){
                 var that = this;
