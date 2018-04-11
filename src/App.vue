@@ -22,12 +22,14 @@ html,body {
 	/*background: url(assets/bg1.jpg) center !important;*/
 	/*background-size: cover;*/
 	// background: #1F2D3D;
-	font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, Microsoft YaHei, SimSun, sans-serif;
+	font-family: MicrosoftYaHei,Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB, SimSun, sans-serif;
 	font-size: 14px;
 	-webkit-font-smoothing: antialiased;
 	height: 100%;
 }
-
+a {
+	text-decoration: none;
+}
 #app {
 	position: absolute;
 	top: 0px;

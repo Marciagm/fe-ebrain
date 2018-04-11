@@ -1,7 +1,7 @@
-import Login from '@/components/Login.vue'
-import NotFound from '@/components/404.vue'
-import Main from '@/components/Main.vue'
-import Regist from '@/components/Regist.vue'
+import Login from '@/pages/Login'
+import Main from '@/pages/Main'
+import Regist from '@/pages/Regist'
+import DataDeal from '@/components/DataDeal'
 import UploadView from '@/components/UploadView'
 import ResultView from '@/components/ResultView'
 import ModelJobListView from '@/components/ModelJobListView'
@@ -14,6 +14,8 @@ import DataView from '@/components/DataView'
 import PredictView from '@/components/PredictView'
 import ModelDetail from '@/components/ModelDetail'
 import Result from '@/components/Result'
+import NotFound from '@/components/404.vue'
+
 let routes = [
     {
         path: '/login',
@@ -39,11 +41,16 @@ let routes = [
         name: '',
         hidden: true
     },
+
     {
         path: '/main',
         component: Main,
-        redirect: '/main/modelList',
+        redirect: '/main/data',
         children: [
+            { path: '/main/data', component: DataDeal, name: '数据' },
+            { path: '/main/model', component: ModelList, name: '模型' },
+            { path: '/main/algorithm-lib', component: ModelList, name: '算法库' },
+
             { path: '/main/modelList', component: ModelList, name: '模型列表' },
             { path: '/main/modelJobListView/:projectId', component: ModelJobListView, name: 'job列表' },
             { path: '/main/result/:projectId', component: Result, name: '结果表' },
