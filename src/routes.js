@@ -2,6 +2,10 @@ import Login from '@/pages/Login'
 import Main from '@/pages/Main'
 import Regist from '@/pages/Regist'
 import DataDeal from '@/components/DataDeal'
+import DataUpload from '@/components/DataUpload'
+import Loading from '@/components/Loading'
+import DataInfo from '@/components/DataInfo'
+
 import UploadView from '@/components/UploadView'
 import ResultView from '@/components/ResultView'
 import ModelJobListView from '@/components/ModelJobListView'
@@ -47,10 +51,19 @@ let routes = [
         component: Main,
         redirect: '/main/data',
         children: [
-            { path: '/main/data', component: DataDeal, name: '数据' },
+            { 
+                path: 'data', 
+                component: DataDeal,
+                redirect: '/main/data/upload',
+                name: '数据',
+                children: [
+                    { path: 'upload', component: DataUpload, name: '数据上传'},
+                    { path: 'loading', component: Loading, name: '数据上传中'},
+                    { path: 'info', component: DataInfo, name: '数据上传中'},
+                ]
+             },
             { path: '/main/model', component: ModelList, name: '模型' },
             { path: '/main/algorithm-lib', component: ModelList, name: '算法库' },
-
             { path: '/main/modelList', component: ModelList, name: '模型列表' },
             { path: '/main/modelJobListView/:projectId', component: ModelJobListView, name: 'job列表' },
             { path: '/main/result/:projectId', component: Result, name: '结果表' },

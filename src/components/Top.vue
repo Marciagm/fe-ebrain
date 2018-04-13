@@ -12,8 +12,8 @@
 			</ul>
 		</el-col>
 		<el-col justify="right" :md="{span: 6, offset: 7}" :sm="{span:8, offset: 3}" :xs="{span: 8, offset: 0}" class="info">
-			<div class="top-project-name" v-show="state.projectStatus">
-				<input type="text" v-model="projectName" class="project-name" @change="setProjectName">
+			<div class="top-project-name" v-show="projectStatus">
+				<input type="text" placeholder="未命名任务" v-model="projectName" class="project-name" @change="setProjectName">
 				<div class="sep"></div>
 			</div>
 			<img class="icon" src="../images/message.png">
@@ -130,8 +130,7 @@
 		name: 'top',
 		data () {
 			return {
-				state: this.$store.state,
-				projectName: this.$store.state.projectName,
+				projectName: '',
 				sysUserName: 'User',
 				curIndex: 0,
 				nav: [
@@ -175,12 +174,15 @@
                 });
            	},
            	setProjectName () {
-           		this.$store.commit('setProjectName', this.projectName);
-           		console.log("name: " + this.$store.state.projectName);
            	}
         },
+        computed: {
+        	projectStatus () {
+        		return this.$store.state.projectStatus
+        	}
+        },
 		mounted () {
-			this.$store.commit('setProjectStatus', false);
+			this.$store.commit('SET_PROJECT_STATUS', false);
 			var user = localStorage.getItem('user');
             if (user) {
                 user = JSON.parse(user);

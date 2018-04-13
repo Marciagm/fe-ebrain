@@ -8,20 +8,24 @@ Vue.use(Vuex)
 // 应用初始状态
 const state = {
     projectId:'',
-    projectName: '未命名项目',
-    projectStatus: false
+    projectStatus: false,
+    progressPercent: 0,
+    filename: ''
 }
 
 // 定义所需的 mutations
 const mutations = {
-    SET_PROJECT_ID (state,projectId){
+    SET_PROJECT_ID (state,projectId) {
         state.projectId = projectId;
     },
-    setProjectName (state, projectName) {
-    	state.projectName = projectName;
-    },
-    setProjectStatus (state, projectStatus) {
+    SET_PROJECT_STATUS (state, projectStatus) {
     	state.projectStatus = projectStatus;
+    },
+    SET_PROGRESS (state, percent) {
+        state.progressPercent = percent;
+    },
+    SET_FILE_NAME (state, name) {
+        state.filename = name;
     }
 }
 
