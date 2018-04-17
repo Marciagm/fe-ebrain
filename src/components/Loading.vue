@@ -2,7 +2,7 @@
 	<div class="data-deal">
 		<div class="uploading">
 			<div ref="left" class="uploading-left">
-				<img src="../images/Upload-data2.png">
+				<img class="uploadig-img" src="../images/Upload-data2.png">
 				<div class="data-foot">
 					{{ filename }}
 				</div>
@@ -49,10 +49,11 @@
 			margin-right: 20px;
 			border-radius: 0px 8px 0px 0px;
 			text-align: center;
-			img {
+			.uploadig-img {
 				margin-top: 206px;
 			}
 			.data-foot {
+				z-index: 1000;
 				letter-spacing: 1px; 
 				color: #999; 
 				position: absolute; 

@@ -6,7 +6,7 @@
 		<el-col :md="7" :sm="8" :xs="8" class="nav">
 			<ul>
 				<li v-for="(item, index) in nav" @click="tab(item, index)">
-					<a v-if="index == curIndex" style="color: #333;">{{ item.name }}</a>
+					<a v-if="index == curIndex" style="color: #1b7bdd;">{{ item.name }}</a>
 					<a v-else>{{ item.name }}</a>
 				</li>
 			</ul>
@@ -146,6 +146,10 @@
 					{
 						name: '算法库',
 						path: '/main/algorithm-lib'
+					},
+					{
+						name: '图表库',
+						path: '/main/chart'
 					}
 				]
 			}

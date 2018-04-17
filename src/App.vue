@@ -67,4 +67,42 @@ a {
 .fade-leave-active {
 	opacity: 0;
 }
+.el-upload-dragger {
+		width: 1400px;
+		height: 686px;
+		border: 2px dashed #ccc;
+	}
+	.data-deal {
+		background: #fff;
+	}
+	.data-con { 
+		padding-top: 60px;
+		height: 686px;
+		text-align: center;
+		img {
+			margin-top: 38px;
+			width: 306px;
+			height: 296px;
+			margin-bottom: 55px;
+		}
+		button {
+			border: 0;
+			width: 116px;
+			height: 47px;
+			background-image: linear-gradient(90deg, 
+				#0d65be 0%, 
+				#1978d9 45%, 
+				#248bf4 100%), 
+			linear-gradient(
+				#cccccc, 
+				#cccccc);
+			border-radius: 4px;
+			color: #ffffff;
+			font-size: 16px;
+			margin-right: 110px;
+		}
+		.data-deal-button {
+			text-align: center;
+		}
+	}
 </style>

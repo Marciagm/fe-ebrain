@@ -22,6 +22,7 @@ const mutations = {
     	state.projectStatus = projectStatus;
     },
     SET_PROGRESS (state, percent) {
+        console.log('hhh', percent);
         state.progressPercent = percent;
     },
     SET_FILE_NAME (state, name) {

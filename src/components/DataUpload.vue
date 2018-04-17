@@ -82,6 +82,7 @@
 				alert('in ODBC');
 			},
 			beforeUpload (file) {
+				localStorage.removeItem('fileInfo');
 				this.$store.commit('SET_PROGRESS', 0);
 				this.$store.commit('SET_FILE_NAME', file.name);
 				this.$router.push('/main/data/loading');
@@ -89,7 +90,6 @@
 				localStorage.setItem('projectId', '');
 			},
 			onUploadProgress (event, file, fileList) {
-				//document.getElementById('progress').style.width = event.percent + '%';
 				this.$store.commit('SET_PROGRESS', event.percent - 0.1);
 			},
 			handleUploadSuccess (response, file, fileList) {
@@ -98,7 +98,7 @@
 				//console.log(file);
 				this.$store.commit('SET_PROGRESS', 100);
 				this.$router.push('/main/data/info');
-
+				this.$store.commit('SET_PROGRESS', 0);
 			},
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
