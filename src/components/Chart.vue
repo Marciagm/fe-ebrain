@@ -108,7 +108,11 @@
 		            label: {
 		            	normal: {
 		            		show: true,
-		            		position: 'right'
+		            		position: 'right',
+		            		width: '100',
+		            		height: '100',
+		            		backgroundColor: '#e0c82a',
+		            		borderRadius: '25px',
 		            	}
 		            },
 		            barWidth: 10,
