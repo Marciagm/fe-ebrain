@@ -10,7 +10,10 @@ axios.interceptors.request.use(function (config) {    // 这里的config包含�
 
 let base = process.env.API_ROOT;
 
-export const regist = params => { return axios.post(`${base}/user/signup`, params).then(res => res.data); };
+console.log(base);
+//export const regist = params => { return axios.post(`${base}/user/signup`, params).then(res => res.data); };
+export const regist = params => { 
+		return axios.post(`${base}/account/register`, params).then(res => res.data); };
 
 export const login = params => { return axios.post(`${base}/auth`, params).then(res => res.data); };
 

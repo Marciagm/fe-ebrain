@@ -18,6 +18,7 @@
                     </el-form-item>
                     <el-form-item prop="checkPass">
                         <el-input type="password" name="checkPass" placeholder="*确认密码" v-model="registForm.checkPass"></el-input>
+                        <div style="font-size: 12px; color: #ff0000;height: 14px;">{{ errorTips }}</div>
                     </el-form-item>
                     <el-button @click="handleSubmit">提交</el-button>
                     <div class="regist-submit">
@@ -65,6 +66,7 @@
             };
 
             return {
+                errorTips: '',
                 logining: false,
                 registForm: {
                     nickname: '',
@@ -96,6 +98,7 @@
         },
         methods: {
             handleSubmit(ev) {
+                let that = this;
                 this.$refs.registForm.validate((valid) => {
                     
                     if (valid) {
@@ -113,12 +116,25 @@
                             nickname: this.registForm.nickname,
                             sex: this.registForm.sex,
                             email: this.registForm.email,
-                            phone: this.registForm.phone,
+                            mobile: this.registForm.phone,
                             company: this.registForm.company,
                             title: this.registForm.company,
                             password: this.registForm.password
                         };
                         regist(param).then(data => {
+                            if (!data) {
+                                return;
+                            }
+                            if (data.error && data.error.desc) {
+                                that.errorTips = '！' + data.error.desc;
+                            }
+                            else {
+
+                                localStorage.setItem('user', JSON.stringify({nickname: this.registForm.nickname}));
+                                this.$router.push({path: '/main'});
+                            }
+                            /*var data = res.data;
+                            console.log(res.status);
                             this.logining = false;
                             let {msg, code} = data;
                             if (code !== 0) {
@@ -126,10 +142,9 @@
                                     message: msg,
                                     type: 'error'
                                 });
-                            } else {
-                                sessionStorage.setItem('user', JSON.stringify(data.data));
-                                this.$router.push({path: '/main'});
-                            }
+                            } else {*/
+                                //sessionStorage.setItem('user', JSON.stringify(data.data));
+                            //}
                         });
                     } else {
                         console.log('error submit!!');

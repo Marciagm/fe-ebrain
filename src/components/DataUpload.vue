@@ -1,7 +1,6 @@
 <template>
-	<div class="data-deal">
+	<div class="data-upload">
 		<el-upload
-		  style="width: 100%"
 		  class="data-con"
 		  drag
 		  :show-file-list=false 
@@ -21,47 +20,65 @@
 					</div>
 				</el-col>
 			</el-row>
+			<div class="data-upload-tips">
+				可直接拖拽文件至主界面,支持逗号分隔的文本文件，建议UTF-8格式编码
+			</div>
 		</el-upload>
-		<div style="background: red; height: 2px; width: 0%" id="progress"></div>
 	</div>	
 </template>
 <style lang="scss">
-	.el-upload-dragger {
-		width: 1400px;
-		height: 686px;
-		border: 2px dashed #ccc;
-	}
-	.data-deal {
-		background: #fff;
-	}
-	.data-con { 
-		padding-top: 60px;
-		height: 686px;
-		text-align: center;
-		img {
-			margin-top: 38px;
-			width: 306px;
-			height: 296px;
-			margin-bottom: 55px;
-		}
-		button {
-			border: 0;
-			width: 116px;
-			height: 47px;
-			background-image: linear-gradient(90deg, 
-				#0d65be 0%, 
-				#1978d9 45%, 
-				#248bf4 100%), 
-			linear-gradient(
-				#cccccc, 
-				#cccccc);
-			border-radius: 4px;
-			color: #ffffff;
-			font-size: 16px;
-			margin-right: 110px;
-		}
-		.data-deal-button {
+	.data-upload {
+		min-width: 880px;
+		width: 100%;
+		.data-con { 
+			width: 100%;
+			padding-top: 60px;
+			height: 686px;
 			text-align: center;
+			img {
+				margin-top: 38px;
+				width: 306px;
+				height: 296px;
+				margin-bottom: 55px;
+			}
+			button {
+				cursor: pointer;
+				outline: none;
+				width: 116px;
+				height: 47px;
+				background-image: linear-gradient(90deg, 
+					#0d65be 0%, 
+					#1978d9 45%, 
+					#248bf4 100%), 
+				linear-gradient(
+					#cccccc, 
+					#cccccc);
+				border-radius: 4px;
+				color: #ffffff;
+				font-size: 16px;
+				margin-right: 109px;
+				&:hover {
+					opacity: 0.7;
+				}
+				&:active {
+					opacity: 1;
+				}
+			}
+
+			.el-upload {
+				width: 80%;
+			}
+			.el-upload-dragger {
+				width: 100%; 
+				height: 686px;
+				border: 2px dashed #ccc;
+			}
+			.data-upload-tips {
+				margin-top: 50px;
+				font-size: 16px;
+				letter-spacing: 1px;
+				color: #cccccc;
+			}
 		}
 	}
 </style>
@@ -69,47 +86,41 @@
 	export default {
 		data () {
 			return {
-				uploadApi: 'https://jsonplaceholder.typicode.com/posts/',
-				uploadProgress: '0%',
-				processProgress: '0%'
+				uploadApi: 'https://jsonplaceholder.typicode.com/posts/'
 			}
 		},
 		methods: {
 			goHDFS () {
-				alert('hi');
+				alert('goHDFS');
 			},
 			goODBC () {
-				alert('in ODBC');
+				alert('goODBC');
 			},
 			beforeUpload (file) {
 				localStorage.removeItem('fileInfo');
-				this.$store.commit('SET_PROGRESS', 0);
+				this.$store.commit('SET_PROGRESS_PERCENT', 0);
 				this.$store.commit('SET_FILE_NAME', file.name);
 				this.$router.push('/main/data/loading');
 				this.$store.commit('SET_PROJECT_STATUS', true);
 				localStorage.setItem('projectId', '');
 			},
 			onUploadProgress (event, file, fileList) {
-				this.$store.commit('SET_PROGRESS', event.percent - 0.1);
+				this.$store.commit('SET_PROGRESS_PERCENT', event.percent - 0.1);
 			},
 			handleUploadSuccess (response, file, fileList) {
 				localStorage.setItem('projectId', 'abc');
-				//alert('succ');
-				//console.log(file);
-				this.$store.commit('SET_PROGRESS', 100);
+				this.$store.commit('SET_PROGRESS_PERCENT', 100);
 				this.$router.push('/main/data/info');
-				this.$store.commit('SET_PROGRESS', 0);
 			},
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
-				//console.log(err);
-				//console.log(file);
+				this.$store.commit('SET_PROGRESS', 0);
+				this.$store.commit('SET_PROGRESS_OK', false);
 			}
-
-
 		},
 		mounted () {
 			this.$store.commit('SET_PROJECT_STATUS', false);
+			this.$store.commit('SET_PROGRESS_OK', true);
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		}
 	}

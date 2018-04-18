@@ -11,9 +11,11 @@
 				</li>
 			</ul>
 		</el-col>
-		<el-col justify="right" :md="{span: 6, offset: 7}" :sm="{span:8, offset: 3}" :xs="{span: 8, offset: 0}" class="info">
+		<el-col justify="right" :md="{span: 8, offset: 6}" :sm="{span:8, offset: 3}" :xs="{span: 8, offset: 0}" class="info">
 			<div class="top-project-name" v-show="projectStatus">
-				<input type="text" placeholder="未命名任务" v-model="projectName" class="project-name" @change="setProjectName">
+				<el-tooltip class="item" effect="light" :hide-after=1000 content="命名该任务" placement="bottom-end">
+			      	<input type="text" placeholder="未命名任务" v-model="projectName" class="project-name" @change="setProjectName">
+			    </el-tooltip>
 				<div class="sep"></div>
 			</div>
 			<img class="icon" src="../images/message.png">

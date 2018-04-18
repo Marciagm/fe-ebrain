@@ -1,5 +1,5 @@
 <template>
-	<div class="data-deal">
+	<div class="data-loading">
 		<div class="uploading">
 			<div ref="left" class="uploading-left">
 				<img class="uploadig-img" src="../images/Upload-data2.png">
@@ -8,16 +8,22 @@
 				</div>
 			</div>
 			<div ref="right" class="uploading-right">
-
 				<div class="loading-progress">
 					<div class="load-progress-border" style="top: 0;"></div>
-					<div class="progress-bar" :style="{width: uploadProgress}"></div>
+					<div class="progress-bar" style="width: 100%; background: #eee;" v-if="progressOk">
+						<div class="progress-bar" :style="{width: uploadProgress}"></div>
+					</div>
 					<div class="loading-progress-con progress-bg" :style="{width: uploadProgress}"></div>
 					<div class="loading-progress-con offset">
 						<div>1.上传数据</div>
-						<span class="load-progress-status">已完成{{ uploadProgress }}</span>
+						<span v-if="progressOk" class="load-progress-status">已完成{{ uploadProgress }}</span>
+						<span v-else class="load-fail-tip">
+							上传失败<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
+						</span>
 					</div>
-					<img src="../images/loading.gif" class="load-effect">
+					<img v-if="progressOk" src="../images/loading.gif" class="load-effect">
+					<img v-else src="../images/cuowu.png" class="load-effect">
+					<div v-if="!progressOk" class="load-progress-border"></div>
 				</div>
 
 				<div class="loading-progress">
@@ -35,13 +41,12 @@
 	</div>	
 </template>
 <style lang="scss">
-	.data-deal {
-		background: #fff;
-	}
-	.uploading {
-		overflow: hidden;
-		background: #f4f4f6;
-		display: flex;
+
+	.data-loading {
+		.uploading {
+			overflow: hidden;
+			background: #f4f4f6;
+			display: flex;
 		.uploading-left {
 			position: relative;
 			background: #fff;
@@ -53,6 +58,7 @@
 				margin-top: 206px;
 			}
 			.data-foot {
+				background: #fff;
 				z-index: 1000;
 				letter-spacing: 1px; 
 				color: #999; 
@@ -136,8 +142,15 @@
 					font-size: 12px;
 				}
 			}
+			.load-fail-tip {
+				font-size: 12px;
+				letter-spacing: 1px;
+				color: #e00202;
+			}
 		}
 	}
+	}
+	
 
 </style>
 <script>
@@ -151,7 +164,6 @@
 		},
 		mounted () {
 			// @TODO 如果已经有projectId了，就直接跳转到 data info界面
-			console.log('projectId:' + localStorage.getItem('projectId'));
 			if (localStorage.getItem('projectId')) {
 				this.$router.push('/main/data/info');
 			}
@@ -164,7 +176,7 @@
             	try {
             		fileInfo = JSON.parse(fileInfo);
             		if (fileInfo.finished) {
-            			this.$store.commit('SET_PROGRESS', 100);
+            			this.$store.commit('SET_PROGRESS_PERCENT', 100);
 						this.$store.commit('SET_FILE_NAME', fileInfo.name);
             		}
             	}
@@ -185,11 +197,14 @@
 						finished: true,
 						projectId: ''
 					};
-
 					localStorage.setItem('fileInfo', JSON.stringify(fileInfo));
 
 				}
 				return Math.max(Math.floor(this.$store.state.progressPercent), 0) + '%';
+			},
+			progressOk () {
+				console.log(this.$store.state.progressOk);
+				return this.$store.state.progressOk;
 			},
 			filename () {
 				return this.$store.state.filename;
