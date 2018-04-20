@@ -1,5 +1,5 @@
 <template>
-	<left-right isScroll="false">
+	<left-right isScroll="0">
 		<div class="pro-management" slot="left">
 			<div>
 				<div class="pro-management-top">
@@ -18,19 +18,19 @@
 						<el-col :span="6">创建时间</el-col>
 						<el-col :span="6">创建时间</el-col>
 					</el-row>
-					<el-row class="project-list-item">
-						<el-col :span="6">任务名称1</el-col>
-						<el-col :span="6">小花猫.esv</el-col>
+					<el-row class="project-list-item"  v-for="project in projects">
+						<el-col :span="6">{{ project.name }}</el-col>
+						<el-col :span="6">dd.svg</el-col>
 						<el-col :span="6">2018.04.22 10:30</el-col>
 						<el-col :span="6">
-							<img src="../images/model-rubbish.png"  @click="deleteProject(0)" />
+							<img src="../images/model-rubbish.png"  @click="deleteProject(project.project_id)" />
 						</el-col>
 					</el-row>
 				</div>
 			</div>
 		</div>
 		<div slot="right">
-			yusdfasdf
+			
 		</div>
 	</left-right>
 	
@@ -42,6 +42,11 @@
 	export default {
 		components: {
 			leftRight
+		},
+		data () {
+			return {
+				projects: []
+			}
 		},
 		mounted () {
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
@@ -57,8 +62,12 @@
 					const params = {
 						user_id: userId
 					};
-					
+
 					getProjectList(params).then(data => {
+						if(!data.error) {
+							const { projects }= data;
+							this.projects = projects;
+						}
 						console.log(data);
 					}).catch (error => {
 						console.log(error);
@@ -69,18 +78,14 @@
 				}
 			}
 		},
-		data () {
-			return {
-			}
-		},
 		methods: {
 			goCreateProject () {
 				this.$router.push('/main/data/upload');
 			},
-			deleteProject (item) {
+			deleteProject (projectId) {
 				// const projectId = item.projectId;
-				const projectId = this.$store.state.projectId;
-
+				//const projectId = this.$store.state.projectId;
+				console.log(projectId);
 				console.log('projectId: ' + projectId);
 				deleteProject(projectId).then(data => {
 					console.log(data);

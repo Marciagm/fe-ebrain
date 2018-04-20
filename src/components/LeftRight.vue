@@ -1,7 +1,6 @@
 <template>
 	<div class="left-right">
 		<div class="left" ref="left">
-			{{ isScroll }}
 			<slot name="left"></slot>
 		</div>
 
@@ -33,9 +32,9 @@
 	export default {
 		props: ['isScroll'],
 		mounted () {
-			console.log('sdfsfsdf: ' + this.isScroll);
-			if (!this.isScroll) {
+			if (this.isScroll == 0) {
 				let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+
 				this.$refs.left.style.height = (h - 88) + 'px';
 				this.$refs.right.style.height = (h - 88) + 'px';
 				console.log('height: ' + h);

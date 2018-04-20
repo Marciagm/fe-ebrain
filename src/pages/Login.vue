@@ -70,8 +70,8 @@
                             if (data.token) {
                                 localStorage.setItem('token', data.token);
                                 var decodedInfo = jwtDecode(data.token);
-                                
-                                localStorage.setItem('user', JSON.stringify({nickname: decodedInfo.Nickname, userId: decodedInfo.UserId}));
+                                console.log(decodedInfo);
+                                localStorage.setItem('user', JSON.stringify({nickname: decodedInfo.nickname, userId: decodedInfo.user_id}));
                                 setTimeout(function () {
                                     _this.$router.push({path: '/main'});
                                 }, 100);
