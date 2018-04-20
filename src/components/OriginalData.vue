@@ -1,36 +1,64 @@
 <template>
   <el-table
   	align="center"
+    width="500"
   	:max-height="maxHeight"
     :data="tableData"
     stripe
-    style="width: 94%; margin-left: 2%;"
+    style="border-radius: 4px;"
     >
     <el-table-column
       prop="date"
       label="日期"
-      width="180">
+    >
     </el-table-column>
 
     <el-table-column
       prop="name"
       label="姓名"
-      width="180">
+    >
     </el-table-column>
     <el-table-column
       prop="name"
       label="姓名"
-      width="180">
+    >
     </el-table-column>
     <el-table-column
       prop="name"
       label="姓名"
-      width="180">
+    >
     </el-table-column>
     <el-table-column
       prop="name"
       label="姓名"
-      width="180">
+    >
+    </el-table-column>
+    <el-table-column
+      prop="address"
+      label="地址">
+    </el-table-column>
+    <el-table-column
+      prop="name"
+      label="姓名"
+    >
+    </el-table-column>
+    <el-table-column
+      prop="address"
+      label="地址">
+    </el-table-column>
+    <el-table-column
+      prop="name"
+      label="姓名"
+    >
+    </el-table-column>
+    <el-table-column
+      prop="address"
+      label="地址">
+    </el-table-column>
+    <el-table-column
+      prop="name"
+      label="姓名"
+    >
     </el-table-column>
     <el-table-column
       prop="address"

@@ -114,7 +114,7 @@
 			},
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
-				this.$store.commit('SET_PROGRESS', 0);
+				this.$store.commit('SET_PROGRESS_PERCENT', 0);
 				this.$store.commit('SET_PROGRESS_OK', false);
 			}
 		},

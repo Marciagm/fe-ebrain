@@ -17,6 +17,7 @@ const state = {
     projectStatus: false,
 
     // 特征详情
+    selection: ''
 }
 
 // 定义所需的 mutations
@@ -41,6 +42,9 @@ const mutations = {
     },
 
     // 特征详情
+    SET_SELECTION (state, selection) {
+        state.selection = selection;
+    }
 }
 
 // 创建 store 实例

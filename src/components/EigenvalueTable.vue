@@ -5,12 +5,14 @@
 	    ref="multipleTable"
 	    :data="tableData3"
 	    tooltip-effect="light"
-	    style="width: 94%; margin-left: 2%;"
 	    :max-height="maxHeight"
+	    @select="select"
+	    @select-all="select"
 	    @cell-mouse-enter="showTip"
 	    @cell-mouse-leave="hideTip"
 	    @expand-change="expand"
 	    show-overflow-tooltip
+	    style="border-radius: 4px;"
 	    >
 	    <el-table-column
 	      type="selection">
@@ -33,7 +35,7 @@
 	      prop="date"
 	      label="特征名称"
 	      sortable
-	      width="220"
+	      width="180"
 	     >
 	      <template slot-scope="props" style="text-align: left;">
 	      	<div :id="props.row.date" style=" height: 49px; line-height: 49px;">
@@ -52,7 +54,7 @@
 	      prop="dataType"
 	      sortable
 	      label="数据类型"
-	      width="120"
+	      width="100"
 	      show-overflow-tooltip>
 	      <template slot-scope="props" style="text-align: left;">
 	      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType">
@@ -71,7 +73,7 @@
 	    <el-table-column
 	      prop="fnum"
 	      label="特征个数"
-	      width="120"
+	      width="100"
 	      sortable
 	      show-overflow-tooltip>
 	    </el-table-column>
@@ -79,6 +81,7 @@
 	      prop="fnum"
 	      sortable
 	      label="缺失值"
+	      width="100"
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
@@ -258,6 +261,15 @@
 			}
 		},
 		methods: {
+			select (selection, row) {
+				if (!selection.length) {
+					this.$emit('setList', false);
+				}
+				else {
+					this.$emit('setList', true);
+				}
+				this.$store.commit('SET_SELECTION', selection);
+			},
 			showTip (row, column, cell, event) {
 				//if (!row.showTip && column.property === 'date') {
 					row.showTip = true;	

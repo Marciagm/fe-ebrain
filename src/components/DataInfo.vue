@@ -1,125 +1,123 @@
 <template>
-	<div class="data-loading">
-		<div class="uploading">
-			<div ref="info-left" class="uploading-left">
-				<div class="target">
-					<div style="display: inline-block; width: 210px; margin-right: 80px;">
-						<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
-						<div v-else class="target-label" for="target">输入预测目标</div>
-						
-						<input class="target-input" v-model="target" type="" placeholder="输入预测目标" name="target" @change="showBar">
-					</div>
-
-					<div class="chart-con">
-						<div id="bar-chart"></div>
-					</div>					
-					<el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button>
-					<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
+	<div class="data-info">
+		<div ref="info-left" class="data-info-left">
+			<div class="target">
+				<div style="display: inline-block; width: 210px; margin-right: 80px;">
+					<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
+					<div v-else class="target-label" for="target">输入预测目标</div>
+					
+					<input class="target-input" v-model="target" type="" placeholder="输入预测目标" name="target" @change="showBar">
 				</div>
 
-				<!-- 显示高级选项 -->
-				<div style="margin-bottom: 21px; text-align: center;">
-					<div @click="advancedOption" style="cursor: pointer; width: 20%; margin-left: 40%">
-						<span style="font-size: 12px; color: #666; letter-spacing: 1px;">显示高级选项</span>
-						<img v-if="!showAdvancedOption" src="../images/Down-arrow-small.png">
-						<img v-else src="../images/Down-arrow-small.png" style="transform:rotate(180deg);">
-					</div>
+				<div class="chart-con">
+					<div id="bar-chart"></div>
+				</div>					
+				<el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button>
+				<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
+			</div>
 
-					<div v-show="showAdvancedOption" style="width: 100%; height: 642px; padding-top: 57px; 
-		background-color: #fafafa;">
-						<div style="text-align: left; width: 40%; padding-left: 30%;">
-							<advanced-option></advanced-option>
-						</div>						
-					</div>
+			<!-- 显示高级选项 -->
+			<div class="data-info-avo">
+				<div @click="advancedOption" class="info-avo-option">
+					<span class="info-avo-label">显示高级选项</span>
+					<img v-if="!showAdvancedOption" src="../images/Down-arrow-small.png">
+					<img v-else src="../images/Down-arrow-small.png" style="transform:rotate(180deg);">
 				</div>
+				<div v-show="showAdvancedOption" class="info-avo-con">
+					<advanced-option></advanced-option>			
+				</div>
+			</div> 
 
-				<div id="tables">
-					<div style="text-align: left; padding-left: 2%;">
-						<div style="padding-left: 14px;padding-right: 14px;display: inline-block; border: 1px solid #eee; border-bottom: 0px; height: 41px; line-height: 41px;" >
-							<img src="../images/All-features.png" style="width: 13px; height: 13px;margin-right: 5px;">
-							<span style="color: #333; font-size: 14px;letter-spacing: 1px;" @click="tab('detail')">特征详情</span>
-							<el-autocomplete
-						      v-model="state1"
-						      :fetch-suggestions="querySearch"
-						      placeholder="搜索"
-						      @select="search"
-						      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
-						    ></el-autocomplete>	
-							<el-dropdown style="cursor: pointer;">
-							  <span class="el-dropdown-link">
+			<!-- 表格 -->
+			<div id="tables">
+				<div id="tablePart" style="">
+					<div id="eigenPart" style="padding-left: 14px;padding-right: 14px;display: inline-block; border: 1px solid #eee; border-bottom: 0px; border-right: 0; height: 41px; line-height: 41px; " >
+						<img src="../images/All-features.png" style="width: 13px; height: 13px;margin-right: 5px;">
+						<span style="color: #333; font-size: 14px;letter-spacing: 1px;" @click="tab('detail')">特征详情</span>
+						<el-autocomplete
+					      v-model="state1"
+					      :fetch-suggestions="querySearch"
+					      placeholder="搜索"
+					      @select="search"
+					      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
+					    ></el-autocomplete>	
+						<el-dropdown style="cursor: pointer;">
+							<span class="el-dropdown-link">
 							    <span>全部特征</span>
 							    <span style="color: #666; font-size: 10px;">(特征列表)</span>
 							    <i class="el-icon-arrow-down el-icon--right"></i>
-							  </span>
-							  <el-dropdown-menu slot="dropdown">
+							</span>
+							<el-dropdown-menu slot="dropdown">
 							    <el-dropdown-item>全部特征</el-dropdown-item>
 							    <el-dropdown-item divided>特征列表二</el-dropdown-item>
 							    <el-dropdown-item>特征列表三</el-dropdown-item>
 							    <el-dropdown-item>特征列表四</el-dropdown-item>
 							    <el-dropdown-item>特征列表五</el-dropdown-item>
-							  </el-dropdown-menu>
-							</el-dropdown>
-						</div>
-						<div style="width: 50%;display: inline-block; vertical-align: top; border-bottom: 1px solid #eee; height: 41px; line-height: 41px; padding-left: 45px; cursor: pointer" @click="tab('original')">
-							<img src="../images/Original-data.png" style="margin-right: 5px;" >
-							<span style="color: #333; font-size: 14px;letter-spacing: 1px;" >原始数据</span>
-						</div>
-					</div>
-					<div style="margin-top: 19px; margin-bottom: 20px;height: 500px;">
-						<!-- 特征详情 -->
-						<div v-if="!isOriginal">
-							<eigenvalue-table v-on:setTarget="showBar"></eigenvalue-table>
-						</div>
-						
-						<!-- 表格部分 -->
-						<div style="width: 94%; margin-left: 3%;" v-if="isOriginal">
-							<original-data :max-height="maxHeight"></original-data>
+							</el-dropdown-menu>
+						</el-dropdown>
+						<div class="eigen-list" v-if="isListNameShow"> 
+							<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" />
+							<button class="eigen-list-button" @click="setList">确定</button>
 						</div>
 					</div>
-					
+
+					<div id="originalPart" style="display: inline-block; vertical-align: top; height: 41px; line-height: 41px; padding-left: 45px; cursor: pointer; margin-left: -3px; border-left: 1px solid #eee;  border-bottom: 1px solid #eee;" @click="tab('original')">
+						<img src="../images/Original-data.png" style="margin-right: 5px;" >
+						<span style="color: #333; font-size: 14px;letter-spacing: 1px;">原始数据</span>
+					</div>
 				</div>
-				<div class="data-foot">
-					{{ filename }}
+
+				<div style="margin-top: 19px; margin-bottom: 20px; width: 100%;">
+					<!-- 特征详情 -->
+					<eigenvalue-table v-if="!isOriginal" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table>
+					
+					<!-- 表格部分 -->
+					<div style="" v-if="isOriginal">
+						<original-data :max-height="maxHeight"></original-data>
+					</div>
 				</div>
 			</div>
-
-			<div ref="info-right" class="uploading-right">
-				<div class="loading-progress">
-					<div class="load-progress-border" style="top: 0;"></div>
-					<div class="loading-progress-con progress-bg"></div>
-					<div class="loading-progress-con offset">
-						<div>1.上传数据</div>
-						<span class="load-progress-status">(2.5s)</span>
-					</div>
-					<img src="../images/finish.png" class="load-effect">
-					<div class="load-progress-border"></div>
-				</div>
-				
-				<div class="loading-progress">
-					<div class="load-progress-border" style="top: 0;"></div>
-					<div class="loading-progress-con progress-bg"></div>
-					<div class="loading-progress-con offset">
-						<div>2.生产数据画像</div>
-						<span class="load-progress-status">(2.5s)</span>
-					</div>
-					<img src="../images/finish.png" class="load-effect">
-					<div class="load-progress-border"></div>
-				</div>
-				<div class="loading-progress">
-					<div class="load-progress-border" style="top: 0;"></div>
-					<div class="progress-bar" style="width: 100%; background: #eee;" v-if="progressOk">
-						<div class="progress-bar" :style="{width: uploadProgress}"></div>
-					</div>
-					<div class="loading-progress-con progress-bg" :style="{width: uploadProgress}"></div>
-					<div class="loading-progress-con offset">
-						<div>2.生成数据画像</div>
-						<span class="load-progress-status">已完成{{ uploadProgress }}</span>
-					</div>
-					<img src="../images/loading.gif" class="load-effect">
-				</div>
+			<!-- 下标 -->
+			<div class="data-foot">
+				{{ filename }}
 			</div>
 		</div>
-	</div>	
+		<div ref="info-right" class="data-info-right">
+			<div class="loading-progress">
+				<div class="load-progress-border" style="top: 0;"></div>
+				<div class="loading-progress-con progress-bg"></div>
+				<div class="loading-progress-con offset">
+					<div>1.上传数据</div>
+					<span class="load-progress-status">(2.5s)</span>
+				</div>
+				<img src="../images/finish.png" class="load-effect">
+				<div class="load-progress-border"></div>
+			</div>
+			
+			<div class="loading-progress">
+				<div class="load-progress-border" style="top: 0;"></div>
+				<div class="loading-progress-con progress-bg"></div>
+				<div class="loading-progress-con offset">
+					<div>2.生产数据画像</div>
+					<span class="load-progress-status">(2.5s)</span>
+				</div>
+				<img src="../images/finish.png" class="load-effect">
+				<div class="load-progress-border"></div>
+			</div>
+			<div class="loading-progress">
+				<div class="load-progress-border" style="top: 0;"></div>
+				<div class="progress-bar" style="width: 100%; background: #eee;" v-if="progressOk">
+					<div class="progress-bar" :style="{width: uploadProgress}"></div>
+				</div>
+				<div class="loading-progress-con progress-bg" :style="{width: uploadProgress}"></div>
+				<div class="loading-progress-con offset">
+					<div>2.生成数据画像</div>
+					<span class="load-progress-status">已完成{{ uploadProgress }}</span>
+				</div>
+				<img src="../images/loading.gif" class="load-effect">
+			</div>
+		</div>
+	</div>
 </template>
 <style lang="scss">
 	table {
@@ -129,10 +127,11 @@
 		font-size: 12px;
 	}
 	.target {
+		position: relative;
 		height: 300px;
-		width: 100%;
+		width: 90%;
+		margin-left: 5%;
 		text-align: left;
-		padding-left: 1%;
 		.target-label {
 			margin-top: 87px;
 			font-size: 20px;
@@ -203,6 +202,10 @@
 			}
 		}
 		.start-run {
+			position: absolute;
+			top: 107px;
+			right: 87px;
+			float: right;
 			width: 127px;
 			height: 51px;
 			outline: none;
@@ -212,7 +215,147 @@
 			color: #ffffff;
 		}
 	}
+
+	.data-info {
+		background: #f4f4f6;
+		display: flex;
+		flex: 5;
+		.data-info-left {
+			background: #fff;
+			flex: 4;
+			margin-right: 20px;
+			border-radius: 0px 8px 0px 0px;
+			.data-info-avo {
+				margin-bottom: 21px; 
+				text-align: center;
+				.info-avo-option {
+					cursor: pointer; 
+					width: 20%; 
+					margin-left: 40%;
+					margin-bottom: 21px;
+				}
+				.info-avo-label {
+					font-size: 12px; 
+					color: #666; 
+					letter-spacing: 1px;
+				}
+				.info-avo-con {
+					width: 100%; 
+					height: 642px;
+					padding-top: 57px; 
+					background-color: #fafafa;
+				}
+			}
+
+			.eigen-list { 
+				display: inline-block;
+				margin-left: 30px;
+				.eigen-list-input {
+					height: 18px;
+					background-color: #e6e6e6;
+					border: 0;
+				}
+				.eigen-list-button {
+					background-image: linear-gradient(90deg, 
+						#0d65be 0%, 
+						#1978d9 45%, 
+						#248bf4 100%), 
+					linear-gradient(
+						#e0952a, 
+						#e0952a);
+					border-radius: 2px;
+					color: #fff;
+					font-size: 10px;
+					outline: none;
+					&:hover {
+						opacity: 0.7;
+					}
+					&:active {
+						opacity: 1;
+					}
+				}
+			}
+		}
+		.data-info-right {
+			box-sizing: border-box;
+			padding-top: 20px;
+			flex: 1;
+			background: #fff;
+			border-radius: 8px 0px 0px 8px;
+			text-align: center;
+			position: relative;
+			color: #666;
+			
+			.offset {
+				margin-left: 20%;
+			}
+			.progress-bg {
+				background: #eff3f5;
+			}
+			.progress-bar {
+				height: 6px;
+				border-radius: 0px 3px 3px 0px;
+				background-image: linear-gradient(90deg, 
+					#a0cfff 0%, 
+					#5ca7f4 45%, 
+					#187fe8 100%), 
+				linear-gradient(
+					#86c0fb, 
+					#86c0fb);
+			}
+			.data-process {
+				background: #eff3f5;
+				height: 68px;
+				position: relative;
+			    
+				.data-process-con {
+					position: absolute;
+					top: 15px; 
+					left: 20%
+				}
+			}
+			.load-effect {
+				right: 20%; 
+				top: 24px; 
+				position: absolute;
+			}
+			.loading-progress {
+				text-align: center;
+				height: 74px;
+				font-size: 15px;
+				letter-spacing: 1px;
+				border-radius: 0px 4px 4px 0px;
+				position: relative;
+				.loading-progress-con {
+					padding-top: 12px; 
+					height: 56px;
+					position: absolute;
+					color: #666666;
+					font-size: 15px;
+				    letter-spacing: 1px;
+				}
+				.load-progress-border {
+					width: 100%;
+					height: 1px;
+					position: absolute;
+					top: 74px;
+					background-color: #eeeeee;
+				}
+				.load-progress-status {
+					font-size: 12px;
+				}
+			}
+			.load-fail-tip {
+				font-size: 12px;
+				letter-spacing: 1px;
+				color: #e00202;
+			}
+		}
+	}
+
 	#tables {
+		margin-left: 5%;
+		width: 90%;
 		.el-table {
 			color:  #333;
 			font-size: 12px;
@@ -263,7 +406,20 @@
 	import advancedOption from '@/components/AdvancedOption'
 	import originalData from '@/components/OriginalData'
     import eigenvalueTable from '@/components/EigenvalueTable'
-    
+
+    let originalPartwidth = '';
+
+    function $ (id) {
+    	return document.getElementById(id);
+    }
+
+    function resize () {
+    	originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
+    	$('originalPart').style.width = originalPartwidth + 'px';
+  		console.log('a: ' + $('tablePart').offsetWidth);
+  		console.log('b: ' + $('eigenPart').offsetWidth);
+    } 
+
     function infInit (obj) {
 
     }
@@ -283,6 +439,8 @@
 		},
 		data () {
 			return {
+				isListNameShow: false,
+				listName: '',
 				dataPicFinished: false,
 				isOriginal: false,
 				progressOk: true,
@@ -293,12 +451,33 @@
 				state1: '',
 				filename: '',
 				searchItem: '',
-				maxHeight: 500,
+				maxHeight: 374,
 				uploadProgress: '0%',
 				target: ''
 			}
 		},
 		methods: {
+			showSetList (isShow) {
+
+				//$('originalPart').style.width = $('originalPart').offsetWidth - 150 + 'px';
+				if (isShow) {
+					$('originalPart').style.width = originalPartwidth - 205 + 'px';
+				}
+				else {
+					$('originalPart').style.width = originalPartwidth + 'px';
+				}
+				this.isListNameShow = isShow;
+			},
+			setList () {
+				if (this.listName) {
+					console.log(this.listName);
+					console.log(this.$store.state.selection);
+				}
+				else {
+					this.$message.error('填列表名字啊！');
+				}
+				
+			},
 			createFilter(queryString) {
 		        return (restaurant) => {
 		          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
@@ -468,6 +647,7 @@
 			}
 		},
 		mounted () {
+			window.onresize = resize;
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
             //this.$refs.left.style.height = (h - 88) + 'px';
             //this.$refs.right.style.height = (h - 88) + 'px';
@@ -476,6 +656,18 @@
             this.filename = this.$store.state.filename;
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.restaurants = this.loadAll();
+            resize();
+		},
+		computed: {
+			/*originalPartwidth () {
+				const width = resize();
+				if (this.isShow) {
+					return (width - 205) + 'px'; 
+				}
+				else {
+					return width + 'px';
+				}
+			}*/
 		}
 	}
 </script>

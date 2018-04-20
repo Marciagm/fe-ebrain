@@ -1,21 +1,27 @@
 <template>
 	<div class="advanced-option">
 		<el-row>
-			<el-col style="letter-spacing: 1px; color: #666666; margin-bottom: 39px;">高级选项</el-col>
+			<el-col :span="4" :offset="6" style="letter-spacing: 1px; color: #666666; margin-bottom: 39px;">高级选项</el-col>
 		</el-row>
 		<el-row style="margin-bottom: 59px;">
-			<el-col :span="10" class="option-label">1.优化目标:</el-col>
+			<el-col :span="4" :offset="6" class="option-label">1.优化目标:</el-col>
 			<el-col :span="10" class="option-value">Logloss（默认）</el-col>
 		</el-row>
 
 		<el-row>
-			<el-col :span="10" class="option-label">1.区分选择:</el-col>
+			<el-col :span="4" :offset="6" class="option-label">1.区分选择:</el-col>
 			<el-col :span="10">
 				<div class="option-value">选择区分方法</div>
-				<div style="width: 580px;">
+				<div style="width: 580px;" v-if="random">
 					<button class="option-button-hl">随机</button>
 					<div class="option-sep"></div>
-					<button class="option-button-default">随时间划分</button>
+					<button class="option-button-default" @click="chooseDis(0, false)">随时间划分</button>
+				</div>
+
+				<div style="width: 580px;" v-else>
+					<button class="option-button-default" @click="chooseDis(0, true)">随机</button>
+					<div class="option-sep"></div>
+					<button class="option-button-hl">随时间划分</button>
 				</div>
 
 				<div class="state-label">（保证同分布的数据拆分方法）</div>
@@ -23,10 +29,16 @@
 
 				<div class="option-value">训练模型用</div>
 
-				<div style="width: 580px;">
+				<div style="width: 580px;" v-if="crossVadify">
 					<button class="option-button-hl">交叉验证</button>
 					<div class="option-sep"></div>
-					<button class="option-button-default">训练测试验证</button>
+					<button class="option-button-default" @click="chooseDis(1, false)">训练测试验证</button>
+				</div>
+
+				<div style="width: 580px;" v-else>
+					<button class="option-button-default" @click="chooseDis(1, true)">交叉验证</button>
+					<div class="option-sep"></div>
+					<button class="option-button-hl">训练测试验证</button>
 				</div>
 
 				<div style="width: 585px; margin-top: 39px;">
@@ -57,7 +69,9 @@
 		data () {
 			return {
 				varifyNum: 0,
-				testPercent: 0
+				testPercent: 0,
+				random: true,
+				crossVadify: true
 			}
 		},
 		methods: {
@@ -66,12 +80,22 @@
 			},
 			formatTestPercent (val) {
 				return val / 5 + '%';
-			}
+			},
+			chooseDis (row, val) {
+				if (row === 0) {
+					this.random = val;
+				}
+				if (row === 1) {
+					this.crossVadify = val;
+				}
+				
+			},
 		}
 	}
 </script>
 <style lang="scss">
 	.advanced-option {
+		text-align: left;
 		.option-con-sep {
 			width: 564px;
 			height: 1px;
@@ -113,6 +137,7 @@
 			background-color: rgba(51, 51, 51, 0.5);
 			border-radius: 4px;
 			color: #fff;
+			letter-spacing: 1px;
 		}
 		.option-button-hl {
 			padding-left: 14px;
@@ -128,11 +153,10 @@
 			linear-gradient(
 				#cccccc, 
 				#cccccc);
-			background-blend-mode: normal, 
-				normal;
-			box-shadow: 0px 2px 4px 0px 
-				rgba(5, 0, 50, 0.2);
 			border-radius: 4px;
+		}
+		button {
+			outline: none;
 		}
 	}
 </style>
