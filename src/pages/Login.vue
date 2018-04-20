@@ -5,10 +5,11 @@
                 <el-form :model="loginForm" :rules="loginFormRules" class="login-form-con" ref="loginForm">
                     <div class="login-form-con-head">密码登录</div>
                     <el-form-item prop="username">
-                        <el-input name="username" placeholder="邮箱／手机号登录" v-model="loginForm.username"></el-input>
+                        <el-input name="username" placeholder="邮箱／手机号登录" v-model="loginForm.username" @focus="inputFocus"></el-input>
                     </el-form-item>
                     <el-form-item prop="password">
-                        <el-input type="password" name="password" placeholder="请输入密码" v-model="loginForm.password"></el-input>
+                        <el-input type="password" name="password" placeholder="请输入密码" v-model="loginForm.password" @focus="inputFocus"></el-input>
+                        <div style="font-size: 12px; color: #ff0000;height: 14px;">{{ errorTips }}</div>
                     </el-form-item>
                     
                     <el-button @click.native.prevent="handleSubmit">登录</el-button>
@@ -25,6 +26,7 @@
     import {login} from '../api/api';
     import ElCol from "element-ui/packages/col/src/col";
     import entryPart from '@/components/Entry'
+    import jwtDecode from 'jwt-decode'
 
     //import NProgress from 'nprogress'
     export default {
@@ -34,6 +36,7 @@
         },
         data() {
             return {
+                errorTips: '',
                 loginForm: {
                     username: '',
                     password: '',
@@ -51,30 +54,32 @@
             };
         },
         methods: {
+            inputFocus () {
+                this.errorTips = '';
+            },
             handleSubmit(ev) {
                 var _this = this;
                 this.$refs.loginForm.validate((valid) => {
                     if (valid) {
                         this.logining = true;
-                        var param = {username: this.loginForm.username, password: this.loginForm.password};
+                        var param = {user: this.loginForm.username, password: this.loginForm.password};
                         login(param).then(data => {
-                            console.log(data);
+                        
                             this.logining = false;
-                            let {msg, code} = data;
-                            if (code > 0) {
-                                _this.$message({
-                                    message: msg,
-                                    type: 'error'
-                                });
-                            } else {
-                                /*sessionStorage.setItem('user', JSON.stringify(data.data));
-                                 sessionStorage.setItem('token',data.data.token);*/
-                                localStorage.setItem('token', data.data.token);
-                                localStorage.setItem('user', JSON.stringify(data.data));
+                            //let {msg, code} = data;
+                            if (data.token) {
+                                localStorage.setItem('token', data.token);
+                                var decodedInfo = jwtDecode(data.token);
+                                
+                                localStorage.setItem('user', JSON.stringify({nickname: decodedInfo.Nickname, userId: decodedInfo.UserId}));
                                 setTimeout(function () {
                                     _this.$router.push({path: '/main'});
                                 }, 100);
-
+                            }
+                            else {
+                                let { error } = data;
+                                this.errorTips = '!' + error.desc;
+                                //this.loginForm.username = '';
                             }
                         });
                     } else {

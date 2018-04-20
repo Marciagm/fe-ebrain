@@ -10,40 +10,20 @@ axios.interceptors.request.use(function (config) {    // 这里的config包含�
 
 let base = process.env.API_ROOT;
 
-// regist
 export const regist = params => { 
 		return axios.post(`${base}/account/register`, params).then(res => res.data); 
 };
 
-// login
 export const login = params => { 
 	return axios.post(`${base}/account/login`, params).then(res => res.data); 
 };
 
-// create project
 export const createProject = params => { 
 	return axios.post(`${base}/projects/create`, params).then(res => res.data); 
 }
 
-// update project
 export const updateProject = (projectId, params) => {
 	return axios.post(`${base}/projects/update/${projectId}`, params).then(res => res.data); 
-}
-
-// delete project
-export const deleteProject = (projectId, params) => {
-	return axios.post(`${base}/projects/delete/${projectId}`).then(res => res.data); 
-}
-
-// get project data
-export const getProjectInfo = (projectId, params) => {
-	return axios.get(`${base}/projects/show/${projectId}`, params).then(res => res.data); 
-}
-
-// get project list
-export const getProjectList = (params) => {
-	// return axios.get(`${base}/projects/list`, params).then(res => res.data); 
-	return axios.get(`${base}/projects/list`, { params: params }).then(res => res.data); 
 }
 
 

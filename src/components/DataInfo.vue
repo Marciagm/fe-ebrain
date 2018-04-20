@@ -5,8 +5,13 @@
 				<div style="display: inline-block; width: 210px; margin-right: 80px;">
 					<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
 					<div v-else class="target-label" for="target">输入预测目标</div>
-					
-					<input class="target-input" v-model="target" type="" placeholder="输入预测目标" name="target" @change="showBar">
+					<el-autocomplete
+				      v-model="target"
+				      :fetch-suggestions="querySearch"
+				      placeholder="输入预测目标"
+				      @select="showBar(target)"
+				      class="target-input"
+				    ></el-autocomplete>	
 				</div>
 
 				<div class="chart-con">
@@ -30,10 +35,10 @@
 
 			<!-- 表格 -->
 			<div id="tables">
-				<div id="tablePart" style="">
+				<div id="tablePart" style="display: none;" >
 					<div id="eigenPart" style="padding-left: 14px;padding-right: 14px;display: inline-block; border: 1px solid #eee; border-bottom: 0px; border-right: 0; height: 41px; line-height: 41px; " >
 						<img src="../images/All-features.png" style="width: 13px; height: 13px;margin-right: 5px;">
-						<span style="color: #333; font-size: 14px;letter-spacing: 1px;" @click="tab('detail')">特征详情</span>
+						<span style="cursor: pointer; color: #333; font-size: 14px;letter-spacing: 1px;" @click="tab('detail')">特征详情</span>
 						<el-autocomplete
 					      v-model="state1"
 					      :fetch-suggestions="querySearch"
@@ -62,6 +67,42 @@
 					</div>
 
 					<div id="originalPart" style="display: inline-block; vertical-align: top; height: 41px; line-height: 41px; padding-left: 45px; cursor: pointer; margin-left: -3px; border-left: 1px solid #eee;  border-bottom: 1px solid #eee;" @click="tab('original')">
+						<img src="../images/Original-data.png" style="margin-right: 5px;" >
+						<span style="color: #333; font-size: 14px;letter-spacing: 1px;">原始数据</span>
+					</div>
+				</div>
+				<div id="tablePart" style="">
+					<div id="eigenPart" style="padding-left: 14px;padding-right: 14px;display: inline-block; border-bottom: 1px solid #eee; border-top: 0; height: 41px; line-height: 41px; " >
+						<img src="../images/All-features.png" style="width: 13px; height: 13px;margin-right: 5px;">
+						<span style="cursor: pointer; color: #333; font-size: 14px;letter-spacing: 1px;" @click="tab('detail')">特征详情</span>
+						<el-autocomplete
+					      v-model="state1"
+					      :fetch-suggestions="querySearch"
+					      placeholder="搜索"
+					      @select="search"
+					      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
+					    ></el-autocomplete>	
+						<el-dropdown style="cursor: pointer;">
+							<span class="el-dropdown-link">
+							    <span>全部特征</span>
+							    <span style="color: #666; font-size: 10px;">(特征列表)</span>
+							    <i class="el-icon-arrow-down el-icon--right"></i>
+							</span>
+							<el-dropdown-menu slot="dropdown">
+							    <el-dropdown-item>全部特征</el-dropdown-item>
+							    <el-dropdown-item divided>特征列表二</el-dropdown-item>
+							    <el-dropdown-item>特征列表三</el-dropdown-item>
+							    <el-dropdown-item>特征列表四</el-dropdown-item>
+							    <el-dropdown-item>特征列表五</el-dropdown-item>
+							</el-dropdown-menu>
+						</el-dropdown>
+						<div class="eigen-list" v-if="isListNameShow"> 
+							<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" />
+							<button class="eigen-list-button" @click="setList">确定</button>
+						</div>
+					</div>
+
+					<div id="originalPart" style="display: inline-block; vertical-align: top; height: 41px; line-height: 41px; padding-left: 45px; cursor: pointer; margin-left: -3px; border-left: 1px solid #eee; border-top: 1px solid #eee; border-left: 1px solid #eee;" @click="tab('original')">
 						<img src="../images/Original-data.png" style="margin-right: 5px;" >
 						<span style="color: #333; font-size: 14px;letter-spacing: 1px;">原始数据</span>
 					</div>
@@ -142,16 +183,19 @@
 		.target-input {
 			font-size: 14px;
 			color: #333;
-			padding-left: 18px;
 			margin-top: 24px;
-			width: 192px;
+			width: 210px;
 			height: 50px;
-			background-color: #ffffff;
+			background-color: #fff;
 			box-shadow: 0px 4px 6px 0px 
 				rgba(0, 0, 0, 0.06);
 			border-radius: 4px;
 			border: solid 1px #eeeeee;
-
+			input {
+				border: 1px;
+				height: 50px;
+				font-size: 14px;
+			}
 		}
 		::-webkit-input-placeholder { /* WebKit browsers */
 		    color:    #ccc;
@@ -168,9 +212,10 @@
 		.chart-con {
 			display: inline-block;
 			vertical-align: top;
-			width: 678px;
+			max-width: 677px;
 			height: 300px;
 			text-align: center;
+			background: red;
 			#bar-chart {
 				margin-left: 189px;
 				margin-top: 50px;
@@ -551,14 +596,22 @@
 			},
 			tab (tag) {
 				if (tag === 'detail') {
+					if (this.$store.state.selection && this.$store.state.selection.length) {
+						this.isListNameShow = true;
+					}
+
 					this.isOriginal = false;
+					// set selection
 				}
 				else {
+					this.isListNameShow = false;
 					this.isOriginal = true;
 				}
 			},
 			showBar (target) {
-				this.target = target;
+				if (target) {
+					this.target = target;	
+				}
 				this.dataPicFinished = true;
 				var barChart = echarts.init(document.getElementById('bar-chart'));
 				var option = {
@@ -656,7 +709,7 @@
             this.filename = this.$store.state.filename;
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.restaurants = this.loadAll();
-            resize();
+            //resize();
 		},
 		computed: {
 			/*originalPartwidth () {

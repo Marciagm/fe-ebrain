@@ -159,6 +159,17 @@
             //this.$refs.left.style.height = (h - 88) + 'px';
             //this.$refs.right.style.height = (h - 88) + 'px';
             this.maxHeight = 600;
+            const selection = this.$store.state.selection;
+            if (selection) {
+            	console.log(selection);
+	            selection.forEach((row, index) => {
+	            	if (row.order) {
+	            		//this.$refs.multipleTable.toggleRowSelection(this.tableData3[index]);
+	            		this.$refs.multipleTable.toggleRowSelection(this.tableData3[row.order]);
+	            	}
+	            	
+	            })	
+            }
 		},
 		data () {
 			return {
@@ -166,24 +177,28 @@
 				topn: '#666',
 				maxHeight: 0,
 				tableData3: [{
+					  order: 0,
 			          date: 'gender',
 			          name: '张小虎',
 			          dataType: '离散',
 			          fnum: 15,
 			          showTip: false
 			        }, {
+			          order: 1,
 			          date: '-02',
 			          name: 'a小虎',
 			          dataType: '离散',
 			          fnum: 12,
 			          showTip: false
 			        }, {
+			          order: 2,
 			          date: '3016-04',
 			          name: 'b小虎',
 			          dataType: '离散',
 			          fnum: 122,
 			          showTip: false
 			        }, {
+			          order: 3,
 			          date: '-01',
 			          name: '王小虎',
 			          dataType: '离散',
@@ -262,6 +277,7 @@
 		},
 		methods: {
 			select (selection, row) {
+				console.log(selection);
 				if (!selection.length) {
 					this.$emit('setList', false);
 				}
@@ -289,15 +305,18 @@
 				// 此处有接口
 			},
 			expand (row, expandRows) {
-				console.log(row);
-				console.log(expandRows);
 				setTimeout(() => {
 					this.showData('dataDistr', expandRows);
 				}, 0)
 				
 			},
 			showData (tag, row) {
-				
+				row.isShow = row.isShow || false;
+				if (row.isShow) {
+					row.isShow = false;
+					return;
+				}
+				row.isShow = true;
 				if (tag !== 'topn') {
 					var dataShow = document.getElementById('dataShow');
 					let chart = echarts.init(dataShow);

@@ -30,10 +30,12 @@
 	.data-upload {
 		min-width: 880px;
 		width: 100%;
-		.data-con { 
-			width: 100%;
+		text-align: center;
+		.data-con {
+			margin-left: 10%;
+			width: 80%;
 			padding-top: 60px;
-			height: 686px;
+			height: 586px;
 			text-align: center;
 			img {
 				margin-top: 38px;
@@ -70,7 +72,7 @@
 			}
 			.el-upload-dragger {
 				width: 100%; 
-				height: 686px;
+				height: 586px;
 				border: 2px dashed #ccc;
 			}
 			.data-upload-tips {
@@ -83,6 +85,8 @@
 	}
 </style>
 <script>
+    import { createProject } from '../api/api';
+
 	export default {
 		data () {
 			return {
@@ -97,18 +101,27 @@
 				alert('goODBC');
 			},
 			beforeUpload (file) {
-				localStorage.removeItem('fileInfo');
-				this.$store.commit('SET_PROGRESS_PERCENT', 0);
-				this.$store.commit('SET_FILE_NAME', file.name);
-				this.$router.push('/main/data/loading');
-				this.$store.commit('SET_PROJECT_STATUS', true);
-				localStorage.setItem('projectId', '');
+				// 新建工程
+				const param = { name: this.$store.state.projectName };
+				createProject(param).then(data => {
+					let { project } = data;
+					console.log(project.project_id);
+					// set project id
+					this.$store.commit('SET_PROJECT_ID', project.project_id);
+					localStorage.removeItem('fileInfo');
+					this.$store.commit('SET_PROGRESS_PERCENT', 0);
+					this.$store.commit('SET_FILE_NAME', file.name);
+					this.$router.push('/main/data/loading');
+					this.$store.commit('SET_PROJECT_STATUS', true);
+				}).catch(error => {
+					console.log(error);
+					return false;
+				})
 			},
 			onUploadProgress (event, file, fileList) {
 				this.$store.commit('SET_PROGRESS_PERCENT', event.percent - 0.1);
 			},
 			handleUploadSuccess (response, file, fileList) {
-				localStorage.setItem('projectId', 'abc');
 				this.$store.commit('SET_PROGRESS_PERCENT', 100);
 				this.$router.push('/main/data/info');
 			},
@@ -119,8 +132,11 @@
 			}
 		},
 		mounted () {
+			// init
 			this.$store.commit('SET_PROJECT_STATUS', false);
 			this.$store.commit('SET_PROGRESS_OK', true);
+			this.$store.commit('SET_PROJECT_NAME', '未命名任务');
+			
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		}
 	}

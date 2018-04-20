@@ -13,6 +13,7 @@ const state = {
     progressOk: true,
 
     // 任务
+    projectName: '',
     projectId:'',
     projectStatus: false,
 
@@ -34,7 +35,10 @@ const mutations = {
     },
 
     // 任务
-    SET_PROJECT_ID (state,projectId) {
+    SET_PROJECT_NAME (state, projectName) {
+        state.projectName = projectName;
+    },
+    SET_PROJECT_ID (state, projectId) {
         state.projectId = projectId;
     },
     SET_PROJECT_STATUS (state, projectStatus) {

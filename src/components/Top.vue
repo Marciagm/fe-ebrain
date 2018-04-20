@@ -20,7 +20,38 @@
 			</div>
 			<img class="icon" src="../images/message.png">
 			<img class="icon" src="../images/help.png">
-			<img class="icon" src="../images/project.png">
+			
+			<el-dropdown  @command="chooseTask">
+			  <span class="el-dropdown-link">
+			    <img class="icon" src="../images/project.png" >
+			  </span>
+			  <el-dropdown-menu slot="dropdown">
+			    <el-dropdown-item :command="0">
+			    	<img style="width: 13px; height: 13px" src="../images/new-task.png">
+			    	<span class="nav-project-label">创建新任务</span>
+			    </el-dropdown-item>
+			    <el-dropdown-item :command="1">
+			    	<img style="width: 12px; height: 10px" src="../images/task-manage.png">  
+			    	<span class="nav-project-label">任务管理</span>
+			    </el-dropdown-item>
+			    <el-dropdown-item divided disabled>
+			    	<span class="nav-drop-label">最近的任务</span>
+			    	<div class="nav-drop-con">
+				    	<div class="nav-project-list">
+				    		未命名任务1<br>
+				    		<span class="running">正在运行中...</span>
+				    	</div>
+				    	<div class="nav-project-list">
+				    		未命名任务2
+				    	</div>
+				    	<div class="nav-project-list">
+				    		未命名任务3
+				    	</div>
+			    	</div>
+			    	
+			    </el-dropdown-item>
+			  </el-dropdown-menu>
+			</el-dropdown>
 			<div class="sep"></div>
 			<div class="user">
 				<img src="../images/user.png">
@@ -122,11 +153,45 @@
 					height: 68px;
 				}
 			}
+			.nav-project-label {
+				font-size: 14px;
+				color: #333;
+			}
+			.el-dropdown {
+				&:focus {
+					outline: none;
+				}
+			}
+			
+
+		}	
+	}
+	.nav-project-list {
+		height: 30px;
+		line-height: 15px;
+		font-size: 14px;
+		margin-left: 30px;
+		color: #333;
+		margin-bottom: 17px;
+		.running {
+			color: #e0952a; 
+			font-size: 10px;
 		}
+	}
+	.el-dropdown-menu__item:focus, .el-dropdown-menu__item:not(.is-disabled):hover {
+		color: #333;
+	}
+	.nav-drop-label {
+		font-size: 12px; 
+		color: #999;
+	}
+	.nav-drop-con {
+		padding-bottom: 16px; 
+		padding-top: 17px;
 	}
 </style>
 <script>
-    import { logout } from '../api/api';
+    import { logout, updateProject } from '../api/api';
 
 	export default {
 		name: 'top',
@@ -179,16 +244,44 @@
 
                 });
            	},
-           	setProjectName () {
+           	setProjectName (event) {
+           		event.target.blur();
+           		const param = {
+           			name: this.projectName
+           		};
+
+           		const projectId = this.$store.state.projectId;
+
+           		updateProject(projectId, param).then(data => {
+           			if (!data.error) {		
+	           			const { project } = data; 
+	           			this.$store.commit('SET_PROJECT_NAME', project.name);
+           			}
+           			else {
+           				this.$message.error(error.desc);
+           			}
+           		}).catch(error => {
+
+           		})
+           	},
+           	chooseTask (tag) {
+           		if (tag === 0) {
+           			this.$router.push('/main/data/upload');
+           		}
+           		else if (tag === 1) {
+           			this.$router.push('/main/project')
+           		}
            	}
         },
         computed: {
         	projectStatus () {
-        		return this.$store.state.projectStatus
+        		return this.$store.state.projectStatus;
         	}
         },
 		mounted () {
 			this.$store.commit('SET_PROJECT_STATUS', false);
+			this.projectName = this.$store.state.projectName;
+
 			var user = localStorage.getItem('user');
             if (user) {
                 user = JSON.parse(user);

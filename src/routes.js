@@ -5,6 +5,8 @@ import DataDeal from '@/components/DataDeal'
 import DataUpload from '@/components/DataUpload'
 import Loading from '@/components/Loading'
 import DataInfo from '@/components/DataInfo'
+import ProManagement from '@/components/ProManagement'
+
 import Chart from '@/components/Chart'
 import UploadView from '@/components/UploadView'
 import ResultView from '@/components/ResultView'
@@ -61,7 +63,9 @@ let routes = [
                     { path: 'loading', component: Loading, name: '数据上传中'},
                     { path: 'info', component: DataInfo, name: '数据画像'}
                 ]
-             },
+            },
+            { path: 'project', component: ProManagement, name: '任务管理'},
+
             { path: 'chart', component: Chart, name: '图表'},
             { path: '/main/model', component: ModelList, name: '模型' },
             { path: '/main/algorithm-lib', component: ModelList, name: '算法库' },
