@@ -15,7 +15,7 @@ const state = {
     // 任务
     projectName: '',
     projectId:'',
-    projectStatus: false,
+    projectStatus: true,
 
     // 特征详情
     selection: ''

@@ -32,7 +32,7 @@ export const updateProject = (projectId, params) => {
 
 // delete project
 export const deleteProject = (projectId, params) => {
-	return axios.post(`${base}/projects/delete/${projectId}`).then(res => res.data); 
+	return axios.post(`${base}/projects/delete/${projectId}`, params).then(res => res.data); 
 }
 
 // get project data

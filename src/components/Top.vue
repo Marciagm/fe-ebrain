@@ -162,8 +162,6 @@
 					outline: none;
 				}
 			}
-			
-
 		}	
 	}
 	.nav-project-list {
@@ -197,9 +195,9 @@
 		name: 'top',
 		data () {
 			return {
-				projectName: '',
 				sysUserName: 'User',
 				curIndex: 0,
+				projectName: '',
 				nav: [
 					{
 						name: '数据',
@@ -245,9 +243,10 @@
                 });
            	},
            	setProjectName (event) {
+           		const projectName = this.projectName;
            		event.target.blur();
            		const param = {
-           			name: this.projectName
+           			name: projectName
            		};
 
            		const projectId = this.$store.state.projectId;
@@ -256,6 +255,8 @@
            			if (!data.error) {		
 	           			const { project } = data; 
 	           			this.$store.commit('SET_PROJECT_NAME', project.name);
+	           			// @TODO updateProjectList
+
            			}
            			else {
            				this.$message.error(error.desc);
@@ -276,12 +277,18 @@
         computed: {
         	projectStatus () {
         		return this.$store.state.projectStatus;
+        	},
+        	_projectName: {
+        		set (value) {
+        			this.projectName = value;
+        		},
+        		get (value) {
+        			return this.$store.state.projectName;
+        		}
         	}
         },
 		mounted () {
-			this.$store.commit('SET_PROJECT_STATUS', false);
-			this.projectName = this.$store.state.projectName;
-
+			this.$store.commit('SET_PROJECT_STATUS', true);
 			var user = localStorage.getItem('user');
             if (user) {
                 user = JSON.parse(user);

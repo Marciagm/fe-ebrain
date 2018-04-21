@@ -1,6 +1,6 @@
 <template>
-	<div class="data-info">
-		<div ref="info-left" class="data-info-left">
+	<left-right>
+		<div slot="left" ref="info-left" class="data-info-left">
 			<div class="target">
 				<div style="display: inline-block; width: 210px; margin-right: 80px;">
 					<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
@@ -35,8 +35,8 @@
 
 			<!-- 表格 -->
 			<div id="tables">
-				<div id="tablePart" style="display: none;" >
-					<div id="eigenPart" style="padding-left: 14px;padding-right: 14px;display: inline-block; border: 1px solid #eee; border-bottom: 0px; border-right: 0; height: 41px; line-height: 41px; " >
+				<div id="tablePart">
+					<div id="eigenPart" :class="[isEigenActive ? active : notActive]">
 						<img src="../images/All-features.png" style="width: 13px; height: 13px;margin-right: 5px;">
 						<span style="cursor: pointer; color: #333; font-size: 14px;letter-spacing: 1px;" @click="tab('detail')">特征详情</span>
 						<el-autocomplete
@@ -66,54 +66,20 @@
 						</div>
 					</div>
 
-					<div id="originalPart" style="display: inline-block; vertical-align: top; height: 41px; line-height: 41px; padding-left: 45px; cursor: pointer; margin-left: -3px; border-left: 1px solid #eee;  border-bottom: 1px solid #eee;" @click="tab('original')">
-						<img src="../images/Original-data.png" style="margin-right: 5px;" >
-						<span style="color: #333; font-size: 14px;letter-spacing: 1px;">原始数据</span>
-					</div>
-				</div>
-				<div id="tablePart" style="">
-					<div id="eigenPart" style="padding-left: 14px;padding-right: 14px;display: inline-block; border-bottom: 1px solid #eee; border-top: 0; height: 41px; line-height: 41px; " >
-						<img src="../images/All-features.png" style="width: 13px; height: 13px;margin-right: 5px;">
-						<span style="cursor: pointer; color: #333; font-size: 14px;letter-spacing: 1px;" @click="tab('detail')">特征详情</span>
-						<el-autocomplete
-					      v-model="state1"
-					      :fetch-suggestions="querySearch"
-					      placeholder="搜索"
-					      @select="search"
-					      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
-					    ></el-autocomplete>	
-						<el-dropdown style="cursor: pointer;">
-							<span class="el-dropdown-link">
-							    <span>全部特征</span>
-							    <span style="color: #666; font-size: 10px;">(特征列表)</span>
-							    <i class="el-icon-arrow-down el-icon--right"></i>
-							</span>
-							<el-dropdown-menu slot="dropdown">
-							    <el-dropdown-item>全部特征</el-dropdown-item>
-							    <el-dropdown-item divided>特征列表二</el-dropdown-item>
-							    <el-dropdown-item>特征列表三</el-dropdown-item>
-							    <el-dropdown-item>特征列表四</el-dropdown-item>
-							    <el-dropdown-item>特征列表五</el-dropdown-item>
-							</el-dropdown-menu>
-						</el-dropdown>
-						<div class="eigen-list" v-if="isListNameShow"> 
-							<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" />
-							<button class="eigen-list-button" @click="setList">确定</button>
+					<div id="originalPart" :class="[isEigenActive ? originalNotActive : originalActive]" :style="{width: originalPartwidth + 'px'}">
+						<div class="original-label" @click="tab('original')">
+							<img src="../images/Original-data.png" style="margin-right: 5px;" >
+							原始数据
 						</div>
-					</div>
-
-					<div id="originalPart" style="display: inline-block; vertical-align: top; height: 41px; line-height: 41px; padding-left: 45px; cursor: pointer; margin-left: -3px; border-left: 1px solid #eee; border-top: 1px solid #eee; border-left: 1px solid #eee;" @click="tab('original')">
-						<img src="../images/Original-data.png" style="margin-right: 5px;" >
-						<span style="color: #333; font-size: 14px;letter-spacing: 1px;">原始数据</span>
 					</div>
 				</div>
 
 				<div style="margin-top: 19px; margin-bottom: 20px; width: 100%;">
 					<!-- 特征详情 -->
-					<eigenvalue-table v-if="!isOriginal" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table>
+					<eigenvalue-table v-if="isEigenActive" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table>
 					
 					<!-- 表格部分 -->
-					<div style="" v-if="isOriginal">
+					<div style="" v-if="!isEigenActive">
 						<original-data :max-height="maxHeight"></original-data>
 					</div>
 				</div>
@@ -123,7 +89,7 @@
 				{{ filename }}
 			</div>
 		</div>
-		<div ref="info-right" class="data-info-right">
+		<div slot="right" ref="info-right" class="data-info-right">
 			<div class="loading-progress">
 				<div class="load-progress-border" style="top: 0;"></div>
 				<div class="loading-progress-con progress-bg"></div>
@@ -158,7 +124,7 @@
 				<img src="../images/loading.gif" class="load-effect">
 			</div>
 		</div>
-	</div>
+	</left-right>
 </template>
 <style lang="scss">
 	table {
@@ -215,7 +181,6 @@
 			max-width: 677px;
 			height: 300px;
 			text-align: center;
-			background: red;
 			#bar-chart {
 				margin-left: 189px;
 				margin-top: 50px;
@@ -260,147 +225,197 @@
 			color: #ffffff;
 		}
 	}
-
-	.data-info {
-		background: #f4f4f6;
-		display: flex;
-		flex: 5;
-		.data-info-left {
-			background: #fff;
-			flex: 4;
-			margin-right: 20px;
-			border-radius: 0px 8px 0px 0px;
-			.data-info-avo {
-				margin-bottom: 21px; 
-				text-align: center;
-				.info-avo-option {
-					cursor: pointer; 
-					width: 20%; 
-					margin-left: 40%;
-					margin-bottom: 21px;
-				}
-				.info-avo-label {
-					font-size: 12px; 
-					color: #666; 
-					letter-spacing: 1px;
-				}
-				.info-avo-con {
-					width: 100%; 
-					height: 642px;
-					padding-top: 57px; 
-					background-color: #fafafa;
-				}
+	.data-info-left {
+		background: #fff;
+		flex: 4;
+		margin-right: 20px;
+		border-radius: 0px 8px 0px 0px;
+		.data-info-avo {
+			margin-bottom: 21px; 
+			text-align: center;
+			.info-avo-option {
+				cursor: pointer; 
+				width: 20%; 
+				margin-left: 40%;
+				margin-bottom: 21px;
 			}
-
-			.eigen-list { 
-				display: inline-block;
-				margin-left: 30px;
-				.eigen-list-input {
-					height: 18px;
-					background-color: #e6e6e6;
-					border: 0;
-				}
-				.eigen-list-button {
-					background-image: linear-gradient(90deg, 
-						#0d65be 0%, 
-						#1978d9 45%, 
-						#248bf4 100%), 
-					linear-gradient(
-						#e0952a, 
-						#e0952a);
-					border-radius: 2px;
-					color: #fff;
-					font-size: 10px;
-					outline: none;
-					&:hover {
-						opacity: 0.7;
-					}
-					&:active {
-						opacity: 1;
-					}
-				}
+			.info-avo-label {
+				font-size: 12px; 
+				color: #666; 
+				letter-spacing: 1px;
+			}
+			.info-avo-con {
+				width: 100%; 
+				height: 642px;
+				padding-top: 57px; 
+				background-color: #fafafa;
 			}
 		}
-		.data-info-right {
-			box-sizing: border-box;
-			padding-top: 20px;
-			flex: 1;
-			background: #fff;
-			border-radius: 8px 0px 0px 8px;
-			text-align: center;
-			position: relative;
-			color: #666;
-			
-			.offset {
-				margin-left: 20%;
+
+		.eigen-list { 
+			display: inline-block;
+			margin-left: 30px;
+			.eigen-list-input {
+				height: 18px;
+				background-color: #e6e6e6;
+				border: 0;
 			}
-			.progress-bg {
-				background: #eff3f5;
-			}
-			.progress-bar {
-				height: 6px;
-				border-radius: 0px 3px 3px 0px;
+			.eigen-list-button {
 				background-image: linear-gradient(90deg, 
-					#a0cfff 0%, 
-					#5ca7f4 45%, 
-					#187fe8 100%), 
+					#0d65be 0%, 
+					#1978d9 45%, 
+					#248bf4 100%), 
 				linear-gradient(
-					#86c0fb, 
-					#86c0fb);
-			}
-			.data-process {
-				background: #eff3f5;
-				height: 68px;
-				position: relative;
-			    
-				.data-process-con {
-					position: absolute;
-					top: 15px; 
-					left: 20%
+					#e0952a, 
+					#e0952a);
+				border-radius: 2px;
+				color: #fff;
+				font-size: 10px;
+				outline: none;
+				&:hover {
+					opacity: 0.7;
 				}
-			}
-			.load-effect {
-				right: 20%; 
-				top: 24px; 
-				position: absolute;
-			}
-			.loading-progress {
-				text-align: center;
-				height: 74px;
-				font-size: 15px;
-				letter-spacing: 1px;
-				border-radius: 0px 4px 4px 0px;
-				position: relative;
-				.loading-progress-con {
-					padding-top: 12px; 
-					height: 56px;
-					position: absolute;
-					color: #666666;
-					font-size: 15px;
-				    letter-spacing: 1px;
+				&:active {
+					opacity: 1;
 				}
-				.load-progress-border {
-					width: 100%;
-					height: 1px;
-					position: absolute;
-					top: 74px;
-					background-color: #eeeeee;
-				}
-				.load-progress-status {
-					font-size: 12px;
-				}
-			}
-			.load-fail-tip {
-				font-size: 12px;
-				letter-spacing: 1px;
-				color: #e00202;
 			}
 		}
 	}
-
+	.data-info-right {
+		box-sizing: border-box;
+		padding-top: 20px;
+		flex: 1;
+		background: #fff;
+		border-radius: 8px 0px 0px 8px;
+		text-align: center;
+		position: relative;
+		color: #666;
+		
+		.offset {
+			margin-left: 20%;
+		}
+		.progress-bg {
+			background: #eff3f5;
+		}
+		.progress-bar {
+			height: 6px;
+			border-radius: 0px 3px 3px 0px;
+			background-image: linear-gradient(90deg, 
+				#a0cfff 0%, 
+				#5ca7f4 45%, 
+				#187fe8 100%), 
+			linear-gradient(
+				#86c0fb, 
+				#86c0fb);
+		}
+		.data-process {
+			background: #eff3f5;
+			height: 68px;
+			position: relative;
+		    
+			.data-process-con {
+				position: absolute;
+				top: 15px; 
+				left: 20%
+			}
+		}
+		.load-effect {
+			right: 20%; 
+			top: 24px; 
+			position: absolute;
+		}
+		.loading-progress {
+			text-align: center;
+			height: 74px;
+			font-size: 15px;
+			letter-spacing: 1px;
+			border-radius: 0px 4px 4px 0px;
+			position: relative;
+			.loading-progress-con {
+				padding-top: 12px; 
+				height: 56px;
+				position: absolute;
+				color: #666666;
+				font-size: 15px;
+			    letter-spacing: 1px;
+			}
+			.load-progress-border {
+				width: 100%;
+				height: 1px;
+				position: absolute;
+				top: 74px;
+				background-color: #eeeeee;
+			}
+			.load-progress-status {
+				font-size: 12px;
+			}
+		}
+		.load-fail-tip {
+			font-size: 12px;
+			letter-spacing: 1px;
+			color: #e00202;
+		}
+	}
 	#tables {
 		margin-left: 5%;
 		width: 90%;
+		#eigenPart {
+			padding-left: 14px;
+			padding-right: 14px;
+			display: inline-block;
+			height: 41px; 
+			line-height: 41px;
+		}
+		.active {
+			border-top: 1px solid #eee;
+			border-left: 1px solid #eee;
+		}
+		.not-active {
+			border-bottom: 1px solid #eee;
+		}
+		.original-active {
+			border-bottom: 1px solid #eee;
+			border-left: 1px solid #eee;
+			.original-label {
+				cursor: pointer;
+				border: 1px solid #eee; 
+				height: 41px; 
+				width: 128px;
+				color: #333; 
+				font-size: 14px;
+				letter-spacing: 1px; 
+				padding-left: 45px; 
+				border-bottom: 0; 
+				background: #fff;
+			}
+			
+		}
+		.original-not-active {
+			border-bottom: 1px solid #eee;
+			.original-label {
+				width: 128px;
+				color: #333; 
+				cursor: pointer;
+				border-left: 1px solid #eee;
+				padding-left: 45px;
+				font-size: 14px;
+				letter-spacing: 1px; 
+			}
+		}
+		#originalPart {
+			display: inline-block; 
+			vertical-align: top; 
+			height: 41px; 
+			line-height: 41px;
+			margin-left: -3px;
+		}
+		.active {
+			border-top: 1px solid #eee;
+			//border-bottom: 1px solid #eee;
+		}
+		.not-active {
+			border-bottom: 1px solid #eee;
+		}
 		.el-table {
 			color:  #333;
 			font-size: 12px;
@@ -451,20 +466,16 @@
 	import advancedOption from '@/components/AdvancedOption'
 	import originalData from '@/components/OriginalData'
     import eigenvalueTable from '@/components/EigenvalueTable'
+	import leftRight from '@/components/LeftRight.vue'
 
-    let originalPartwidth = '';
-
+    let obj = {};
     function $ (id) {
     	return document.getElementById(id);
     }
-
-    function resize () {
-    	originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
-    	$('originalPart').style.width = originalPartwidth + 'px';
-  		console.log('a: ' + $('tablePart').offsetWidth);
-  		console.log('b: ' + $('eigenPart').offsetWidth);
-    } 
-
+    window.onresize = () => {
+    	obj.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
+    }
+    
     function infInit (obj) {
 
     }
@@ -480,14 +491,20 @@
 		components: {
 			advancedOption,
 			originalData,
-			eigenvalueTable
+			eigenvalueTable,
+			leftRight
 		},
 		data () {
 			return {
+				isEigenActive: true,
+				active: 'active',
+				notActive: 'not-active',
+				originalActive: 'original-active',
+				originalNotActive: 'original-not-active',
+				originalPartwidth: '',
 				isListNameShow: false,
 				listName: '',
 				dataPicFinished: false,
-				isOriginal: false,
 				progressOk: true,
 				testPercent: 0,
 				varifyNum: 0,
@@ -503,15 +520,15 @@
 		},
 		methods: {
 			showSetList (isShow) {
-
+				this.isListNameShow = isShow;
 				//$('originalPart').style.width = $('originalPart').offsetWidth - 150 + 'px';
 				if (isShow) {
-					$('originalPart').style.width = originalPartwidth - 205 + 'px';
+					this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 305);
 				}
 				else {
-					$('originalPart').style.width = originalPartwidth + 'px';
+					this.originalPartwidth = this.originalPartwidth + 202;
 				}
-				this.isListNameShow = isShow;
+				
 			},
 			setList () {
 				if (this.listName) {
@@ -596,16 +613,15 @@
 			},
 			tab (tag) {
 				if (tag === 'detail') {
+					this.isEigenActive = true;
 					if (this.$store.state.selection && this.$store.state.selection.length) {
 						this.isListNameShow = true;
 					}
-
-					this.isOriginal = false;
 					// set selection
 				}
 				else {
+					this.isEigenActive = false;
 					this.isListNameShow = false;
-					this.isOriginal = true;
 				}
 			},
 			showBar (target) {
@@ -700,16 +716,14 @@
 			}
 		},
 		mounted () {
-			window.onresize = resize;
+			obj = this;
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            //this.$refs.left.style.height = (h - 88) + 'px';
-            //this.$refs.right.style.height = (h - 88) + 'px';
             this.maxHeight = (h - 500);
             this.uploadProgress = '30%';
             this.filename = this.$store.state.filename;
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.restaurants = this.loadAll();
-            //resize();
+            this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
 		},
 		computed: {
 			/*originalPartwidth () {

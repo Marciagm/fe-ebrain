@@ -110,6 +110,7 @@
 					this.$store.commit('SET_PROJECT_ID', project.project_id);
 					localStorage.removeItem('fileInfo');
 					this.$store.commit('SET_PROGRESS_PERCENT', 0);
+					this.$store.commit('SET_PROJECT_NAME', '');
 					this.$store.commit('SET_FILE_NAME', file.name);
 					this.$router.push('/main/data/loading');
 					this.$store.commit('SET_PROJECT_STATUS', true);
@@ -122,11 +123,13 @@
 				this.$store.commit('SET_PROGRESS_PERCENT', event.percent - 0.1);
 			},
 			handleUploadSuccess (response, file, fileList) {
+				console.log('succ');
 				this.$store.commit('SET_PROGRESS_PERCENT', 100);
 				this.$router.push('/main/data/info');
 			},
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
+				console.log('fail');
 				this.$store.commit('SET_PROGRESS_PERCENT', 0);
 				this.$store.commit('SET_PROGRESS_OK', false);
 			}
