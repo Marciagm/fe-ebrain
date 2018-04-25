@@ -49,7 +49,7 @@
 					      @select="search"
 					      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
 					    ></el-autocomplete>	
-						<el-dropdown style="cursor: pointer;">
+						<el-dropdown style="cursor: pointer;" @command="getList">
 							<span class="el-dropdown-link">
 							    <span>全部特征</span>
 							    <span style="color: #666; font-size: 10px;">(特征列表)</span>
@@ -57,10 +57,9 @@
 							</span>
 							<el-dropdown-menu slot="dropdown">
 							    <el-dropdown-item>全部特征</el-dropdown-item>
-							    <el-dropdown-item divided>特征列表二</el-dropdown-item>
-							    <el-dropdown-item>特征列表三</el-dropdown-item>
-							    <el-dropdown-item>特征列表四</el-dropdown-item>
-							    <el-dropdown-item>特征列表五</el-dropdown-item>
+							    <el-dropdown-item v-for="(item, index) in featureList" :divided="index==0" :command="item">
+							    	{{ item.name }}
+							    </el-dropdown-item>
 							</el-dropdown-menu>
 						</el-dropdown>
 						<div class="eigen-list" v-if="isListNameShow"> 
@@ -471,6 +470,7 @@
     import eigenvalueTable from '@/components/EigenvalueTable'
 	import leftRight from '@/components/LeftRight.vue'
 
+	import { createFeatureList, showFeatureData } from "@/api/api"
     let obj = {};
     function $ (id) {
     	return document.getElementById(id);
@@ -504,6 +504,28 @@
 		},
 		data () {
 			return {
+				featureList: [
+					{
+						name: '特征列表一',
+						id: 0
+					},
+					{
+						name: '特征列表一',
+						id: 0
+					},
+					{
+						name: '特征列表一',
+						id: 0
+					},
+					{
+						name: '特征列表一',
+						id: 0
+					},
+					{
+						name: '特征列表一',
+						id: 0
+					}
+				],
 				isEigenActive: true,
 				active: 'active',
 				notActive: 'not-active',
@@ -542,11 +564,30 @@
 				if (this.listName) {
 					console.log(this.listName);
 					console.log(this.$store.state.selection);
+					const ids = [];
+					this.$store.state.selection.forEach((value, index) => {
+						ids.push(value.id);
+					})
+					const param = {
+						project_id: this.$store.state.projectId,
+						name: this.listName,
+						feature_ids: ids
+					};
+					createFeatureList(param).then(data => {
+						console.log(data);
+					})
+
 				}
 				else {
 					this.$message.error('填列表名字啊！');
 				}
 				
+			},
+			getList (item) {
+				console.log(item);
+				showFeatureData(item.id).then(data => {
+					console.log(data);
+				})
 			},
 			createFilter(queryString) {
 		        return (restaurant) => {

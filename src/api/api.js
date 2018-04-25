@@ -60,10 +60,23 @@ export const getProjectList = (params) => {
 	return axios.get(`${base}/projects/list`, { params: params }).then(res => res.data); 
 }
 
+// feature data
+export const getFeatureData = (params) => {
+	return axios.get(`${base}/features/list`, { params: params }).then(res => res.data); 
+}
 
+// get feature list
+export const getFeatureList = (params) => {
+	return axios.get(`${base}/feature_lists/list`, { params: params }).then(res => res.data); 
+}
 
+export const createFeatureList = (params) => {
+	return axios.post(`${base}/feature_lists/create`, params).then(res => res.data); 
+}
 
-
+export const showFeatureData = (featureListId, params) => {
+	return axios.get(`${base}/datasets/show/${featureListId}`, params).then(res => res.data);
+}
 
 
 

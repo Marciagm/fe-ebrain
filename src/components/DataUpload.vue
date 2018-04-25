@@ -88,7 +88,7 @@
 	}
 </style>
 <script>
-    import { createProject, uploadFile, poll, showOriginalData } from '../api/api';
+    import { createProject, uploadFile, poll, showOriginalData, getFeatureData, getFeatureList } from '../api/api';
     
 	export default {
 		data () {
@@ -164,6 +164,19 @@
 										this.$store.commit('SET_ORIGINAL_DATA', dataset);
 									}
 								})
+								// 触发生成数据画像
+								// 获取特征列表
+								setTimeout(() => {
+									getFeatureData({ project_id: task.project_id }).then(data => {
+										console.log('data in getFeatureData');
+										console.log(data);
+									})
+									// 获取列表list
+									getFeatureList({ project_id: task.project_id }).then(data => {
+										console.log(data);
+									})
+								}, 3000)
+								
 								break;
 							
 							// fail
