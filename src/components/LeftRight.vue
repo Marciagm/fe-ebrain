@@ -18,6 +18,7 @@
 		display: flex;
 		.left {
 			border-radius: 0px 8px 0px 0px;
+			width: 0;
 			flex: 4;
 			display: inline-block;
 			background: #fff;

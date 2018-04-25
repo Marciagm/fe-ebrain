@@ -15,7 +15,7 @@
 					<div>1.上传数据</div>
 					<span v-if="progressOk" class="load-progress-status">已完成{{ uploadProgress }}</span>
 					<span v-else class="load-fail-tip">
-						上传失败<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
+						{{ failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
 					</span>
 				</div>
 				<img v-if="progressOk" src="../images/loading.gif" class="load-effect">
@@ -166,6 +166,9 @@
 			progressOk () {
 				console.log(this.$store.state.progressOk);
 				return this.$store.state.progressOk;
+			},
+			failReason () {
+				return this.$store.state.failReason;
 			}
 		} 
 	}

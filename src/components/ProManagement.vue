@@ -151,6 +151,7 @@
 </script>
 <style lang="scss">
 	.pro-management {
+		padding-bottom: 20px;
 		.pro-management-top {
 			padding-left: 5%;
 			box-sizing: border-box;

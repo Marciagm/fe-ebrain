@@ -1,19 +1,68 @@
 <template>
 	<div>
+		<div id="treeChart"></div>
+		<div id="flowChart"></div>
 		<div>{{ name }}</div>
 		<div id="lineChart"></div>
 		<div id="barChart"></div>
-		<div id="flowChart"></div>
 	</div>
 </template>
 <style lang="scss">
-	#lineChart, #barChart, #flowChart {
+	#lineChart, #barChart {
 		width: 500px;
 		height: 500px;
+	}
+	#flowChart, #treeChart {
+		width: 60%;
+		height: 800px;
 	}
 </style>
 <script>
 	import echarts from 'echarts'
+	function drawTreeChart () {
+		var treeChart =  echarts.init(document.getElementById('treeChart'));
+		var option = {
+			title: {
+				text: '树形流程图',
+				x: 'center',
+				y: 'top'
+			},
+			series: [
+				{
+					type: 'tree',
+					data: [
+						{
+							name: 'a1啦啦啦',
+							children:[
+								{
+									name: 'a2',
+									children: [
+										{
+											name: 'a3'
+										},
+										{
+											name: 'a3'
+										},
+										
+									]
+								},
+								{
+									name: 'a5',
+									children: [
+										{
+											name: 'a3'
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
+
+		}
+		treeChart.setOption(option);
+	}
 	function drawChart () {
 		var chart = echarts.init(document.getElementById('barChart'));
 		var option = {
@@ -132,7 +181,7 @@
 		var flowChart = echarts.init(document.getElementById('flowChart'));
 		var option = {
 		    title: {
-		        text: 'Graph 简单示例',
+		        text: '流程图',
 		        x: 'center',
 		        y: 'top'
 		    },
@@ -141,24 +190,31 @@
 		    		return '这是一个长长的故事<br/>你想知道什么<br/>娃哈哈哈哈';
 		    	}
 		    },
+
+		    draggable: false,
 		    animationDurationUpdate: 1500,
 		    animationEasingUpdate: 'quinticInOut',
 		    series : [
 		        {
 		            type: 'graph',
 		            layout: 'none',
-		            color: '#f6f6f6',
-		            symbol: 'roundRect',
-		            symbolSize: [90, 50],
+		            symbol: 'rect',
+		            symbolSize: [100, 50],
 		            itemStyle: {
 		            	normal: {
-		            		color: 'red'
+		            		color: 'rgba(102, 102, 102, 0.6)',
+		            		align: 'left',
 		            	}
 		            },
-		            roam: true,
+		            roam: false,
 		            label: {
 		                normal: {
-		                    show: true
+		                	position: 'left',
+		                	offset: [20, 0],
+		                    show: true,
+		                    align: 'left',
+		                	color: '#fff',
+		                	fontSize: 12
 		                }
 		            },
 		            edgeSymbol: ['circle', 'arrow'],
@@ -166,52 +222,53 @@
 		            edgeLabel: {
 		                normal: {
 		                    textStyle: {
-		                        fontSize: 20
+		                        fontSize: 10
 		                    }
 		                }
 		            },
 		            data: [{
 		                name: '节点1\n节点1节点1节点1\n节点1\n节点1',
-		                x: 300,
+		                x: 200,
 		                y: 300,
-		                symbolSize: 100
+		                symbolSize: 80,
+		                symbol: 'circle'
+
 		            }, {
 		                name: '节点2',
-		                x: 800,
-		                y: 300,
-		                backgroundColor: '#fff'
+		                x: 300,
+		                y: 300
 		            }, {
 		                name: '节点3',
-		                x: 550,
-		                y: 100
+		                x: 300,
+		                y: 200
 		            }, {
 		                name: '节点4',
-		                x: 550,
-		                y: 500
+		                x: 300,
+		                y: 400
 		            }, {
 		                name: '节点5',
-		                x: 550,
-		                y: 800
+		                x: 350,
+		                y: 350
 		            }, {
 		            	name: '节点6',
-		            	x: 800,
-		            	y: 800
+		            	x: 400,
+		            	y: 300
 		            }, {
 		            	name: '节点7',
-		            	x: 1200,
-		            	y: 800
+		            	x: 350,
+		            	y: 200
 		            }, {
 		            	name: '节点8',
-		            	x: 1100,
-		            	y: 300
+		            	x: 550,
+		            	y: 300,
+		            	symbol: 'roundRect'
 		            }
 
 		            ],
 		            // links: [],
 		            links: [{
 		                source: 0,
-		                target: 1,
-		                symbolSize: [15, 20],
+		                target: 2,
 		                label: {
 		                    normal: {
 		                        //show: true
@@ -219,40 +276,14 @@
 		                },
 		                lineStyle: {
 		                    normal: {
-		                        width: 5,
-		                        curveness: 0.2
+		                    	color: 'rgba(85, 155, 227, 0.8)',
+		                        width: 1,
+		                        curveness: 0.4
 		                    }
 		                }
 		            }, {
-		                source: '节点2',
-		                target: '节点1',
-		                label: {
-		                    normal: {
-		                        show: true
-		                    }
-		                },
-		                lineStyle: {
-		                    normal: { curveness: 0.2 }
-		                }
-		            }, {
-		                source: '节点1',
-		                target: '节点3'
-		            }, {
-		                source: '节点2',
-		                target: '节点3'
-		            }, {
-		                source: '节点2',
-		                target: '节点4'
-		            }, {
-		                source: '节点1',
-		                target: '节点4'
-		            }, {
-		                source: '节点4',
-		                target: '节点5'
-		            }, {
-		                source: 6,
-		                target: 7,
-		                symbolSize: [2, 10],
+		                source: 0,
+		                target: 3,
 		                label: {
 		                    normal: {
 		                        show: false
@@ -260,14 +291,65 @@
 		                },
 		                lineStyle: {
 		                    normal: {
-		                        width: 4,
+		                    	width: 1,
+								color: 'rgba(85, 155, 227, 0.8)',
+		                    	curveness: -0.4
+		                    }
+		                }
+		            }, {
+		                source: '节点1',
+		                target: '节点3'
+		            }, {
+		                source: '节点2',
+		                target: '节点3',
+		                lineStyle: {
+		                    normal: {
+		                    	width: 1,
+								color: 'rgba(85, 155, 227, 0.8)',
+		                    	curveness: 0
+		                    }
+		                }
+		            }, {
+		                source: '节点2',
+		                target: '节点4',
+		                lineStyle: {
+		                    normal: {
+		                    	width: 1,
+								color: 'rgba(85, 155, 227, 0.8)',
+		                    	curveness: 0
+		                    }
+		                }
+		            }, {
+		                source: '节点1',
+		                target: '节点4',
+		                lineStyle: {
+		                    normal: {
+		                        width: 1,
+		                        color: 'rgba(85, 155, 227, 0.8)',
+		                        curveness: 0.2
+		                    }
+		                }
+		            }, {
+		                source: '节点4',
+		                target: '节点5',
+		                lineStyle: {
+		                    normal: {
+		                        width: 1,
+		                        color: 'rgba(85, 155, 227, 0.8)',
 		                        curveness: 0.2
 		                    }
 		                }
 		            }, {
 		                source: 5,
+		                target: 7,
+		                label: {
+		                    normal: {
+		                        show: false
+		                    }
+		                }
+		            }, {
+		                source: 5,
 		                target: 6,
-		                symbolSize: [5, 20],
 		                label: {
 		                    normal: {
 		                        show: false
@@ -275,14 +357,20 @@
 		                },
 		                lineStyle: {
 		                    normal: {
-		                        width: 5,
 		                        curveness: 0.2
 		                    }
 		                }
 		            }, {
 		                source: 1,
-		                target: 7,
-		                symbolSize: [5, 20],
+		                target: 5,
+		                label: {
+		                    normal: {
+		                        show: false
+		                    }
+		                }
+		            }, {
+		                source: 4,
+		                target: 5,
 		                label: {
 		                    normal: {
 		                        show: false
@@ -290,7 +378,6 @@
 		                },
 		                lineStyle: {
 		                    normal: {
-		                        width: 5,
 		                        curveness: 0.2
 		                    }
 		                }
@@ -298,7 +385,8 @@
 		            lineStyle: {
 		                normal: {
 		                    opacity: 0.9,
-		                    width: 2,
+		                    color: 'rgba(85, 155, 227, 0.8)',
+		                    width: 1,
 		                    curveness: 0
 		                }
 		            }
@@ -434,6 +522,7 @@
 			chart.setOption(option);
 			drawChart();
 			drawFlowChart();
+			drawTreeChart();
 		}
 	}
 </script>

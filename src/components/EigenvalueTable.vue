@@ -1,5 +1,6 @@
 <template>
 	<el-table
+	 	width="0"
 		align="center"
 		stripe
 	    ref="multipleTable"
@@ -17,7 +18,7 @@
 	    <el-table-column
 	      type="selection">
 	    </el-table-column>
-	     <el-table-column
+	    <el-table-column
 	      type="expand"
 	    >
 	    <template slot-scope="props">
@@ -35,7 +36,7 @@
 	      prop="date"
 	      label="特征名称"
 	      sortable
-	      width="180"
+	      width="200"
 	     >
 	      <template slot-scope="props" style="text-align: left;">
 	      	<div :id="props.row.date" style=" height: 49px; line-height: 49px;">
@@ -73,8 +74,7 @@
 	    <el-table-column
 	      prop="fnum"
 	      label="特征个数"
-	      width="100"
-	      sortable
+	      sortabl
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
@@ -114,6 +114,11 @@
 	    <el-table-column
 	      prop="fnum"
 	      label="方差"
+	      show-overflow-tooltip>
+	    </el-table-column>
+	    <el-table-column
+	      prop="fnum"
+	      label="偏度"
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
@@ -306,17 +311,18 @@
 			},
 			expand (row, expandRows) {
 				setTimeout(() => {
+					expandRows.isShow = expandRows.isShow || false;
+					if (expandRows.isShow) {
+						expandRows.isShow = false;
+						return;
+					}
+					expandRows.isShow = true;
 					this.showData('dataDistr', expandRows);
 				}, 0)
 				
 			},
 			showData (tag, row) {
-				row.isShow = row.isShow || false;
-				if (row.isShow) {
-					row.isShow = false;
-					return;
-				}
-				row.isShow = true;
+				
 				if (tag !== 'topn') {
 					var dataShow = document.getElementById('dataShow');
 					let chart = echarts.init(dataShow);

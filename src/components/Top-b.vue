@@ -1,18 +1,17 @@
 <template>
-	<div class="top">
-		<div class="logo">
+	<el-row class="top">
+		<el-col :md="{span: 2}" :sm="{span: 3, offset: 1}" :xs="{span: 3, offset: 0}"  class="logo">
 			<img src="../images/logo.png">
-		</div>
-
-		<div class="nav">
+		</el-col>
+		<el-col :md="7" :sm="8" :xs="8" class="nav">
 			<ul>
 				<li v-for="(item, index) in nav" @click="tab(item, index)">
 					<a v-if="index == curIndex" style="color: #1b7bdd;">{{ item.name }}</a>
 					<a v-else>{{ item.name }}</a>
 				</li>
 			</ul>
-		</div>
-		<div class="info">
+		</el-col>
+		<el-col justify="right" :md="{span: 8, offset: 6}" :sm="{span:8, offset: 3}" :xs="{span: 8, offset: 0}" class="info">
 			<div class="top-project-name" v-show="projectStatus">
 				<el-tooltip class="item" effect="light" :hide-after=1000 content="命名该任务" placement="bottom-end">
 			      	<input type="text" placeholder="未命名任务" v-model="projectName" class="project-name" @change="setProjectName">
@@ -75,22 +74,17 @@
                     </el-dropdown-menu>
                 </el-dropdown>
 			</div>
-		</div>
-	</div>
+		</el-col>
+	</el-row>
 </template>
 <style lang="scss" scoped>
 	.top {
-		width: 94%;
-		margin-left: 3%;
 		background: #fff;
 		height: 68px;
 		.logo {
-			display: inline-block;
-			vertical-align: middle;
 			margin-top: 20px;
 		}
 		.nav {
-			display: inline-block;
 			height: 68px;
 			a {
 				height: 20px;
@@ -114,11 +108,9 @@
 			}
 		}
 		.info {
-			display: inline-block;
 			height: 68px;
 			display: inline-block;
 			vertical-align: top;
-			float: right;
 			.icon {
 				margin-top: 25px;
 				width: 20px;

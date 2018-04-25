@@ -2,7 +2,7 @@ import axios from 'axios';
 axios.interceptors.request.use(function (config) {    // 这里的config包含每次请求的内容
     //var token = sessionStorage.getItem('token');
     var token = localStorage.getItem('token');
-    config.headers.Authorization ='Bearer ' +  token;
+    config.headers.Authorization = 'Bearer ' +  token;
     return config;
 }, function (err) {
     return Promise.reject(err);
@@ -12,7 +12,7 @@ let base = process.env.API_ROOT;
 
 // regist
 export const regist = params => { 
-		return axios.post(`${base}/account/register`, params).then(res => res.data); 
+	return axios.post(`${base}/account/register`, params).then(res => res.data); 
 };
 
 // login
@@ -40,11 +40,30 @@ export const getProjectInfo = (projectId, params) => {
 	return axios.get(`${base}/projects/show/${projectId}`, params).then(res => res.data); 
 }
 
+// upload file
+export const uploadFile = `${base}/tasks/create_dataset_from_file`;
+/*export const uploadFile = (params) => {
+	return axios.post(`${base}/tasks/create_dataset_from_file`, params).then(res => res.data);
+}*/
+
+export const poll = (taskId, params) => {
+	return axios.get(`${base}/tasks/show/${taskId}`, params).then(res => res.data);
+}
+
+export const showOriginalData = (dataSetId, params) => {
+	return axios.get(`${base}/datasets/show/${dataSetId}`, params).then(res => res.data);
+}
+
 // get project list
 export const getProjectList = (params) => {
 	// return axios.get(`${base}/projects/list`, params).then(res => res.data); 
 	return axios.get(`${base}/projects/list`, { params: params }).then(res => res.data); 
 }
+
+
+
+
+
 
 
 

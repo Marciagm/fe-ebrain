@@ -18,6 +18,7 @@ export default {
 <style lang="scss">
 
 html,body {
+	width: 100%;
 	margin: 0px;
 	padding: 0px;
 	/*background: url(assets/bg1.jpg) center !important;*/
@@ -27,7 +28,6 @@ html,body {
 	font-size: 14px;
 	-webkit-font-smoothing: antialiased;
 	height: 100%;
-	min-width: 880px;
 }
 a {
 	text-decoration: none;

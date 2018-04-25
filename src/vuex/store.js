@@ -11,12 +11,16 @@ const state = {
     filename: '',
     progressPercent: 0,
     progressOk: true,
+    failReason: '上传失败',
 
     // 任务
     projectName: '',
     projectId:'',
     projectStatus: true,
+    originalData: {},
 
+    tips: '1234',
+    tipsStatus: false,
     // 特征详情
     selection: ''
 }
@@ -33,6 +37,9 @@ const mutations = {
     SET_PROGRESS_OK (state, isOK) {
         state.progressOk = isOK;
     },
+    SET_FAILREASON (state, failReason) {
+        state.failReason = failReason;
+    },
 
     // 任务
     SET_PROJECT_NAME (state, projectName) {
@@ -44,7 +51,16 @@ const mutations = {
     SET_PROJECT_STATUS (state, projectStatus) {
         state.projectStatus = projectStatus;
     },
+    SET_ORIGINAL_DATA (state, dataSet) {
+        state.originalData = dataSet;
+    },
 
+    SET_TIPS (state, tips) {
+        state.tips = tips;
+    },
+    SET_TIPS_STATUS (state, status) {
+        state.tipsStatus = status;
+    },
     // 特征详情
     SET_SELECTION (state, selection) {
         state.selection = selection;

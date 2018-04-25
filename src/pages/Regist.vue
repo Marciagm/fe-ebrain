@@ -37,7 +37,7 @@
 </template>
 
 <script>
-    import {regist} from '../api/api';
+    import { regist } from '../api/api';
     import entryPart from '@/components/Entry'
 
     //import NProgress from 'nprogress'
@@ -114,7 +114,7 @@
                         this.logining = true;
                         var param = {
                             nickname: this.registForm.nickname,
-                            sex: this.registForm.sex,
+                            //sex: this.registForm.sex,
                             email: this.registForm.email,
                             mobile: this.registForm.phone,
                             company: this.registForm.company,
@@ -129,7 +129,6 @@
                                 that.errorTips = '！' + data.error.desc;
                             }
                             else {
-
                                 localStorage.setItem('user', JSON.stringify({nickname: this.registForm.nickname}));
                                 this.$router.push({path: '/main'});
                             }

@@ -1,9 +1,12 @@
 <template>
 	<div class="data-upload">
 		<el-upload
+		  ref="upload"
 		  class="data-con"
 		  drag
-		  :show-file-list=false 
+		  :data="formData"
+		  :show-file-list=false
+		  :headers="apiHeader"
 		  :before-upload="beforeUpload"
 		  :on-progress="onUploadProgress"
 		  :on-success="handleUploadSuccess"
@@ -85,12 +88,20 @@
 	}
 </style>
 <script>
-    import { createProject } from '../api/api';
-
+    import { createProject, uploadFile, poll, showOriginalData } from '../api/api';
+    
 	export default {
 		data () {
+			var token = localStorage.getItem('token');
 			return {
-				uploadApi: 'https://jsonplaceholder.typicode.com/posts/'
+				projectId: '',
+				apiHeader: {
+					Authorization: 'Bearer ' +  token
+				},
+				uploadApi: uploadFile,
+				formData: {
+					type: 1
+				}
 			}
 		},
 		methods: {
@@ -101,31 +112,68 @@
 				alert('goODBC');
 			},
 			beforeUpload (file) {
-				// 新建工程
-				const param = { name: this.$store.state.projectName };
-				createProject(param).then(data => {
-					let { project } = data;
-					console.log(project.project_id);
-					// set project id
-					this.$store.commit('SET_PROJECT_ID', project.project_id);
-					localStorage.removeItem('fileInfo');
-					this.$store.commit('SET_PROGRESS_PERCENT', 0);
-					this.$store.commit('SET_PROJECT_NAME', '');
-					this.$store.commit('SET_FILE_NAME', file.name);
-					this.$router.push('/main/data/loading');
-					this.$store.commit('SET_PROJECT_STATUS', true);
-				}).catch(error => {
-					console.log(error);
-					return false;
-				})
+				this.$router.push('/main/data/loading');
+				//const param = { name: this.$store.state.projectName || '未命名任务'};
 			},
 			onUploadProgress (event, file, fileList) {
-				this.$store.commit('SET_PROGRESS_PERCENT', event.percent - 0.1);
+				this.$store.commit('SET_PROGRESS_PERCENT', (event.percent - 0.1) / 1.2);
 			},
 			handleUploadSuccess (response, file, fileList) {
-				console.log('succ');
-				this.$store.commit('SET_PROGRESS_PERCENT', 100);
-				this.$router.push('/main/data/info');
+				if (response.error) {
+					console.log(response.error);
+					return;
+				}
+				let { task } = response;
+				console.log('in task');
+				console.log(task);           
+				//this.$store.commit('SET_PROGRESS_PERCENT', 100);
+				this.$store.commit('SET_PROGRESS_PERCENT', 86);
+				let pollTask = setInterval(() => {
+					// 轮训
+					poll(task.task_id).then(data => {
+						let { task, dataset_info } = data;
+						console.log(task.status);
+						switch (task.status) {
+							case 0: 
+								console.log(0);
+								break;
+							case 1: 
+								console.log(1);
+								break;
+							case 2: 
+								console.log(2);
+								break;
+							// running
+							case 3: 
+								this.$store.commit('SET_PROGRESS_PERCENT', 86 + task.percentage * 100);
+								break;
+							case 4: 
+								clearInterval(pollTask);
+								this.$store.commit('SET_PROGRESS_PERCENT', 100);
+								this.$router.push('/main/data/info');
+								let OriginalDataId = dataset_info.dataset_id;
+								console.log('OriginalDataId: ' + OriginalDataId);
+								// 查看原始数据
+								showOriginalData(OriginalDataId).then(data => {
+									let { dataset } = data;
+									if (dataset) {
+										this.$store.commit('SET_ORIGINAL_DATA', dataset);
+									}
+								})
+								break;
+							
+							// fail
+							case 5: 
+								this.$store.commit('SET_PROGRESS_PERCENT', 0);
+								this.$store.commit('SET_PROGRESS_OK', false);
+								this.$store.commit('SET_FAILREASON', task.failed_reason);
+								break;
+						}
+						//console.log(data);
+					})
+				}, 500)
+				
+				//this.$router.push('/main/data/info');
 			},
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
@@ -139,8 +187,6 @@
 			this.$store.commit('SET_PROJECT_STATUS', false);
 			this.$store.commit('SET_PROGRESS_OK', true);
 			this.$store.commit('SET_PROJECT_NAME', '未命名任务');
-			
-			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		}
 	}
 </script>

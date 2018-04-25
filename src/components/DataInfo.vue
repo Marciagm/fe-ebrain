@@ -1,6 +1,6 @@
 <template>
 	<left-right>
-		<div slot="left" ref="info-left" class="data-info-left">
+		<div slot="left" ref="info-left">
 			<div class="target">
 				<div style="display: inline-block; width: 210px; margin-right: 80px;">
 					<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
@@ -19,6 +19,9 @@
 				</div>					
 				<el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button>
 				<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
+				<div class="tips" v-if="tipsStatus">
+					{{ tips }}
+				</div>
 			</div>
 
 			<!-- 显示高级选项 -->
@@ -89,7 +92,7 @@
 				{{ filename }}
 			</div>
 		</div>
-		<div slot="right" ref="info-right" class="data-info-right">
+		<div slot="right" ref="info-right" >
 			<div class="loading-progress">
 				<div class="load-progress-border" style="top: 0;"></div>
 				<div class="loading-progress-con progress-bg"></div>
@@ -224,141 +227,141 @@
 			letter-spacing: 2px;
 			color: #ffffff;
 		}
-	}
-	.data-info-left {
-		background: #fff;
-		flex: 4;
-		margin-right: 20px;
-		border-radius: 0px 8px 0px 0px;
-		.data-info-avo {
-			margin-bottom: 21px; 
-			text-align: center;
-			.info-avo-option {
-				cursor: pointer; 
-				width: 20%; 
-				margin-left: 40%;
-				margin-bottom: 21px;
-			}
-			.info-avo-label {
-				font-size: 12px; 
-				color: #666; 
-				letter-spacing: 1px;
-			}
-			.info-avo-con {
-				width: 100%; 
-				height: 642px;
-				padding-top: 57px; 
-				background-color: #fafafa;
-			}
-		}
-
-		.eigen-list { 
-			display: inline-block;
-			margin-left: 30px;
-			.eigen-list-input {
-				height: 18px;
-				background-color: #e6e6e6;
-				border: 0;
-			}
-			.eigen-list-button {
-				background-image: linear-gradient(90deg, 
-					#0d65be 0%, 
-					#1978d9 45%, 
-					#248bf4 100%), 
-				linear-gradient(
-					#e0952a, 
-					#e0952a);
-				border-radius: 2px;
-				color: #fff;
-				font-size: 10px;
-				outline: none;
-				&:hover {
-					opacity: 0.7;
-				}
-				&:active {
-					opacity: 1;
-				}
-			}
-		}
-	}
-	.data-info-right {
-		box-sizing: border-box;
-		padding-top: 20px;
-		flex: 1;
-		background: #fff;
-		border-radius: 8px 0px 0px 8px;
-		text-align: center;
-		position: relative;
-		color: #666;
-		
-		.offset {
-			margin-left: 20%;
-		}
-		.progress-bg {
-			background: #eff3f5;
-		}
-		.progress-bar {
-			height: 6px;
-			border-radius: 0px 3px 3px 0px;
-			background-image: linear-gradient(90deg, 
-				#a0cfff 0%, 
-				#5ca7f4 45%, 
-				#187fe8 100%), 
-			linear-gradient(
-				#86c0fb, 
-				#86c0fb);
-		}
-		.data-process {
-			background: #eff3f5;
-			height: 68px;
-			position: relative;
-		    
-			.data-process-con {
-				position: absolute;
-				top: 15px; 
-				left: 20%
-			}
-		}
-		.load-effect {
-			right: 20%; 
-			top: 24px; 
+		.tips {
 			position: absolute;
-		}
-		.loading-progress {
-			text-align: center;
-			height: 74px;
-			font-size: 15px;
-			letter-spacing: 1px;
-			border-radius: 0px 4px 4px 0px;
-			position: relative;
-			.loading-progress-con {
-				padding-top: 12px; 
-				height: 56px;
-				position: absolute;
-				color: #666666;
-				font-size: 15px;
-			    letter-spacing: 1px;
-			}
-			.load-progress-border {
-				width: 100%;
-				height: 1px;
-				position: absolute;
-				top: 74px;
-				background-color: #eeeeee;
-			}
-			.load-progress-status {
-				font-size: 12px;
-			}
-		}
-		.load-fail-tip {
+			right: 20px;
+			top: 20px;
+			height: 33px;
+			line-height: 33px;
+			background-color: #fafafa;
+			border-radius: 4px;
+			border: 1px solid #eee;
 			font-size: 12px;
 			letter-spacing: 1px;
-			color: #e00202;
+			color: #e09e2a;
+			padding-left: 24px;
+			padding-right: 24px;
 		}
 	}
+	.data-info-avo {
+		margin-bottom: 21px; 
+		text-align: center;
+		.info-avo-option {
+			cursor: pointer; 
+			width: 20%; 
+			margin-left: 40%;
+			margin-bottom: 21px;
+		}
+		.info-avo-label {
+			font-size: 12px; 
+			color: #666; 
+			letter-spacing: 1px;
+		}
+		.info-avo-con {
+			width: 100%; 
+			height: 642px;
+			padding-top: 57px; 
+			background-color: #fafafa;
+		}
+	}
+
+	.eigen-list { 
+		display: inline-block;
+		margin-left: 30px;
+		.eigen-list-input {
+			height: 18px;
+			background-color: #e6e6e6;
+			border: 0;
+		}
+		.eigen-list-button {
+			background-image: linear-gradient(90deg, 
+				#0d65be 0%, 
+				#1978d9 45%, 
+				#248bf4 100%), 
+			linear-gradient(
+				#e0952a, 
+				#e0952a);
+			border-radius: 2px;
+			color: #fff;
+			font-size: 10px;
+			outline: none;
+			&:hover {
+				opacity: 0.7;
+			}
+			&:active {
+				opacity: 1;
+			}
+		}
+	}
+	.offset {
+		margin-left: 20%;
+	}
+	.progress-bg {
+		background: #eff3f5;
+	}
+	.progress-bar {
+		height: 6px;
+		border-radius: 0px 3px 3px 0px;
+		background-image: linear-gradient(90deg, 
+			#a0cfff 0%, 
+			#5ca7f4 45%, 
+			#187fe8 100%), 
+		linear-gradient(
+			#86c0fb, 
+			#86c0fb);
+	}
+	.data-process {
+		background: #eff3f5;
+		height: 68px;
+		position: relative;
+	    
+		.data-process-con {
+			position: absolute;
+			top: 15px; 
+			left: 20%
+		}
+	}
+	.load-effect {
+		right: 20%; 
+		top: 24px; 
+		position: absolute;
+	}
+	.loading-progress {
+		text-align: center;
+		height: 74px;
+		font-size: 15px;
+		letter-spacing: 1px;
+		border-radius: 0px 4px 4px 0px;
+		position: relative;
+		.loading-progress-con {
+			padding-top: 12px; 
+			height: 56px;
+			position: absolute;
+			color: #666666;
+			font-size: 15px;
+		    letter-spacing: 1px;
+		}
+		.load-progress-border {
+			width: 100%;
+			height: 1px;
+			position: absolute;
+			top: 74px;
+			background-color: #eeeeee;
+		}
+		.load-progress-status {
+			font-size: 12px;
+		}
+	}
+	.load-fail-tip {
+		font-size: 12px;
+		letter-spacing: 1px;
+		color: #e00202;
+	}
+	
 	#tables {
 		margin-left: 5%;
 		width: 90%;
+		overflow: hidden;
 		#eigenPart {
 			padding-left: 14px;
 			padding-right: 14px;
@@ -473,7 +476,12 @@
     	return document.getElementById(id);
     }
     window.onresize = () => {
-    	obj.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
+    	const tablePart = $('tablePart');
+    	const eigenPart = $('eigenPart');
+    	if (tablePart && eigenPart) {
+    		obj.originalPartwidth = (tablePart.offsetWidth - eigenPart.offsetWidth - 100);
+    	}
+    	
     }
     
     function infInit (obj) {
@@ -735,6 +743,12 @@
 					return width + 'px';
 				}
 			}*/
+			tips () {
+				return this.$store.state.tips;
+			},
+			tipsStatus () {
+				return this.$store.state.tipsStatus;
+			}
 		}
 	}
 </script>
