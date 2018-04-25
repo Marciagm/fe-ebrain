@@ -125,7 +125,11 @@
 				}
 				let { task } = response;
 				console.log('in task');
+
 				console.log(task);           
+				console.log(task.project_id);
+				this.$store.commit('SET_PROJECT_ID', task.project_id);
+				
 				//this.$store.commit('SET_PROGRESS_PERCENT', 100);
 				this.$store.commit('SET_PROGRESS_PERCENT', 86);
 				let pollTask = setInterval(() => {
@@ -164,6 +168,7 @@
 							
 							// fail
 							case 5: 
+								clearInterval(pollTask);
 								this.$store.commit('SET_PROGRESS_PERCENT', 0);
 								this.$store.commit('SET_PROGRESS_OK', false);
 								this.$store.commit('SET_FAILREASON', task.failed_reason);

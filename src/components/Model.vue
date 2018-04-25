@@ -2,6 +2,15 @@
 	<left-right>
 		<div slot="left">
 			<div class="model-list">
+				<el-row>
+					<el-col :span="3" :offset="12">
+						<div style="border-left: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px; margin-left: 50%;"> </div>
+					</el-col>
+					<el-col :span="3" style="height: 35px; color: #ccc; letter-spacing: 1px; font-size: 14px;">AUC</el-col>
+					<el-col :span="3">
+						<div style="border-right: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px;"> </div>
+					</el-col>
+				</el-row>
 				<el-row class="model-list-head">
 					<el-col :span="3">模型&算法描述</el-col>
 					<el-col :span="3">
@@ -22,21 +31,42 @@
 					<el-col :span="3">交叉验证</el-col>
 					<el-col :span="3">测试集</el-col>
 				</el-row>
-				<div>
-					<el-row class="model-item" v-for="item in showList" @click="showDetail(item)">
+				<div v-for="item in showList">
+					<div class="model-item" @click="showDetail(item)" v-if="!item.show">
 						<el-col :span="3" >
 							<div class="algorithm-name">{{ item.name }}</div>
 							<span class="algorithm-desc">descccccc</span>
 						</el-col>
-						<el-col :span="3">{{ item.listName }}</el-col>
-						<el-col :span="3">{{ item.createTime}}</el-col>
-						<el-col :span="3">{{ item.duration }}</el-col>
-						<el-col :span="3">{{ item.validationSet }}</el-col>
-						<el-col :span="3">{{ item.crossValidation }}</el-col>
-						<el-col :span="3">{{ item.testSet }}</el-col>
-					</el-row>
-					<div>
-						
+						<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
+						<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
+						<el-col :span="3" class="model-time">{{ item.duration }}</el-col>
+						<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
+						<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
+						<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
+					
+					</div>
+					<div v-else class="model-item" @click="showDetail(item)" style="background: #f3f4f6">
+						<el-col :span="3" >
+							<div class="algorithm-name">{{ item.name }}</div>
+							<span class="algorithm-desc">descccccc</span>
+						</el-col>
+						<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
+						<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
+						<el-col :span="3" class="model-time">{{ item.duration }}</el-col>
+						<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
+						<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
+						<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
+					
+					</div>
+					<div v-if="item.show" class="model-item-chart">
+						<div class="model-item-nav">
+							<div v-for="(nav, index) in itemNav" class="item-nav-con" @click="showChart(nav, item)">
+								<span class="model-nav-sep" v-if="index != 0"></span>
+								<span v-if="nav.id != item.curId">{{ nav.name }}</span>
+								<span v-else style="color: #0d68c4" >{{ nav.name }}</span>
+							</div>
+						</div>
+
 					</div>
 				</div>
 			</div>
@@ -60,10 +90,10 @@
 		.model-item {
 			height: 86px;
 			background-color: #fafafa;
-			border-radius: 4px;
 			border: solid 1px #e6e6e6;
 			margin-top: 20px;
 			padding-top: 19px;
+			cursor: pointer;
 			.algorithm-name {
 				font-size: 16px;
 				letter-spacing: 1px;
@@ -76,6 +106,52 @@
 				letter-spacing: 1px;
 				color: #666;
 			}
+			.list-name {
+				height: 18px;
+				line-height: 18px;
+				font-size: 14px;
+				color: #333;
+			}
+			.model-time {
+				height: 18px;
+				line-height: 18px;
+				font-size: 14px;
+				color: #666;
+			}
+			.index-value {
+				height: 18px;
+				line-height: 18px;
+				font-size: 14px;
+				color: #e0952a;
+			}
+		}
+		.model-item-chart {
+			height: 555px; 
+			background-color: #fafafa; 
+			border-radius: 0 0 4px 4px;
+		}
+		.model-item-nav {
+			height: 63px; 
+			border-bottom: 1px solid #e6e6e6; 
+			text-align: left;
+			.item-nav-con {
+				cursor: pointer;
+				text-align: center;
+				line-height: 63px;
+				display: inline-block;
+				margin-left: 24px;
+				font-size: 12px;
+				letter-spacing: 1px;
+				color: #666;
+			}
+			.model-nav-sep {
+				display: inline-block;
+				vertical-align: middle;
+				margin-right: 24px;
+				width: 1px;
+				height: 10px;
+				background-color: #ccc;
+			}
 		}
 	}
 </style>
@@ -87,6 +163,32 @@
 		},
 		data () {
 			return {
+				itemNav: [
+					{
+						name: '训练足迹',
+						id: 0
+					},
+					{
+						name: 'ROC曲线',
+						id: 1
+					},
+					{
+						name: '准确&召回曲线',
+						id: 2
+					},
+					{
+						name: 'K-S曲线',
+						id: 3
+					},
+					{
+						name: '特征重要性',
+						id: 4
+					},
+					{
+						name: '批量预测',
+						id: 5
+					}
+				],
 				eigenList: [
 					{
 						name: '全部',
@@ -109,7 +211,9 @@
 						duration: '12s',
 						validationSet: 0.456,
 						crossValidation: 0.45,
-						testSet: 0.5677
+						testSet: 0.5677,
+						show: false,
+						curId: 0
 					},
 					{
 						name: '算法2',
@@ -118,7 +222,9 @@
 						duration: '12s',
 						validationSet: 0.456,
 						crossValidation: 0.45,
-						testSet: 0.5677
+						testSet: 0.5677,
+						show: false,
+						curId: 0
 					},
 					{
 						name: '算法3',
@@ -127,7 +233,9 @@
 						duration: '12s',
 						validationSet: 0.456,
 						crossValidation: 0.45,
-						testSet: 0.5677
+						testSet: 0.5677,
+						show: false,
+						curId: 0
 					},
 					{
 						name: '算法1',
@@ -136,7 +244,9 @@
 						duration: '12s',
 						validationSet: 0.456,
 						crossValidation: 0.45,
-						testSet: 0.5677
+						testSet: 0.5677,
+						show: false,
+						curId: 0
 					},
 					{
 						name: '算法2',
@@ -145,7 +255,9 @@
 						duration: '12s',
 						validationSet: 0.456,
 						crossValidation: 0.45,
-						testSet: 0.5677
+						testSet: 0.5677,
+						show: false,
+						curId: 0
 					},
 					{
 						name: '算法3',
@@ -154,7 +266,9 @@
 						duration: '12s',
 						validationSet: 0.456,
 						crossValidation: 0.45,
-						testSet: 0.5677
+						testSet: 0.5677,
+						show: false,
+						curId: 0
 					}
 				],
 				showList: []
@@ -176,8 +290,26 @@
 					return value.listName === command.name;
 				})
 			},
-			showDetail () {
-
+			showDetail (item) {
+				item.show = !item.show;
+			},
+			showChart (nav, item) {
+				const id = nav.id;
+				item.curId = id;
+				switch (id) {
+					// 训练足迹
+					case 0: 
+						break;
+					// ROC曲线
+					case 1: 
+						break;
+					case 2: 
+						break;
+					case 3: 
+						break;
+					case 4: 
+						break;
+				}
 			}
 		}
 	}

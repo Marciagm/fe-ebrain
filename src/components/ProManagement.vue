@@ -24,7 +24,7 @@
 						<el-col :span="6">删除</el-col>
 					</el-row>
 					<div class="project-list-item"  v-for="project in projects" :id="project.project_id">
-						<el-col :span="6">{{ project.name }}</el-col>
+						<el-col :span="6">{{ project.name || '未命名任务'}}</el-col>
 						<el-col :span="6">dd.svg</el-col>
 						<el-col :span="6">2018.04.22 10:30</el-col>
 						<el-col :span="6" >
