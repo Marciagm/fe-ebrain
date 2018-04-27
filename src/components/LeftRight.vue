@@ -8,11 +8,56 @@
 		</div>
 
 		<div class="right" :style="{minHeight: minHeight}">
-			<slot name="right"></slot>
+			<div class="progress" v-for="item in progressItems">
+				<!-- 尚未开始 -->
+				<div v-if="item.status==0">
+					<div class="progress-border"></div>
+					<!-- 正在进行时 -->
+					<div class="progress-con offset">
+						<div>{{ item.name }}</div>
+					</div>
+					<div class="progress-border"></div>
+				</div>
+				<!-- 已结束 -->
+				<div v-else-if="item.status==2">
+					<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
+					<div class="progress-con progress-bg"></div>
+					<div class="progress-con offset">
+						<div>{{ item.name }}</div>
+						<span class="progress-status" >({{ item.duration }})</span>
+					</div>
+					<img src="../images/finish.png" class="load-effect">
+					<div class="progress-border"></div>
+				</div>
+				<!-- 正在进行时或出错 -->
+				<div v-else>
+					<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
+					<!-- 正在进行时 -->
+					<div v-if="item.status==1" class="progress-bar" style="width: 100%; background: #eee;">
+						<div class="progress-bar" :style="{width: item.percent}"></div>
+					</div>
+					
+					<div class="progress-con progress-bg" :style="{width: item.status==2 ?'' : item.percent}"></div>
+					
+					<div class="progress-con offset">
+						<div>{{ item.name }}</div>
+						<span v-if="item.status==2" class="progress-status" >({{ item.duration }})</span>
+						<span v-if="item.status==1" class="progress-status">已完成{{ item.percent }}</span>
+						<span v-if="item.status==-1" class="load-fail-tip">
+							{{ item.failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
+						</span>
+					</div>
+
+					<img v-if="item.status==-1" src="../images/cuowu.png" class="load-effect">
+					<img v-if="item.status==1" src="../images/loading.gif" class="load-effect">
+					<div v-if="item.status!=1" class="load-progress-border"></div>
+				</div>
+			</div>
+			<div v-if="showTargetTips" class="tips offset">*请选择目标继续</div>
 		</div>
 	</div>
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
 	.left-right {
 		background: #f4f4f6;
 		display: flex;
@@ -45,16 +90,64 @@
 			flex: 1;
 			display: inline-block;
 			background: #fff;
+			padding-top: 20px;
+			.progress {
+				text-align: center;
+				height: 74px;
+				font-size: 15px;
+				letter-spacing: 1px;
+				border-radius: 0px 4px 4px 0px;
+				position: relative;
+				.offset {
+					margin-left: 20%;
+				}
+				.progress-con {
+					padding-top: 12px; 
+					height: 56px;
+					position: absolute;
+					color: #666666;
+				}
+				.progress-border {
+					width: 100%;
+					height: 1px;
+					position: absolute;
+					top: 74px;
+					background-color: #eee;
+				}
+				.progress-status {
+					font-size: 12px;
+				}
+			}
+			.load-fail-tip {
+				font-size: 12px;
+				letter-spacing: 1px;
+				color: #e00202;
+			}
+			.tips {
+				font-size: 12px;
+				padding-top: 20px;
+				letter-spacing: 1px;
+				color: #e0952a;
+			}
 		}
 	}
 </style>
 <script>
+	class progress {
+		constructor (progress) {
+			this.percent = '0%';
+			// status: 1成功 0正在进行时 -1失败
+			this.status = 0;
+		}
+	}
+
 	let obj = {};
 	window.onresize = function () {
 		console.log('in resize');
 		let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 		obj.minHeight = (h - 88) + 'px';
 	}
+
 	export default {
 		data () {
 			return {
@@ -69,6 +162,15 @@
 		computed: {
 			filename () {
 				return this.$store.state.filename;
+			},
+			uploadProgress () {
+				return this.$store.state.uploadProgress;
+			},
+			progressItems () {
+				return this.$store.state.progressItems;
+			},
+			showTargetTips () {
+				return this.$store.state.uploadProgress.status === 2 && this.$store.state.portraitProgress.status === 2;
 			}
 		}
 	}

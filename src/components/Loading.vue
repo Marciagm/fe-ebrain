@@ -3,30 +3,9 @@
 		<div slot="left" class="uploading-left">
 			<img class="uploadig-img" src="../images/Upload-data2.png">
 		</div>
-
-		<div slot="right" class="uploading-right">
-			<div class="loading-progress">
-				<div class="load-progress-border" style="top: 0;"></div>
-				<div class="progress-bar" style="width: 100%; background: #eee;" v-if="progressOk">
-					<div class="progress-bar" :style="{width: uploadProgress}"></div>
-				</div>
-				<div class="loading-progress-con progress-bg" :style="{width: uploadProgress}"></div>
-				<div class="loading-progress-con offset">
-					<div>1.上传数据</div>
-					<span v-if="progressOk" class="load-progress-status">已完成{{ uploadProgress }}</span>
-					<span v-else class="load-fail-tip">
-						{{ failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
-					</span>
-				</div>
-				<img v-if="progressOk" src="../images/loading.gif" class="load-effect">
-				<img v-else src="../images/cuowu.png" class="load-effect">
-				<div v-if="!progressOk" class="load-progress-border"></div>
-			</div>
-		</div>
-
 	</left-right>
 </template>
-<style lang="scss">
+<style lang="scss" scoped>
 	.uploading-left {
 		height: 100%;
 		position: relative;
@@ -116,14 +95,17 @@
 </style>
 <script>
 	import leftRight from '@/components/LeftRight.vue'
+	// @TODO 需要优化
+	function initUploadProgress (progress) {
+		console.log(progress);
+		progress.percent = '0%';
+		progress.status = 1;
+		return progress;
+	}
+	
 	export default {
 		components: {
 			leftRight
-		},
-		data () {
-			return {
-				processProgress: '0%'
-			}
 		},
 		methods: {
 		},
@@ -132,44 +114,29 @@
 			if (localStorage.getItem('projectId')) {
 				//this.$router.push('/main/data/info');
 			}
-            var fileInfo = localStorage.getItem('fileInfo');
-            if (fileInfo) {
-            	try {
-            		fileInfo = JSON.parse(fileInfo);
-            		if (fileInfo.finished) {
-            			this.$store.commit('SET_PROGRESS_PERCENT', 100);
-						this.$store.commit('SET_FILE_NAME', fileInfo.name);
-            		}
-            	}
-            	catch (e) {}
-            }
-            // @TODO request data pic progress
+            
+			const uploadProgress = this.$store.state.uploadProgress;
+			// 
+			uploadProgress.status = 1;
+			uploadProgress.percent = '0%';
+			const portraitProgress = this.$store.state.portraitProgress;
+			// 
+			portraitProgress.status = 0;
 
-			/*if (fileInfo && fileInfo.finished) {
-				
-			}*/
+			// 上传数据进度开始
+			this.$store.state.progressItems.length = 0;
 			
+			this.$store.state.progressItems.push(uploadProgress, portraitProgress);
+				
 		},
 		computed: {
-			uploadProgress () {
-				if (this.$store.state.progressPercent == 100) {
-					var fileInfo = {
-						name: this.$store.state.filename,
-						finished: true,
-						projectId: ''
-					};
-					localStorage.setItem('fileInfo', JSON.stringify(fileInfo));
-
-				}
-				return Math.max(Math.floor(this.$store.state.progressPercent), 0) + '%';
-			},
-			progressOk () {
-				console.log(this.$store.state.progressOk);
-				return this.$store.state.progressOk;
-			},
-			failReason () {
-				return this.$store.state.failReason;
-			}
+			
 		} 
 	}
 </script>
+
+
+
+
+
+

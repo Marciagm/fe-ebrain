@@ -78,7 +78,7 @@
 
 				<div style="margin-top: 19px; margin-bottom: 20px; width: 100%;">
 					<!-- 特征详情 -->
-					<eigenvalue-table v-if="isEigenActive" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table>
+					<eigenvalue-table :max-height="maxHeight" v-if="isEigenActive" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table>
 					
 					<!-- 表格部分 -->
 					<div style="" v-if="!isEigenActive">
@@ -89,41 +89,6 @@
 			<!-- 下标 -->
 			<div class="data-foot">
 				{{ filename }}
-			</div>
-		</div>
-		<div slot="right" ref="info-right" >
-			<div class="loading-progress">
-				<div class="load-progress-border" style="top: 0;"></div>
-				<div class="loading-progress-con progress-bg"></div>
-				<div class="loading-progress-con offset">
-					<div>1.上传数据</div>
-					<span class="load-progress-status">(2.5s)</span>
-				</div>
-				<img src="../images/finish.png" class="load-effect">
-				<div class="load-progress-border"></div>
-			</div>
-			
-			<div class="loading-progress">
-				<div class="load-progress-border" style="top: 0;"></div>
-				<div class="loading-progress-con progress-bg"></div>
-				<div class="loading-progress-con offset">
-					<div>2.生产数据画像</div>
-					<span class="load-progress-status">(2.5s)</span>
-				</div>
-				<img src="../images/finish.png" class="load-effect">
-				<div class="load-progress-border"></div>
-			</div>
-			<div class="loading-progress">
-				<div class="load-progress-border" style="top: 0;"></div>
-				<div class="progress-bar" style="width: 100%; background: #eee;" v-if="progressOk">
-					<div class="progress-bar" :style="{width: uploadProgress}"></div>
-				</div>
-				<div class="loading-progress-con progress-bg" :style="{width: uploadProgress}"></div>
-				<div class="loading-progress-con offset">
-					<div>2.生成数据画像</div>
-					<span class="load-progress-status">已完成{{ uploadProgress }}</span>
-				</div>
-				<img src="../images/loading.gif" class="load-effect">
 			</div>
 		</div>
 	</left-right>
@@ -504,6 +469,7 @@
 		},
 		data () {
 			return {
+				eigenData: '',
 				featureList: [
 					{
 						name: '特征列表一',
@@ -773,17 +739,9 @@
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.restaurants = this.loadAll();
             this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
+            this.$store.state.portraitProgress.status = 1;
 		},
 		computed: {
-			/*originalPartwidth () {
-				const width = resize();
-				if (this.isShow) {
-					return (width - 205) + 'px'; 
-				}
-				else {
-					return width + 'px';
-				}
-			}*/
 			tips () {
 				return this.$store.state.tips;
 			},

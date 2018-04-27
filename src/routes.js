@@ -62,14 +62,16 @@ let routes = [
                 children: [
                     { path: 'upload', component: DataUpload, name: '数据上传'},
                     { path: 'loading', component: Loading, name: '数据上传中'},
-                    { path: 'info', component: DataInfo, name: '数据画像'}
+                    { path: 'info/:projectId', component: DataInfo, name: '数据画像'}
                 ]
             },
             { path: 'project', component: ProManagement, name: '任务管理'},
 
             { path: 'chart', component: Chart, name: '图表'},
             { path: '/main/model', component: Model, name: '模型' },
+            
             { path: '/main/algorithm-lib', component: ModelList, name: '算法库' },
+            
             { path: '/main/modelList', component: ModelList, name: '模型列表' },
             { path: '/main/modelJobListView/:projectId', component: ModelJobListView, name: 'job列表' },
             { path: '/main/result/:projectId', component: Result, name: '结果表' },

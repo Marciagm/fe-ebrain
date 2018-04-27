@@ -9,7 +9,6 @@ Vue.use(Vuex)
 const state = {
     // 文件
     filename: '',
-    progressPercent: 0,
     progressOk: true,
     failReason: '上传失败',
 
@@ -22,7 +21,29 @@ const state = {
     tips: '1234',
     tipsStatus: false,
     // 特征详情
-    selection: ''
+    selection: '',
+
+    // step: 0-上传数据  1-生成数据画像 2-模型训练
+    step: 0,
+    // status: -1-失败 0-尚未开始 1-正在进行时 2-成功 
+    // 上传数据
+    uploadProgress: {
+        name: '1.上传数据',
+        percent: '0%',
+        status: 1,
+        failReason: ''
+    },
+    // 生成数据画像
+    portraitProgress: {
+        name: '2.生成数据画像',
+        percent: '0%',
+        status: 0  
+    },
+    // 训练模型 
+    modelProgress: {
+
+    },
+    progressItems: []
 }
 
 // 定义所需的 mutations
@@ -30,9 +51,6 @@ const mutations = {
     // 文件
     SET_FILE_NAME (state, name) {
         state.filename = name;
-    },
-    SET_PROGRESS_PERCENT (state, percent) {
-        state.progressPercent = percent;
     },
     SET_PROGRESS_OK (state, isOK) {
         state.progressOk = isOK;

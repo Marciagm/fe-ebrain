@@ -46,12 +46,13 @@ export const uploadFile = `${base}/tasks/create_dataset_from_file`;
 	return axios.post(`${base}/tasks/create_dataset_from_file`, params).then(res => res.data);
 }*/
 
-export const poll = (taskId, params) => {
-	return axios.get(`${base}/tasks/show/${taskId}`, params).then(res => res.data);
+export const poll = (projectId, params) => {
+	return axios.get(`${base}/projects/status/${projectId}`, params).then(res => res.data);
 }
 
+// 
 export const showOriginalData = (dataSetId, params) => {
-	return axios.get(`${base}/datasets/show/${dataSetId}`, params).then(res => res.data);
+	return axios.get(`${base}/projects/show_dataset/${dataSetId}`, params).then(res => res.data);
 }
 
 // get project list

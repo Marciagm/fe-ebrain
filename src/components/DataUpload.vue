@@ -69,7 +69,6 @@
 					opacity: 1;
 				}
 			}
-
 			.el-upload {
 				width: 80%;
 			}
@@ -89,7 +88,16 @@
 </style>
 <script>
     import { createProject, uploadFile, poll, showOriginalData, getFeatureData, getFeatureList } from '../api/api';
-    
+    class Progress {
+    	constructor (progress) {
+    		this.progress = progress;
+    	}
+    	setProgress (progress) {
+
+    		this.progress = progress;
+    	}
+    }
+
 	export default {
 		data () {
 			var token = localStorage.getItem('token');
@@ -116,26 +124,26 @@
 				//const param = { name: this.$store.state.projectName || '未命名任务'};
 			},
 			onUploadProgress (event, file, fileList) {
-				this.$store.commit('SET_PROGRESS_PERCENT', (event.percent - 0.1) / 1.2);
+				this.$store.state.uploadProgress.percent = Math.floor((event.percent - 0.1) / 1.1) + '%';
 			},
 			handleUploadSuccess (response, file, fileList) {
+				this.$store.state.uploadProgress.percent = Math.floor(Math.random() * 10 + 90) + '%';
 				if (response.error) {
 					console.log(response.error);
 					return;
 				}
 				let { task } = response;
 				console.log('in task');
+				const projectId = task.project_id;
+				this.$store.commit('SET_PROJECT_ID', projectId);
 
-				console.log(task);           
-				console.log(task.project_id);
-				this.$store.commit('SET_PROJECT_ID', task.project_id);
-				
-				//this.$store.commit('SET_PROGRESS_PERCENT', 100);
-				this.$store.commit('SET_PROGRESS_PERCENT', 86);
 				let pollTask = setInterval(() => {
 					// 轮训
-					poll(task.task_id).then(data => {
-						let { task, dataset_info } = data;
+					poll(projectId).then(data => {
+						//let { task} = data;
+						let { dataset_task } = data;
+						let task = dataset_task;
+						console.log(data);
 						console.log(task.status);
 						switch (task.status) {
 							case 0: 
@@ -149,42 +157,87 @@
 								break;
 							// running
 							case 3: 
-								this.$store.commit('SET_PROGRESS_PERCENT', 86 + task.percentage * 100);
+								this.$store.state.uploadProgress.percent = Math.floor(Math.random() * 8 + 92) + '%';
 								break;
 							case 4: 
 								clearInterval(pollTask);
-								this.$store.commit('SET_PROGRESS_PERCENT', 100);
-								this.$router.push('/main/data/info');
-								let OriginalDataId = dataset_info.dataset_id;
+								this.$store.state.uploadProgress.percent = '100%';
+								this.$store.state.uploadProgress.duration = '10s';
+								this.$store.state.uploadProgress.status = 2;
+								
+								this.$router.push(`/main/data/info/${projectId}`);
+								//let OriginalDataId = task.dataset_id;
+								let OriginalDataId = this.$store.state.projectId;
 								console.log('OriginalDataId: ' + OriginalDataId);
 								// 查看原始数据
 								showOriginalData(OriginalDataId).then(data => {
 									let { dataset } = data;
+									console.log(dataset);
 									if (dataset) {
-										this.$store.commit('SET_ORIGINAL_DATA', dataset);
+										let { sampled_data } = dataset; 
+						                try {
+						                    const sampledData = JSON.parse(sampled_data);
+						                    const originalData = [];
+						                    const rowLength = sampledData.length;
+						                    const columnLength = sampledData[0] && sampledData[0].length;
+						                    for (let i = 0; i < Math.min(rowLength, 100); i++) {
+						                        const item = {};
+						                        for (let j = 0; j < columnLength; j++) {
+						                            item['a' + j] = sampledData[i][j];
+						                        }
+						                        originalData.push(item);
+						                    }
+						                  	this.$store.commit('SET_ORIGINAL_DATA', originalData);
+
+						                }
+						                catch (e) {
+						                    console.log(e);
+						                }
 									}
 								})
-								// 触发生成数据画像
+								// 轮询数据画像状态
+								const timer = setInterval(() => {
+									poll(projectId).then(data => {
+										let { portrait_task } = data;
+										this.$store.state.portraitProgress.percent = portrait_task.percentage + '%';
+										const status = portrait_task.status;
+										switch(status) {
+											case 3:
+												break; 
+											case 4: 
+											clearInterval(timer);
+											this.$store.state.portraitProgress.percent = '100%';
+											this.$store.state.portraitProgress.status = 2;
+											this.$store.state.portraitProgress.duration = '20s';
+											
+											getFeatureData({ project_id: projectId }).then(data => {
+												console.log('data in getFeatureData');
+												// @TODO add feature data
+												console.log(data);
+											})
+											// 获取列表list
+											getFeatureList({ project_id: projectId }).then(data => {
+												console.log(data);
+												// @TODO add feature list
+
+											})
+											break;
+											case 5: 
+												clearInterval(timer);
+												break;
+										}
+									})				
+								}, 500)
+						
 								// 获取特征列表
-								setTimeout(() => {
-									getFeatureData({ project_id: task.project_id }).then(data => {
-										console.log('data in getFeatureData');
-										console.log(data);
-									})
-									// 获取列表list
-									getFeatureList({ project_id: task.project_id }).then(data => {
-										console.log(data);
-									})
-								}, 3000)
-								
 								break;
 							
 							// fail
 							case 5: 
 								clearInterval(pollTask);
-								this.$store.commit('SET_PROGRESS_PERCENT', 0);
-								this.$store.commit('SET_PROGRESS_OK', false);
-								this.$store.commit('SET_FAILREASON', task.failed_reason);
+								this.$store.state.uploadProgress.percent = '0%';
+								this.$store.state.uploadProgress.status = -1;
+								this.$store.state.uploadProgress.failReason = task.failed_reason;
 								break;
 						}
 						//console.log(data);
@@ -196,7 +249,9 @@
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
 				console.log('fail');
-				this.$store.commit('SET_PROGRESS_PERCENT', 0);
+				this.$store.state.uploadProgress.percent = '0%';
+				this.$store.state.uploadProgress.status = -1;
+				this.$store.state.uploadProgress.failReason = '上传失败';
 				this.$store.commit('SET_PROGRESS_OK', false);
 			}
 		},

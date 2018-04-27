@@ -159,11 +159,12 @@
 	import echarts from 'echarts'
 
 	export default {
+		props: ['maxHeight'],
 		mounted () {
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
             //this.$refs.left.style.height = (h - 88) + 'px';
             //this.$refs.right.style.height = (h - 88) + 'px';
-            this.maxHeight = 600;
+            //this.maxHeight = 600;
             const selection = this.$store.state.selection;
             if (selection) {
             	console.log(selection);
@@ -175,12 +176,13 @@
 	            	
 	            })	
             }
+
+
 		},
 		data () {
 			return {
 				dataDistr: '#0d68c4',
 				topn: '#666',
-				maxHeight: 0,
 				tableData3: [{
 					  order: 0,
 			          date: 'gender',

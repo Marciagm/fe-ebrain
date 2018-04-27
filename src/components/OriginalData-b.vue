@@ -1,7 +1,6 @@
 <template>
   <div>
-    
-    <!-- <el-table
+    <el-table
     	align="center"
       width="500"
     	:max-height="maxHeight"
@@ -15,8 +14,8 @@
         :prop="item"
         label="item"
       >
-      </el-table-column> 
-    </el-table> -->
+      </el-table-column>
+    </el-table>
   </div>
 </template>
 
@@ -35,7 +34,6 @@
             setTimeout(() => {
                 this.$store.commit('SET_TIPS_STATUS', false);
             }, 1000)
-            console.log(this.$store.state.originalData);
         },
         computed: {
             originalData () {
@@ -44,7 +42,7 @@
                   this.field.push('a' + k);
               }
                 //const { sampled_data } = this.$store.state.originalData;
-                return this.$store.state.originalData;
+              return this.$store.state.originalData;
             }
         }
     }
