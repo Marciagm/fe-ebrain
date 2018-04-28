@@ -509,7 +509,7 @@
 				state1: '',
 				filename: '',
 				searchItem: '',
-				maxHeight: 374,
+				maxHeight: '374px',
 				uploadProgress: '0%',
 				target: ''
 			}

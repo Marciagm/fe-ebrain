@@ -174,25 +174,7 @@
 									let { dataset } = data;
 									console.log(dataset);
 									if (dataset) {
-										let { sampled_data } = dataset; 
-						                try {
-						                    const sampledData = JSON.parse(sampled_data);
-						                    const originalData = [];
-						                    const rowLength = sampledData.length;
-						                    const columnLength = sampledData[0] && sampledData[0].length;
-						                    for (let i = 0; i < Math.min(rowLength, 100); i++) {
-						                        const item = {};
-						                        for (let j = 0; j < columnLength; j++) {
-						                            item['a' + j] = sampledData[i][j];
-						                        }
-						                        originalData.push(item);
-						                    }
-						                  	this.$store.commit('SET_ORIGINAL_DATA', originalData);
-
-						                }
-						                catch (e) {
-						                    console.log(e);
-						                }
+										this.$store.commit('SET_ORIGINAL_DATA', dataset);
 									}
 								})
 								// 轮询数据画像状态

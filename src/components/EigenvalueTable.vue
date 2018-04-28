@@ -531,6 +531,11 @@
 				}
 
 			}
+		},
+		computed: {
+			eigenData () {
+				
+			}
 		}
 	}
 </script>

@@ -1,6 +1,12 @@
 <template>
-  <div>
-    
+  <div class="original-data" :max-height="maxHeight">
+    <table cellspacing="0" cellpadding="0" :max-height="maxHeight">
+        <tr v-for="item in originalData">
+            <td  v-for="col in item">           
+                {{ col }}
+            </td>
+        </tr>
+    </table>
     <!-- <el-table
     	align="center"
       width="500"
@@ -19,7 +25,30 @@
     </el-table> -->
   </div>
 </template>
-
+<style lang="scss">
+    .original-data {
+        overflow: scroll;
+        max-height: 400px;
+        table {
+            border-radius: 4px;
+            width: 100%;
+            text-align: center;
+        }
+        table tr {
+            height: 53px;
+        }
+        table tr:nth-child(even) td {
+            background: #fafafa;
+            text-align: center;
+            min-width: 50px;
+        }
+        table tr:nth-child(odd) td {
+            background: #f5f5f5;
+            text-align: center;
+            min-width: 50px;
+        }
+    }
+</style>
 <script>
     export default {
         props: ['maxHeight'],
@@ -35,16 +64,12 @@
             setTimeout(() => {
                 this.$store.commit('SET_TIPS_STATUS', false);
             }, 1000)
-            console.log(this.$store.state.originalData);
         },
         computed: {
             originalData () {
-              const len = this.$store.state.originalData[0] && Object.keys(this.$store.state.originalData[0]).length;
-              for (let k = 0; k < len; k++) {
-                  this.field.push('a' + k);
-              }
-                //const { sampled_data } = this.$store.state.originalData;
-                return this.$store.state.originalData;
+                let { sampled_data } = this.$store.state.originalData;
+                const sampledData = JSON.parse(sampled_data);
+                return sampledData;
             }
         }
     }
