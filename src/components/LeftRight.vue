@@ -133,14 +133,6 @@
 	}
 </style>
 <script>
-	class progress {
-		constructor (progress) {
-			this.percent = '0%';
-			// status: 1成功 0正在进行时 -1失败
-			this.status = 0;
-		}
-	}
-
 	let obj = {};
 	window.onresize = function () {
 		console.log('in resize');
@@ -162,9 +154,6 @@
 		computed: {
 			filename () {
 				return this.$store.state.filename;
-			},
-			uploadProgress () {
-				return this.$store.state.uploadProgress;
 			},
 			progressItems () {
 				return this.$store.state.progressItems;

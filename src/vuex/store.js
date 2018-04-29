@@ -26,6 +26,7 @@ const state = {
     // step: 0-上传数据  1-生成数据画像 2-模型训练
     step: 0,
     // status: -1-失败 0-尚未开始 1-正在进行时 2-成功 
+    
     // 上传数据
     uploadProgress: {
         name: '1.上传数据',
@@ -33,6 +34,7 @@ const state = {
         status: 1,
         failReason: ''
     },
+
     // 生成数据画像
     portraitProgress: {
         name: '2.生成数据画像',
@@ -43,7 +45,8 @@ const state = {
     modelProgress: {
 
     },
-    progressItems: []
+    progressItems: [],
+    eigenData: []
 }
 
 // 定义所需的 mutations
@@ -82,6 +85,13 @@ const mutations = {
     // 特征详情
     SET_SELECTION (state, selection) {
         state.selection = selection;
+    },
+
+    SET_EIGEN_DATA (state, eigenData) {
+        console.log(eigenData);
+        for (let i = 0, len = eigenData.length; i < len; i++) {
+            state.eigenData[i] = eigenData[i];   
+        }
     }
 }
 

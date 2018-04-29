@@ -56,8 +56,7 @@
 							    <i class="el-icon-arrow-down el-icon--right"></i>
 							</span>
 							<el-dropdown-menu slot="dropdown">
-							    <el-dropdown-item>全部特征</el-dropdown-item>
-							    <el-dropdown-item v-for="(item, index) in featureList" :divided="index==0" :command="item">
+							    <el-dropdown-item v-for="(item, index) in featureList" :divided="index==1" :command="item">
 							    	{{ item.name }}
 							    </el-dropdown-item>
 							</el-dropdown-menu>
@@ -68,8 +67,8 @@
 						</div>
 					</div>
 
-					<div id="originalPart" :class="[isEigenActive ? originalNotActive : originalActive]" :style="{width: originalPartwidth + 'px'}">
-						<div class="original-label" @click="tab('original')">
+					<div id="originalPart" :class="[isEigenActive ? originalNotActive : originalActive]" :style="{width: originalPartwidth + 'px'}" @click="tab('original')">
+						<div class="original-label" >
 							<img src="../images/Original-data.png" style="margin-right: 5px;" >
 							原始数据
 						</div>
@@ -77,6 +76,7 @@
 				</div>
 
 				<div style="margin-top: 19px; margin-bottom: 20px; width: 100%;">
+
 					<!-- 特征详情 -->
 					<eigenvalue-table :max-height="maxHeight" v-if="isEigenActive" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table>
 					
@@ -434,8 +434,9 @@
 	import originalData from '@/components/OriginalData'
     import eigenvalueTable from '@/components/EigenvalueTable'
 	import leftRight from '@/components/LeftRight.vue'
+	import { createFeatureList, getFeatureData, getFeatureList, poll, showOriginalData } from "@/api/api"
 
-	import { createFeatureList, showFeatureData } from "@/api/api"
+    const values = ['未知', '连续', '离散', '时间'];
     let obj = {};
     function $ (id) {
     	return document.getElementById(id);
@@ -449,17 +450,6 @@
     	
     }
     
-    function infInit (obj) {
-
-    }
-
-    //
-    function drawLine () {
-
-    }
-    function drawBar () {
-
-    }
 	export default {
 		components: {
 			advancedOption,
@@ -469,29 +459,7 @@
 		},
 		data () {
 			return {
-				eigenData: '',
-				featureList: [
-					{
-						name: '特征列表一',
-						id: 0
-					},
-					{
-						name: '特征列表一',
-						id: 0
-					},
-					{
-						name: '特征列表一',
-						id: 0
-					},
-					{
-						name: '特征列表一',
-						id: 0
-					},
-					{
-						name: '特征列表一',
-						id: 0
-					}
-				],
+				featureList: [],
 				isEigenActive: true,
 				active: 'active',
 				notActive: 'not-active',
@@ -532,7 +500,7 @@
 					console.log(this.$store.state.selection);
 					const ids = [];
 					this.$store.state.selection.forEach((value, index) => {
-						ids.push(value.id);
+						ids.push(value.feature_id);
 					})
 					const param = {
 						project_id: this.$store.state.projectId,
@@ -541,6 +509,19 @@
 					};
 					createFeatureList(param).then(data => {
 						console.log(data);
+						getFeatureList({ project_id: this.$store.state.projectId }).then(data => {
+							let { feature_lists } = data;
+							this.featureList.length = 0;
+							for (let i = 0; i < feature_lists.length; i++) {
+								const item = feature_lists[i];
+								this.featureList.push({
+									name: item.name || '全部特征',
+									id: item.feature_list_id
+								})
+							}
+							console.log(data);
+							// @TODO add feature list
+						})
 					})
 
 				}
@@ -551,7 +532,7 @@
 			},
 			getList (item) {
 				console.log(item);
-				showFeatureData(item.id).then(data => {
+				getFeatureData(item.id).then(data => {
 					console.log(data);
 				})
 			},
@@ -740,6 +721,103 @@
             this.restaurants = this.loadAll();
             this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
             this.$store.state.portraitProgress.status = 1;
+        
+            const projectId = this.$route.params.projectId;
+            console.log('projectId: ' + projectId);
+
+            this.$store.state.progressItems.length = 0;
+            const uploadProgress = this.$store.state.uploadProgress;
+            const portraitProgress = this.$store.state.portraitProgress;
+			this.$store.state.progressItems.push(uploadProgress, portraitProgress);
+
+            let pollTask = setInterval(() => {
+				// 轮训
+				poll(projectId).then(data => {
+					//let { task} = data;
+					let { dataset_task } = data;
+					let task = dataset_task;
+					
+					switch (task.status) {
+						case 0: 
+							console.log(0);
+							break;
+						case 1: 
+							console.log(1);
+							break;
+						case 2: 
+							console.log(2);
+							break;
+						// running
+						case 3: 
+							this.$store.state.uploadProgress.percent = Math.floor(Math.random() * 8 + 92) + '%';
+							break;
+						case 4: 
+							clearInterval(pollTask);
+							this.$store.state.uploadProgress.percent = '100%';
+							this.$store.state.uploadProgress.duration = '10s';
+							this.$store.state.uploadProgress.status = 2;
+							
+							//let OriginalDataId = task.dataset_id;
+							let OriginalDataId = projectId;
+
+							console.log('OriginalDataId: ' + OriginalDataId);
+
+							// 查看原始数据
+							
+							// 轮询数据画像状态
+							const timer = setInterval(() => {
+								poll(projectId).then(data => {
+									let { portrait_task } = data;
+									this.$store.state.portraitProgress.percent = portrait_task.percentage + '%';
+									const status = portrait_task.status;
+									switch(status) {
+										case 3:
+											break; 
+										case 4: 
+										clearInterval(timer);
+										this.$store.state.portraitProgress.percent = '100%';
+										this.$store.state.portraitProgress.status = 2;
+										this.$store.state.portraitProgress.duration = portrait_task.duration + 's';
+										/*getFeatureData(-1, { project_id: projectId }).then(data => {
+											let { feature_list } = data;
+											let { features } = feature_list;
+											this.featureData = features;
+
+											for (let i = 0, len = features.length; i < len; i++) {
+												const item = features[i];
+												item.showTip = false;
+												item.typeValue = values[item.type];
+												item.order = i;
+											}
+											this.$store.commit('SET_EIGEN_DATA', features);
+											console.log('data in getFeatureData');
+											// @TODO add feature data
+											console.log(data);
+										})*/
+										// 获取列表list
+										
+										break;
+										case 5: 
+											clearInterval(timer);
+											break;
+									}
+								})				
+							}, 500)
+					
+							// 获取特征列表
+							break;
+						
+						// fail
+						case 5: 
+							clearInterval(pollTask);
+							this.$store.state.uploadProgress.percent = '0%';
+							this.$store.state.uploadProgress.status = -1;
+							this.$store.state.uploadProgress.failReason = task.failed_reason;
+							break;
+					}
+					//console.log(data);
+				})
+			}, 500)
 		},
 		computed: {
 			tips () {

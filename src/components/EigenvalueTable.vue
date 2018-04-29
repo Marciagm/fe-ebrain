@@ -4,7 +4,7 @@
 		align="center"
 		stripe
 	    ref="multipleTable"
-	    :data="tableData3"
+	    :data="eigenData"
 	    tooltip-effect="light"
 	    :max-height="maxHeight"
 	    @select="select"
@@ -33,26 +33,28 @@
 	      </template>
 	    </el-table-column>
 	    <el-table-column
-	      prop="date"
+	      prop="name"
 	      label="特征名称"
 	      sortable
 	      width="200"
 	     >
 	      <template slot-scope="props" style="text-align: left;">
-	      	<div :id="props.row.date" style=" height: 49px; line-height: 49px;">
-	      		<span >{{ props.row.date }}</span>
-	      		<span v-show="props.row.showTip" class="target-tip" @click="chooseTarget(props.row.date)">选该特征值为目标</span>
+	      	<div :id="props.row.featrure_id" style=" height: 49px; line-height: 49px;">
+	      		<span >{{ props.row.name }}</span>
+	      		<span v-show="props.row.showTip" class="target-tip" @click="chooseTarget(props.row)">
+	      			选该特征值为目标
+	      		</span>
 	      	</div>
 	      </template>
 	    </el-table-column>
 	    <el-table-column
-	      prop="name"
+	      prop="column_index"
 	      label="列号"
 	      sortable
 	    >
 	    </el-table-column>
 	    <el-table-column
-	      prop="dataType"
+	      prop="typeValue"
 	      sortable
 	      label="数据类型"
 	      width="100"
@@ -60,70 +62,66 @@
 	      <template slot-scope="props" style="text-align: left;">
 	      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType">
 		      	<span>
-				    {{ props.row.dataType }}
+				    {{ props.row.typeValue }}
 				    <i class="el-icon-arrow-down el-icon--right"></i>
 				</span>
 		      	<el-dropdown-menu slot="dropdown">
-				    <el-dropdown-item :command="{v: '离散', n: props.row}"> 离散</el-dropdown-item>
-				    <el-dropdown-item :command="{v: '连续', n: props.row}"> 连续</el-dropdown-item>
-				    <el-dropdown-item :command="{v: '时间', n: props.row}"> 时间</el-dropdown-item>
+				    <el-dropdown-item :command="{v: '2', n: props.row}"> 离散</el-dropdown-item>
+				    <el-dropdown-item :command="{v: '1', n: props.row}"> 连续</el-dropdown-item>
+				    <el-dropdown-item :command="{v: '3', n: props.row}"> 时间</el-dropdown-item>
 				</el-dropdown-menu>
 			</el-dropdown>
 	      </template>
 	    </el-table-column>
 	    <el-table-column
-	      prop="fnum"
+	      prop="values_count"
 	      label="特征个数"
 	      sortabl
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
-	      prop="fnum"
+	      prop="missed_instances_count"
 	      sortable
 	      label="缺失值"
 	      width="100"
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
-	      prop="fnum"
+	      prop="valid_instances_count"
 	      sortable
-	      label="总和"
+	      label="有效样本数"
+	      width="120"
 	      show-overflow-tooltip>
 	    </el-table-column>							    
 	    <el-table-column
-	      prop="fnum"
+	      prop="max"
 	      label="最大值"
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
-	      prop="fnum"
+	      prop="min"
 	      label="最小值"
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
-	      prop="fnum"
+	      prop="mode"
 	      label="众数"
 	      show-overflow-tooltip>
 	    </el-table-column>
 	    <el-table-column
-	      prop="fnum"
+	      prop="mean"
 	      label="平均数"
 	      show-overflow-tooltip
 	      >
 	    </el-table-column>
 	    <el-table-column
-	      prop="fnum"
+	      prop="sum"
+	      label="取值加和"
+	      show-overflow-tooltip>
+	    </el-table-column>
+	    <el-table-column
+	      prop="std"
 	      label="方差"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="fnum"
-	      label="偏度"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="fnum"
-	      label="偏度"
 	      show-overflow-tooltip>
 	    </el-table-column>
 	</el-table>		
@@ -157,30 +155,15 @@
 </style>
 <script>
 	import echarts from 'echarts'
+	import { getFeatureData } from '../api/api'
+
+	const values = ['未知', '连续', '离散', '时间'];
 
 	export default {
 		props: ['maxHeight'],
-		mounted () {
-			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            //this.$refs.left.style.height = (h - 88) + 'px';
-            //this.$refs.right.style.height = (h - 88) + 'px';
-            //this.maxHeight = 600;
-            const selection = this.$store.state.selection;
-            if (selection) {
-            	console.log(selection);
-	            selection.forEach((row, index) => {
-	            	if (row.order) {
-	            		//this.$refs.multipleTable.toggleRowSelection(this.tableData3[index]);
-	            		this.$refs.multipleTable.toggleRowSelection(this.tableData3[row.order]);
-	            	}
-	            	
-	            })	
-            }
-
-
-		},
 		data () {
 			return {
+				eigenData: [],
 				dataDistr: '#0d68c4',
 				topn: '#666',
 				tableData3: [{
@@ -191,96 +174,51 @@
 			          fnum: 15,
 			          showTip: false
 			        }, {
-			          order: 1,
-			          date: '-02',
-			          name: 'a小虎',
-			          dataType: '离散',
-			          fnum: 12,
-			          showTip: false
-			        }, {
-			          order: 2,
-			          date: '3016-04',
-			          name: 'b小虎',
-			          dataType: '离散',
-			          fnum: 122,
-			          showTip: false
-			        }, {
-			          order: 3,
-			          date: '-01',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 12,
-			          showTip: false
-			        }, {
-			          date: '-08',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 12,
-			          showTip: false
-			        }, {
-			          date: '-06',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 120,
-			          showTip: false
-			        }, {
-			          date: '-07',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 12,
-			          showTip: false
-			        }, {
-			          date: '-06',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 120,
-			          showTip: false
-			        }, {
 			          date: '2016-07',
 			          name: '王小虎',
 			          dataType: '离散',
 			          fnum: 12,
-			          showTip: false
-			        }, {
-			          date: '2016-06',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 120,
-			          showTip: false
-			        }, {
-			          date: '2016-07',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 12,
-			          showTip: false
-			        }, {
-			          date: '2016-06',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 120,
-			          showTip: false
-			        }, {
-			          date: '2016-07',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 12,
-			          showTip: false
-			        }, {
-			          date: '2016-06',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 120,
-			          showTip: false
-			        }, {
-			          date: '2016-05-07',
-			          name: '王小虎',
-			          dataType: '离散',
-			          fnum: 120000,
 			          showTip: false
 			        }
 			    ],
 		        multipleSelection: []
 			}
+		},
+		mounted () {
+			/*const selection = this.$store.state.selection;
+            if (selection) {
+            	console.log(selection);
+	            selection.forEach((row, index) => {
+	            	if (row.order) {
+	            		//this.$refs.multipleTable.toggleRowSelection(this.tableData3[index]);
+	            		this.$refs.multipleTable.toggleRowSelection(this.tableData3[row.order]);
+	            	}
+	            	
+	            })	
+            }*/
+            this.eigenData = this.$store.state.eigenData;
+
+            if (this.eigenData.length) { 
+            	return;
+            }
+            const projectId = this.$route.params.projectId;
+            getFeatureData(-1, { project_id: projectId }).then(data => {
+				let { feature_list } = data;
+				let { features } = feature_list;
+				this.featureData = features;
+
+				for (let i = 0, len = features.length; i < len; i++) {
+					const item = features[i];
+					item.showTip = false;
+					item.typeValue = values[item.type];
+					item.order = i;
+				}
+				this.eigenData = features;
+				this.$store.commit('SET_EIGEN_DATA', features);
+				console.log('data in getFeatureData');
+				// @TODO add feature data
+				console.log(data);
+			})
 		},
 		methods: {
 			select (selection, row) {
@@ -294,21 +232,21 @@
 				this.$store.commit('SET_SELECTION', selection);
 			},
 			showTip (row, column, cell, event) {
-				//if (!row.showTip && column.property === 'date') {
-					row.showTip = true;	
-				//}
-				//else {
-				//	row.showTip = false;
-				//}
+				setTimeout(() => {
+					row.showTip = true;
+				}, 0)
+				
 			},
 			hideTip (row, column, cell, event) {
 				row.showTip = false;
 			},
-			chooseTarget (value) {
-				this.$emit('setTarget', value);
+			chooseTarget (row) {
+				this.$emit('setTarget', row.name);
 			},
 			selectDataType (command) {
-				command.n.dataType = command.v;
+				const row = command.n;
+				row.type = command.v;
+				row.typeValue = values[command.v];
 				// 此处有接口
 			},
 			expand (row, expandRows) {
@@ -324,7 +262,6 @@
 				
 			},
 			showData (tag, row) {
-				
 				if (tag !== 'topn') {
 					var dataShow = document.getElementById('dataShow');
 					let chart = echarts.init(dataShow);
@@ -533,9 +470,11 @@
 			}
 		},
 		computed: {
-			eigenData () {
-				
-			}
+			/*eigenData () {
+				// type: 1-连续 2-离散 3-时间
+				const eigenData = this.$store.state.eigenData;
+				return eigenData;
+			}*/
 		}
 	}
 </script>

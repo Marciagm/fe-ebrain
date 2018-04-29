@@ -87,17 +87,7 @@
 	}
 </style>
 <script>
-    import { createProject, uploadFile, poll, showOriginalData, getFeatureData, getFeatureList } from '../api/api';
-    class Progress {
-    	constructor (progress) {
-    		this.progress = progress;
-    	}
-    	setProgress (progress) {
-
-    		this.progress = progress;
-    	}
-    }
-
+    import { createProject, uploadFile } from '../api/api';
 	export default {
 		data () {
 			var token = localStorage.getItem('token');
@@ -121,7 +111,6 @@
 			},
 			beforeUpload (file) {
 				this.$router.push('/main/data/loading');
-				//const param = { name: this.$store.state.projectName || '未命名任务'};
 			},
 			onUploadProgress (event, file, fileList) {
 				this.$store.state.uploadProgress.percent = Math.floor((event.percent - 0.1) / 1.1) + '%';
@@ -133,100 +122,9 @@
 					return;
 				}
 				let { task } = response;
-				console.log('in task');
 				const projectId = task.project_id;
 				this.$store.commit('SET_PROJECT_ID', projectId);
-
-				let pollTask = setInterval(() => {
-					// 轮训
-					poll(projectId).then(data => {
-						//let { task} = data;
-						let { dataset_task } = data;
-						let task = dataset_task;
-						console.log(data);
-						console.log(task.status);
-						switch (task.status) {
-							case 0: 
-								console.log(0);
-								break;
-							case 1: 
-								console.log(1);
-								break;
-							case 2: 
-								console.log(2);
-								break;
-							// running
-							case 3: 
-								this.$store.state.uploadProgress.percent = Math.floor(Math.random() * 8 + 92) + '%';
-								break;
-							case 4: 
-								clearInterval(pollTask);
-								this.$store.state.uploadProgress.percent = '100%';
-								this.$store.state.uploadProgress.duration = '10s';
-								this.$store.state.uploadProgress.status = 2;
-								
-								this.$router.push(`/main/data/info/${projectId}`);
-								//let OriginalDataId = task.dataset_id;
-								let OriginalDataId = this.$store.state.projectId;
-								console.log('OriginalDataId: ' + OriginalDataId);
-								// 查看原始数据
-								showOriginalData(OriginalDataId).then(data => {
-									let { dataset } = data;
-									console.log(dataset);
-									if (dataset) {
-										this.$store.commit('SET_ORIGINAL_DATA', dataset);
-									}
-								})
-								// 轮询数据画像状态
-								const timer = setInterval(() => {
-									poll(projectId).then(data => {
-										let { portrait_task } = data;
-										this.$store.state.portraitProgress.percent = portrait_task.percentage + '%';
-										const status = portrait_task.status;
-										switch(status) {
-											case 3:
-												break; 
-											case 4: 
-											clearInterval(timer);
-											this.$store.state.portraitProgress.percent = '100%';
-											this.$store.state.portraitProgress.status = 2;
-											this.$store.state.portraitProgress.duration = '20s';
-											
-											getFeatureData({ project_id: projectId }).then(data => {
-												console.log('data in getFeatureData');
-												// @TODO add feature data
-												console.log(data);
-											})
-											// 获取列表list
-											getFeatureList({ project_id: projectId }).then(data => {
-												console.log(data);
-												// @TODO add feature list
-
-											})
-											break;
-											case 5: 
-												clearInterval(timer);
-												break;
-										}
-									})				
-								}, 500)
-						
-								// 获取特征列表
-								break;
-							
-							// fail
-							case 5: 
-								clearInterval(pollTask);
-								this.$store.state.uploadProgress.percent = '0%';
-								this.$store.state.uploadProgress.status = -1;
-								this.$store.state.uploadProgress.failReason = task.failed_reason;
-								break;
-						}
-						//console.log(data);
-					})
-				}, 500)
-				
-				//this.$router.push('/main/data/info');
+				this.$router.push(`/main/data/info/${projectId}`);
 			},
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
@@ -240,7 +138,6 @@
 		mounted () {
 			// init
 			this.$store.commit('SET_PROJECT_STATUS', false);
-			this.$store.commit('SET_PROGRESS_OK', true);
 			this.$store.commit('SET_PROJECT_NAME', '未命名任务');
 		}
 	}

@@ -62,8 +62,10 @@ export const getProjectList = (params) => {
 }
 
 // feature data
-export const getFeatureData = (params) => {
-	return axios.get(`${base}/features/list`, { params: params }).then(res => res.data); 
+export const getFeatureData = (featureListId, params) => {
+	// featureListId: -1 全部特征 
+	// return axios.get(`${base}/features/list`, { params: params }).then(res => res.data); 
+	return axios.get(`${base}/feature_lists/show/${featureListId}`, { params: params }).then(res => res.data); 
 }
 
 // get feature list

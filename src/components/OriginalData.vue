@@ -7,22 +7,6 @@
             </td>
         </tr>
     </table>
-    <!-- <el-table
-    	align="center"
-      width="500"
-    	:max-height="maxHeight"
-      :data="originalData"
-      stripe
-      style="border-radius: 4px;"
-      :show-header=false
-      >
-      <el-table-column
-        v-for="item in field"
-        :prop="item"
-        label="item"
-      >
-      </el-table-column> 
-    </el-table> -->
   </div>
 </template>
 <style lang="scss">
@@ -50,27 +34,48 @@
     }
 </style>
 <script>
+    import { showOriginalData } from '../api/api'
     export default {
         props: ['maxHeight'],
         data() {
             return {
-                field: []
+                originalData: ''
             }
         },
         mounted () {
-            //console.log(this.originalData);
-            this.$store.commit('SET_TIPS_STATUS', true);
-            this.$store.commit('SET_TIPS', '原始数据共xx行，仅显示100行');
-            setTimeout(() => {
-                this.$store.commit('SET_TIPS_STATUS', false);
-            }, 1000)
+            this.originalData = this.$store.state.originalData;
+            if (this.originalData.length) {
+                return;
+            }
+            const projectId = this.$route.params.projectId;
+            showOriginalData(projectId).then(data => {
+                let { dataset } = data;
+                console.log(dataset);
+                if (dataset) {
+                    //this.$store.commit('SET_ORIGINAL_DATA', dataset);
+                    let { sampled_data } = dataset;
+                    if (sampled_data) {
+                        const sampledData = JSON.parse(sampled_data);
+                        this.originalData = sampledData;
+                    }
+                    this.$store.commit('SET_TIPS_STATUS', true);
+                    this.$store.commit('SET_TIPS', '原始数据共xx行，仅显示100行');
+                    // @TODO 添加消失逻辑
+                    setTimeout(() => {
+                        this.$store.commit('SET_TIPS_STATUS', false);
+                    }, 1000)
+                }
+            })
         },
         computed: {
-            originalData () {
+           /* originalData () {
                 let { sampled_data } = this.$store.state.originalData;
-                const sampledData = JSON.parse(sampled_data);
-                return sampledData;
-            }
+                if (sampled_data) {
+                    const sampledData = JSON.parse(sampled_data);
+                    return sampledData;
+                }
+                return [];
+            }*/
         }
     }
 </script>
