@@ -91,6 +91,9 @@
 			display: inline-block;
 			background: #fff;
 			padding-top: 20px;
+			.offset {
+				margin-left: 20%;
+			}
 			.progress {
 				text-align: center;
 				height: 74px;
@@ -98,8 +101,19 @@
 				letter-spacing: 1px;
 				border-radius: 0px 4px 4px 0px;
 				position: relative;
-				.offset {
-					margin-left: 20%;
+				.progress-bg {
+					background: #eff3f5;
+				}
+				.progress-bar {
+					height: 6px;
+					border-radius: 0px 3px 3px 0px;
+					background-image: linear-gradient(90deg, 
+						#a0cfff 0%, 
+						#5ca7f4 45%, 
+						#187fe8 100%), 
+					linear-gradient(
+						#86c0fb, 
+						#86c0fb);
 				}
 				.progress-con {
 					padding-top: 12px; 
