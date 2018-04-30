@@ -55,12 +55,6 @@ export const showOriginalData = (dataSetId, params) => {
 	return axios.get(`${base}/projects/show_dataset/${dataSetId}`, params).then(res => res.data);
 }
 
-// get project list
-export const getProjectList = (params) => {
-	// return axios.get(`${base}/projects/list`, params).then(res => res.data); 
-	return axios.get(`${base}/projects/list`, { params: params }).then(res => res.data); 
-}
-
 // feature data
 export const getFeatureData = (featureListId, params) => {
 	// featureListId: -1 全部特征 
@@ -80,6 +74,13 @@ export const createFeatureList = (params) => {
 export const showFeatureData = (featureListId, params) => {
 	return axios.get(`${base}/datasets/show/${featureListId}`, params).then(res => res.data);
 }
+
+// get project list
+export const getProjectList = (params) => {
+	// return axios.get(`${base}/projects/list`, params).then(res => res.data); 
+	return axios.get(`${base}/projects/list`, { params: params }).then(res => res.data); 
+}
+
 
 
 

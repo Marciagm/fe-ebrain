@@ -1,130 +1,133 @@
 <template>
-	<el-table
-	 	width="0"
-		align="center"
-		stripe
-	    ref="multipleTable"
-	    :data="eigenData"
-	    tooltip-effect="light"
-	    :max-height="maxHeight"
-	    @select="select"
-	    @select-all="select"
-	    @cell-mouse-enter="showTip"
-	    @cell-mouse-leave="hideTip"
-	    @expand-change="expand"
-	    show-overflow-tooltip
-	    style="border-radius: 4px;"
-	    >
-	    <el-table-column
-	      type="selection">
-	    </el-table-column>
-	    <el-table-column
-	      type="expand"
-	    >
-	    <template slot-scope="props">
-	    	<!-- nav part -->
-	    	<div class="eigen-detail-nav">
-	    		<button class="nav-item" :style="{color: dataDistr}" @click="showData('dataDistr', props.row)">数据分布</button>
-	    		<div class="nav-sep"></div>
-	    		<button class="nav-item" :style="{color: topn}" @click="showData('topn', props.row)">TopN</button>
-	    	</div>
-	    	<div id="dataShow"></div>
+	<div>
+		
+		<el-table
+		 	width="0"
+			align="center"
+			stripe
+		    ref="multipleTable"
+		    :data="eigenData"
+		    tooltip-effect="light"
+		    :max-height="maxHeight"
+		    @select="select"
+		    @select-all="select"
+		    @cell-mouse-enter="showTip"
+		    @cell-mouse-leave="hideTip"
+		    @expand-change="expand"
+		    show-overflow-tooltip
+		    style="border-radius: 4px;"
+		    >
+		    <el-table-column
+		      type="selection">
+		    </el-table-column>
+		    <el-table-column
+		      type="expand"
+		    >
+		    <template slot-scope="props">
+		    	<!-- nav part -->
+		    	<div class="eigen-detail-nav">
+		    		<button class="nav-item" :style="{color: dataDistr}" @click="showData('dataDistr', props.row)">数据分布</button>
+		    		<div class="nav-sep"></div>
+		    		<button class="nav-item" :style="{color: topn}" @click="showData('topn', props.row)">TopN</button>
+		    	</div>
+		    	<div id="dataShow"></div>
 
-	      </template>
-	    </el-table-column>
-	    <el-table-column
-	      prop="name"
-	      label="特征名称"
-	      sortable
-	      width="200"
-	     >
-	      <template slot-scope="props" style="text-align: left;">
-	      	<div :id="props.row.featrure_id" style=" height: 49px; line-height: 49px;">
-	      		<span >{{ props.row.name }}</span>
-	      		<span v-show="props.row.showTip" class="target-tip" @click="chooseTarget(props.row)">
-	      			选该特征值为目标
-	      		</span>
-	      	</div>
-	      </template>
-	    </el-table-column>
-	    <el-table-column
-	      prop="column_index"
-	      label="列号"
-	      sortable
-	    >
-	    </el-table-column>
-	    <el-table-column
-	      prop="typeValue"
-	      sortable
-	      label="数据类型"
-	      width="100"
-	      show-overflow-tooltip>
-	      <template slot-scope="props" style="text-align: left;">
-	      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType">
-		      	<span>
-				    {{ props.row.typeValue }}
-				    <i class="el-icon-arrow-down el-icon--right"></i>
-				</span>
-		      	<el-dropdown-menu slot="dropdown">
-				    <el-dropdown-item :command="{v: '2', n: props.row}"> 离散</el-dropdown-item>
-				    <el-dropdown-item :command="{v: '1', n: props.row}"> 连续</el-dropdown-item>
-				    <el-dropdown-item :command="{v: '3', n: props.row}"> 时间</el-dropdown-item>
-				</el-dropdown-menu>
-			</el-dropdown>
-	      </template>
-	    </el-table-column>
-	    <el-table-column
-	      prop="values_count"
-	      label="特征个数"
-	      sortabl
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="missed_instances_count"
-	      sortable
-	      label="缺失值"
-	      width="100"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="valid_instances_count"
-	      sortable
-	      label="有效样本数"
-	      width="120"
-	      show-overflow-tooltip>
-	    </el-table-column>							    
-	    <el-table-column
-	      prop="max"
-	      label="最大值"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="min"
-	      label="最小值"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="mode"
-	      label="众数"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="mean"
-	      label="平均数"
-	      show-overflow-tooltip
-	      >
-	    </el-table-column>
-	    <el-table-column
-	      prop="sum"
-	      label="取值加和"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	    <el-table-column
-	      prop="std"
-	      label="方差"
-	      show-overflow-tooltip>
-	    </el-table-column>
-	</el-table>		
+		      </template>
+		    </el-table-column>
+		    <el-table-column
+		      prop="name"
+		      label="特征名称"
+		      sortable
+		      width="200"
+		     >
+		      <template slot-scope="props" style="text-align: left;">
+		      	<div :id="props.row.featrure_id" style=" height: 49px; line-height: 49px;">
+		      		<span >{{ props.row.name }}</span>
+		      		<span v-show="props.row.showTip" class="target-tip" @click="chooseTarget(props.row)">
+		      			选该特征值为目标
+		      		</span>
+		      	</div>
+		      </template>
+		    </el-table-column>
+		    <el-table-column
+		      prop="column_index"
+		      label="列号"
+		      sortable
+		    >
+		    </el-table-column>
+		    <el-table-column
+		      prop="typeValue"
+		      sortable
+		      label="数据类型"
+		      width="100"
+		      show-overflow-tooltip>
+		      <template slot-scope="props" style="text-align: left;">
+		      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType">
+			      	<span>
+					    {{ props.row.typeValue }}
+					    <i class="el-icon-arrow-down el-icon--right"></i>
+					</span>
+			      	<el-dropdown-menu slot="dropdown">
+					    <el-dropdown-item :command="{v: '2', n: props.row}"> 离散</el-dropdown-item>
+					    <el-dropdown-item :command="{v: '1', n: props.row}"> 连续</el-dropdown-item>
+					    <el-dropdown-item :command="{v: '3', n: props.row}"> 时间</el-dropdown-item>
+					</el-dropdown-menu>
+				</el-dropdown>
+		      </template>
+		    </el-table-column>
+		    <el-table-column
+		      prop="values_count"
+		      label="特征个数"
+		      sortabl
+		      show-overflow-tooltip>
+		    </el-table-column>
+		    <el-table-column
+		      prop="missed_instances_count"
+		      sortable
+		      label="缺失值"
+		      width="100"
+		      show-overflow-tooltip>
+		    </el-table-column>
+		    <el-table-column
+		      prop="valid_instances_count"
+		      sortable
+		      label="有效样本数"
+		      width="120"
+		      show-overflow-tooltip>
+		    </el-table-column>							    
+		    <el-table-column
+		      prop="max"
+		      label="最大值"
+		      show-overflow-tooltip>
+		    </el-table-column>
+		    <el-table-column
+		      prop="min"
+		      label="最小值"
+		      show-overflow-tooltip>
+		    </el-table-column>
+		    <el-table-column
+		      prop="mode"
+		      label="众数"
+		      show-overflow-tooltip>
+		    </el-table-column>
+		    <el-table-column
+		      prop="mean"
+		      label="平均数"
+		      show-overflow-tooltip
+		      >
+		    </el-table-column>
+		    <el-table-column
+		      prop="sum"
+		      label="取值加和"
+		      show-overflow-tooltip>
+		    </el-table-column>
+		    <el-table-column
+		      prop="std"
+		      label="方差"
+		      show-overflow-tooltip>
+		    </el-table-column>
+		</el-table>
+	</div>		
 </template>
 <style lang="scss">
 	.eigen-detail-nav {
@@ -197,7 +200,6 @@
 	            })	
             }*/
             this.eigenData = this.$store.state.eigenData;
-
             if (this.eigenData.length) { 
             	return;
             }
@@ -205,7 +207,6 @@
             getFeatureData(-1, { project_id: projectId }).then(data => {
 				let { feature_list } = data;
 				let { features } = feature_list;
-				this.featureData = features;
 
 				for (let i = 0, len = features.length; i < len; i++) {
 					const item = features[i];
@@ -213,7 +214,7 @@
 					item.typeValue = values[item.type];
 					item.order = i;
 				}
-				this.eigenData = features;
+				//this.eigenData = features;
 				this.$store.commit('SET_EIGEN_DATA', features);
 				console.log('data in getFeatureData');
 				// @TODO add feature data
@@ -472,8 +473,7 @@
 		computed: {
 			/*eigenData () {
 				// type: 1-连续 2-离散 3-时间
-				const eigenData = this.$store.state.eigenData;
-				return eigenData;
+				return this.$store.state.eigenData;
 			}*/
 		}
 	}

@@ -88,7 +88,6 @@ const mutations = {
     },
 
     SET_EIGEN_DATA (state, eigenData) {
-        console.log(eigenData);
         for (let i = 0, len = eigenData.length; i < len; i++) {
             state.eigenData[i] = eigenData[i];   
         }
