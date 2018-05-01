@@ -68,7 +68,7 @@ let routes = [
             { path: 'project', component: ProManagement, name: '任务管理'},
 
             { path: 'chart', component: Chart, name: '图表'},
-            { path: '/main/model', component: Model, name: '模型' },
+            { path: '/main/model/:projectId', component: Model, name: '模型' },
             
             { path: '/main/algorithm-lib', component: ModelList, name: '算法库' },
             

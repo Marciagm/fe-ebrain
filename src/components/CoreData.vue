@@ -340,7 +340,7 @@
 </style>
 <script>
 	import echarts from 'echarts'
-	import { getFeatureData } from '../api/api'
+	import { getFeatureData, createFeatureList, getFeatureList } from '../api/api'
 	import originalData from '@/components/OriginalData'
 
 	const values = ['未知', '连续', '离散', '时间'];
@@ -352,6 +352,7 @@
 		},
 		data () {
 			return {
+				projectId: this.$route.params.projectId,
 				isEigenActive: false,
 				active: 'active',
 				notActive: 'not-active',
@@ -408,7 +409,7 @@
 					};
 					createFeatureList(param).then(data => {
 						console.log(data);
-						getFeatureList({ project_id: this.$store.state.projectId }).then(data => {
+						getFeatureList({ project_id: this.projectId }).then(data => {
 							let { feature_lists } = data;
 							this.featureList.length = 0;
 							for (let i = 0; i < feature_lists.length; i++) {
@@ -467,6 +468,7 @@
 						item.order = i;
 						this.queryList.push({value: item.name, id: item.feature_id})
 					}
+					this.$store.commit('SET_QUERY_LIST', this.queryList);
 					this.eigenData = features;
 
 					this.$store.commit('SET_EIGEN_DATA', features);

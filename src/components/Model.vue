@@ -170,6 +170,8 @@
 	import significanceChart from '@/components/SignificanceChart'
 	import predictsChart from '@/components/PredictsChart'
 	
+	import { getModelList } from '../api/api'
+
 	const chartHeights = ['555px', '858px', '554px', '554px', '554px', '318px'];
 
 	export default {
@@ -184,6 +186,7 @@
 		},
 		data () {
 			return {
+				projectId: this.$route.params.projectId,
 				charHeight: '555px',
 				itemNav: [
 					{
@@ -304,6 +307,10 @@
 		},
 		mounted () {
 			this.showList = this.modelList;
+
+			getModelList({project_id: this.projectId}).then(data => {
+				console.log(data);
+			})
 		},
 		methods: {
 			chooseEigenList (command) {

@@ -253,7 +253,7 @@
 					}, 
 					{
 						name: '模型',
-						path: '/main/model'
+						path: '/main/model/'
 
 					}, 
 					{
@@ -273,7 +273,12 @@
 			},
 			tab (item, index) {
 				this.curIndex = index;
-				this.$router.push(item.path);
+				if (item.path == '/main/model/') {
+					this.$router.push(item.path + this.$store.state.projectId);	
+				}
+				else {
+					this.$router.push(item.path);	
+				}
 			},
 			logout () {
                 var _this = this;
@@ -336,6 +341,9 @@
         		get (value) {
         			return this.$store.state.projectName;
         		}
+        	},
+        	projectId () {
+        		return this.$store.state.projectId;
         	}
         },
 		mounted () {

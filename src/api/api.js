@@ -75,11 +75,36 @@ export const showFeatureData = (featureListId, params) => {
 	return axios.get(`${base}/datasets/show/${featureListId}`, params).then(res => res.data);
 }
 
+// @TODO id是什么鬼？
+export const updateFeature = () => {
+	return axios.post(`${base}/features/update/`, params).then(res => res.data); 
+}
 // get project list
 export const getProjectList = (params) => {
 	// return axios.get(`${base}/projects/list`, params).then(res => res.data); 
 	return axios.get(`${base}/projects/list`, { params: params }).then(res => res.data); 
 }
+
+// start to train
+export const train = (params) => {
+	return axios.post(`${base}/tasks/train`, params).then(res => res.data); 
+}
+
+// models list
+export const getModelList = (params) => {
+	return axios.get(`${base}/models/list`, { params: params }).then(res => res.data); 
+}
+
+// train track 
+export const getBluePrint = (modelId, params) => {
+	return axios.get(`${base}/models/blueprint/${modelId}`, { params: params }).then(res => res.data); 
+}
+
+// get model data 
+export const getModelData = (modelId, params) => {
+	return axios.get(`${base}/models/metrics/${modelId}`, { params: params }).then(res => res.data); 
+}
+
 
 
 

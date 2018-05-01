@@ -46,7 +46,8 @@ const state = {
 
     },
     progressItems: [],
-    eigenData: []
+    eigenData: [],
+    queryList: []
 }
 
 // 定义所需的 mutations
@@ -90,6 +91,12 @@ const mutations = {
     SET_EIGEN_DATA (state, eigenData) {
         for (let i = 0, len = eigenData.length; i < len; i++) {
             state.eigenData[i] = eigenData[i];   
+        }
+    },
+    SET_QUERY_LIST (state, queryList) {
+        state.queryList.length = 0;
+        for (let i = 0, len = queryList.length; i < len; i++) {
+            state.queryList.push(queryList[i]);
         }
     }
 }
