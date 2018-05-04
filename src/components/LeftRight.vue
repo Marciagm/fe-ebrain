@@ -4,6 +4,11 @@
 			<slot name="left" :style="{minHeight: minHeight - 20}"></slot>
 			<div class="data-foot">
 				{{ filename }}
+				<div style="float: right; margin-right: 5%;">
+					当前特征列表：<span style="color: #e0952a;">{{ featureListName }}</span> 
+					&nbsp;&nbsp;
+					特征总数：<span style="color: #e0952a;">{{ featureNum }}</span>
+				</div>
 			</div>
 		</div>
 
@@ -91,6 +96,11 @@
 			display: inline-block;
 			background: #fff;
 			padding-top: 20px;
+			.load-effect {
+				right: 20%; 
+				top: 24px; 
+				position: absolute;
+			}
 			.offset {
 				margin-left: 20%;
 			}
@@ -169,12 +179,32 @@
 			filename () {
 				return this.$store.state.filename;
 			},
+
 			progressItems () {
 				return this.$store.state.progressItems;
 			},
+
 			showTargetTips () {
-				return this.$store.state.uploadProgress.status === 2 && this.$store.state.portraitProgress.status === 2;
+				return this.$store.state.uploadProgress.status === 2 
+					&& this.$store.state.portraitProgress.status === 2;
+			},
+			/**
+			 * 特征名称
+			 */
+			featureListName () {
+				return this.$store.state.trainObj.featureName;
+			},
+
+			/**
+			 * 特征数总量
+			 */
+			featureNum () {
+				return this.$store.state.trainObj.featureNum;
 			}
 		}
 	}
 </script>
+
+
+
+

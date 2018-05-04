@@ -417,7 +417,13 @@
 			        	return data[0].value;
 			        },
 			        color : ['#1e90ff','#22bb22','#4b0082','#d2691e'],
+			        // 当鼠标悬浮的时候
         			backgroundColor: '#000', // 工具箱背景颜色
+			    },
+			    legend: {
+			    	data: [{
+			    		name: 'test'
+			    	}]
 			    },
 			    xAxis: {
 			        type: 'category',

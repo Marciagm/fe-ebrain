@@ -4,19 +4,25 @@
 			<div class="upload-predict-label">批量预测</div>
 			<el-upload
 				ref="upload"
+				:data="formData"
 				:show-file-list=false
+				:headers="apiHeader"
 			  	class="upload-demo"
 			  	:before-upload="beforeUpload"
+			  	:on-progress="onUploadProgress"
+		  		:on-success="handleUploadSuccess"
+		  		:on-error="handleUploadError"
 			  	drag
-			  	action="https://jsonplaceholder.typicode.com/posts/"
+			  	:action="uploadApi"
 			>
 			  	<div class="upload-predict-block">
 			  		<el-col :span="10" v-if="!isUploading" class="upload-text">拖拽文件至虚线部分或点击右侧按钮上传并预测</el-col>
 			  		<el-col :span="6" v-else class="predict-upload-progress">
-			  			<el-col :span="5" style="font-size: 12px; color: #666;">{{ filename }}</el-col>
-			  			<el-col :span="17">
-			  				<el-progress :percentage="70" style="height: 70px; line-height: 70px;"></el-progress>
+			  			<el-col :span="7" style="font-size: 12px; color: #666;">{{ filename }}</el-col>
+			  			<el-col :span="15">
+			  				<el-progress :percentage="percent" style="height: 70px; line-height: 70px;"></el-progress>
 			  			</el-col>
+			  			<div  class="upload-predict-tip">{{ tips }}</div>
 			  		</el-col>
 			  		<div style="float: right; line-height: 70px; padding-right: 20px;">
 			  			<button class="upload-and-predict">上传并预测</button>
@@ -24,6 +30,7 @@
 			  			<div style="width: 30px;vertical-align: middle; height: 70px; display: inline-block;" @click.stop="deleteFile">
 			  				<img src="../images/model-rubbish.png">
 			  			</div>
+			  			
 			  		</div>
 			  	</div>
 			</el-upload>
@@ -101,21 +108,66 @@
 				height: 70px;
 			}
 		}
-		
+		.upload-predict-tip {
+			position: absolute; 
+			top: 15px; 
+			left: 180px; 
+			font-size: 10px;
+			height: 14px;
+			line-height: 14px;
+			color: #999999;
+		}
 	}
 </style>
 <script>
+	import { uploadFile } from '@/api/api'
+	var token = localStorage.getItem('token');
+
 	export default {
 		data () {
 			return {
+				projectId: this.$route.params.projectId,
 				filename: '',
-				isUploading: false
+				isUploading: false,
+				percent: 0,
+				uploadApi: uploadFile,
+				formData: {
+					type: 2,
+					project_id: this.$route.params.projectId
+				},
+				apiHeader: {
+					Authorization: 'Bearer ' +  token
+				},
+				tips: '文件上传中...'
 			}
 		},
 		methods: {
 			beforeUpload (file) {
 				this.filename = file.name;
 				this.isUploading = true;
+			},
+
+			// progress
+			onUploadProgress (event, file, fileList) {
+				this.percent = Math.floor((event.percent - 0.1) / 11);
+			},
+
+			// 
+			handleUploadSuccess (response, file, fileList) {
+				const { error, task } = response;
+				if (error) {
+					this.$message.error(error.desc);
+					return;
+				}
+				if (task && task.task_id) {
+					// 
+					this.tips = '文件处理中...';
+				}
+			},
+
+			// @TODO error
+			handleUploadError (err, file, fileList) {
+
 			},
 			download () {
 				alert('download');

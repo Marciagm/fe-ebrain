@@ -7,7 +7,7 @@
 						<div class="key">{{ item.key || "F score"}}</div>
 					</div>
 					
-					<div class="basic-index-value">{{ item.value || 0.82111}} </div>
+					<div class="basic-index-value">{{ item.value }} </div>
 				</el-col>
 			</el-col>
 			<el-col :span="10" class="model-predict">
@@ -29,20 +29,20 @@
 						<tr>
 							<td class="td bb" style="font-size: 18px;">+</td>
 							<td>
-								<div style="margin-right: 3px;" class="cross">123(TN)</div>
+								<div style="margin-right: 3px;" class="cross">123(TP)</div>
 							</td>
 							<td class="hilight">
-								<div class="cross">123(FP)</div>
+								<div class="cross">123(FN)</div>
 							</td>
 							<td class="bb">num5</td>
 						</tr>
 						<tr>
 							<td class="td bb" style="font-size: 18px;">-</td>
 							<td class="hilight">
-								<div style="margin-right: 3px;" class="crossN">123(FN)</div>
+								<div style="margin-right: 3px;" class="crossN">123(TN)</div>
 							</td>
 							<td class="hilight">
-								<div class="crossN">123(TP)</div>
+								<div class="crossN">123(FP)</div>
 							</td>
 							<td class="bb">num4</td>
 						</tr>
@@ -176,106 +176,281 @@
 </style>
 <script>
 	import echarts from 'echarts'
-
-	function drawChart (id, data) {
+	import { getModelData } from '@/api/api'
+	let obj;
+	function drawChart (id, data, matrices) {
 		const chart = echarts.init(document.getElementById(id));
-		const option ={
-			xAxis: {
+		const option = {
+			color: ['#589de2', '#deac2c'],
+		    title: {
+		        text: 'ROC曲线',
+		        textStyle: {
+		        	color: '#333',
+		        	fontSize: 14
+		        },
+		        padding: [0, 0, 20, 50],
+		        subtext: '数据源：测试集'
+		    },
+		    extra: data.tprs,
+		    tooltip: {
+		        trigger: 'axis',
+		        formatter (data) {
+		        	const dataIndex = data[0].dataIndex;
+		        	const item = matrices[dataIndex];
+
+		        	console.log(data[0]);
+		        	obj.basicIndex[0].value = item.f1_score;
+		        	obj.basicIndex[1].value = obj.auc;
+		        	obj.basicIndex[2].value = item.f1_score;
+		        	obj.basicIndex[3].value = item.fpr;
+		        	// @TODO 
+		        	// 阳性预测值
+		        	obj.basicIndex[4].value = item.fnr;
+		        	// 阴性预测值 @TODO 
+		        	obj.basicIndex[5].value = item.npv;
+		        	// 准确率
+		        	obj.basicIndex[6].value = item.ppv;
+		        },
+		    },
+		    legend: {
+		        //data:['K值', 'S值'],
+		        itemGap: 15,
+		        align: 'left',
+		        orient: 'vertical',
+		        x: 'right',
+		        y: 'center',
+		        itemWidth: 10,  //图例标记的图形宽度
+    			itemHeight: 10, //图例标记的图形高度
+		        padding: [0, 0, 150, 0],
+		        textStyle: {
+		        	color: '#333',
+		        	fontSize: '14'
+		        },
+		        show: false
+		    },
+		    grid: {
+		        left: '13%',
+		        right: '26%',
+		        bottom: '15%',
+		        containLabel: true,
+		        show: false
+		    },
+		    toolbox: {
+		        feature: {
+		            //saveAsImage: {}
+		        }
+		    },
+		    xAxis: {
 		        type: 'category',
-		        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+		        boundaryGap: false,
+		        data: data.fprs,
+		        name: '负正类率（FPR）',
+		        nameLocation: 'middle',
+		        nameGap: 25,
+		        //data: [0, 0.3, 0.8, 0.9],
+		        axisLabel: {
+		        	textStyle: {
+		        		color: '#999'
+		        	}
+		        },
+		        axisLine: {
+		        	lineStyle: {
+		        		color: '#ccc',
+		        		width: 2
+		        	}
+		        }
 		    },
 		    yAxis: {
-		        type: 'value'
+		        splitLine: {
+		    		// false 时没有网格线
+		    		//show: true
+		    		show: false
+		    	},
+		        name: '真正类率（TPR）',
+		        nameLocation: 'middle',
+		        nameGap: 35,
+		        nameRotate: -90,
+		        type: 'value',
+		        color: '#fff',
+		        axisLine: {
+		        	lineStyle: {
+		        		color: '#ccc',
+		        		width: 2
+		        	}
+		        }
 		    },
-		    series: [{
-		        data: [820, 932, 901, 934, 1290, 1330, 1320],
-		        type: 'line'
-		    }]
+		    series: [
+		        {
+		            name:'K值',
+		            type:'line',
+		            data: data.tprs,
+		            symbol: 'circle',
+		            symbolSize: 2,
+		            lineStyle: {
+		                normal: {
+		                	color: '#589de2',
+		                    width: 2,
+		                    shadowColor: 'rgba(50, 19, 0, 0.2)',
+		                    shadowBlur: 10,
+		                    shadowOffsetY: 10
+		                },
+		                emphasis: {
+			                // color: 各异,
+			                label: {
+			                    show: false
+			                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，可选为
+			                    //           'inside'|'left'|'right'|'top'|'bottom'
+			                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+			                }
+			            }
+		            },
+
+		        }
+		    ]
 		};
 		chart.setOption(option);
 	}
-	function drawDistr (id, data) {
+	function drawDistr (id, data, matrices) {
 		const chart = echarts.init(document.getElementById(id));
 		var colors = ['#5793f3', '#d14a61', '#675bba'];
 
-		const option ={
-			color: colors,
+		const option = {
+			color: ['#589de2', '#deac2c'],
+		    title: {
+		        text: '目标分布图',
+		        textStyle: {
+		        	color: '#333',
+		        	fontSize: 14
+		        },
+		        padding: [0, 0, 20, 50],
+		        subtext: '预估概率（0～1）',
+		        rich: {
+		        	a: {
 
-		    tooltip: {
-		        trigger: 'none',
-		        axisPointer: {
-		            type: 'cross'
+		        	}
 		        }
+		    },
+		    tooltip: {
+		        trigger: 'axis'
 		    },
 		    legend: {
-		        data:['2015 降水量', '2016 降水量']
+		        //data:['K值', 'S值'],
+		        itemGap: 15,
+		        align: 'left',
+		        orient: 'vertical',
+		        x: 'right',
+		        y: 'center',
+		        itemWidth: 10,  //图例标记的图形宽度
+    			itemHeight: 10, //图例标记的图形高度
+		        padding: [0, 0, 150, 0],
+		        textStyle: {
+		        	color: '#333',
+		        	fontSize: '14'
+		        },
+		        show: false
 		    },
 		    grid: {
-		        top: 70,
-		        bottom: 50
+		        left: '13%',
+		        right: '26%',
+		        bottom: '13%',
+		        containLabel: true,
+		        show: false
 		    },
-		    xAxis: [
-		        {
-		            type: 'category',
-		            axisTick: {
-		                alignWithLabel: true
-		            },
-		            axisLine: {
-		                onZero: false,
-		                lineStyle: {
-		                    color: colors[1]
-		                }
-		            },
-		            axisPointer: {
-		                label: {
-		                    formatter: function (params) {
-		                        return '降水量  ' + params.value
-		                            + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
-		                    }
-		                }
-		            },
-		            data: ["2016-1", "2016-2", "2016-3", "2016-4", "2016-5", "2016-6", "2016-7", "2016-8", "2016-9", "2016-10", "2016-11", "2016-12"]
+		    toolbox: {
+		        feature: {
+		            //saveAsImage: {}
+		        }
+		    },
+		    xAxis: {
+		        type: 'category',
+		        boundaryGap: false,
+		        data: data.probabilities,
+		        name: '预估概率',
+		        nameLocation: 'middle',
+		        nameGap: 25,
+		        //data: [0, 0.3, 0.8, 0.9],
+		        axisLabel: {
+		        	textStyle: {
+		        		color: '#999'
+		        	}
 		        },
-		        {
-		            type: 'category',
-		            axisTick: {
-		                alignWithLabel: true
-		            },
-		            axisLine: {
-		                onZero: false,
-		                lineStyle: {
-		                    color: colors[0]
-		                }
-		            },
-		            axisPointer: {
-		                label: {
-		                    formatter: function (params) {
-		                        return '降水量  ' + params.value
-		                            + (params.seriesData.length ? '：' + params.seriesData[0].data : '');
-		                    }
-		                }
-		            },
-		            data: ["2015-1", "2015-2", "2015-3", "2015-4", "2015-5", "2015-6", "2015-7", "2015-8", "2015-9", "2015-10", "2015-11", "2015-12"]
+		        axisLine: {
+		        	lineStyle: {
+		        		color: '#ccc',
+		        		width: 2
+		        	}
 		        }
-		    ],
-		    yAxis: [
-		        {
-		            type: 'value'
+		    },
+		    yAxis: {
+		        splitLine: {
+		    		// false 时没有网格线
+		    		//show: true
+		    		show: false
+		    	},
+		        name: '样本比例',
+		        nameLocation: 'middle',
+		        nameGap: 35,
+		        nameRotate: -90,
+		        type: 'value',
+		        color: '#fff',
+		        axisLine: {
+		        	lineStyle: {
+		        		color: '#ccc',
+		        		width: 2
+		        	}
 		        }
-		    ],
+		    },
 		    series: [
 		        {
-		            name:'2015 降水量',
+		            name:'K值',
 		            type:'line',
-		            xAxisIndex: 1,
-		            smooth: true,
-		            data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
+		            data: data.ratios,
+		            symbol: 'circle',
+		            symbolSize: 2,
+		            lineStyle: {
+		                normal: {
+		                	color: '#589de2',
+		                    width: 2,
+		                    shadowColor: 'rgba(50, 19, 0, 0.2)',
+		                    shadowBlur: 10,
+		                    shadowOffsetY: 10
+		                },
+		                emphasis: {
+			                // color: 各异,
+			                label: {
+			                    show: false
+			                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，可选为
+			                    //           'inside'|'left'|'right'|'top'|'bottom'
+			                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+			                }
+			            }
+		            },
+
 		        },
 		        {
-		            name:'2016 降水量',
+		            name:'S值',
 		            type:'line',
-		            smooth: true,
-		            data: [3.9, 5.9, 11.1, 18.7, 48.3, 69.2, 231.6, 46.6, 55.4, 18.4, 10.3, 0.7]
+		            data: data.probabilities,
+		            symbol: 'circle',
+		            symbolSize: 2,
+		            lineStyle: {
+		                normal: {
+		                	color: '#deac2c',
+		                    width: 2,
+		                    shadowColor: 'rgba(5, 0, 50, 0.2)',
+		                    shadowBlur: 10,
+		                    shadowOffsetY: 10
+		                },
+		                emphasis: {
+			                // color: 各异,
+			                label: {
+			                    show: false
+			                    // position: 默认自适应，水平布局为'top'，垂直布局为'right'，可选为
+			                    //           'inside'|'left'|'right'|'top'|'bottom'
+			                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
+			                }
+			            }
+		            },
 		        }
 		    ]
 		};
@@ -285,47 +460,90 @@
 		props: ['id'],
 		data () {
 			return {
+				auc: '',
+				maxFscoreIndex: '',
 				basicIndex: [
 					{
 						key: 'F score',
-						value: '0.8921'
+						id: 0,
+						value: ''
 					},
 					{
 						key: 'AUC',
+						id: 1,
 						value: ''
 					},
 					{
 						key: '真正类率(TPR)',
+						id: 2,
 						value: ''
 					},
 					{
-						key: '负正类率(TPR)',
+						key: '负正类率(FPR)',
+						id: 3,
 						value: ''
 					},
 					{
-						key: '',
+						key: '真负类率',
+						id: 4,
 						value: ''
 					},
 					{
-						key: '',
+						key: '阳性预测值',
+						id: 5,
 						value: ''
 					},
 					{
-						key: '',
+						key: '阴性预测值',
+						id: 6,
 						value: ''
 					},
 					{
-						key: '',
+						key: '准确率',
+						id: 7,
 						value: ''
 					}
 				]
 			}
 		},
 		mounted () {
+			obj = this;
 			console.log('in roc');
 			// data
-			drawChart('roc' + this.id);
-			drawDistr('distribution' + this.id);
+			
+			getModelData(this.id).then(data => {
+				console.log(data);
+				const { error, confusion_matrices, auc, max_fscore_index } = data;
+
+				const rocData = {
+					tprs: [],
+					fprs: []
+				};
+				const disData = {
+					probabilities: [],
+					ratios: []
+				};
+
+				if (error) {
+					this.$message.error(error.desc);
+					return;
+				}
+				this.auc = auc;
+				this.maxFscoreIndex = max_fscore_index;
+				const matrices = confusion_matrices;
+				for (let i = 0, len = matrices.length; i < len; i++) {
+					const item = matrices[i];
+					item.auc = 
+					rocData.tprs.push(item.tpr);
+					rocData.fprs.push(item.fpr);
+					disData.probabilities.push(item.probability);
+					// @TODO check
+					disData.ratios.push(item.tpr);
+				}
+
+				drawChart('roc' + this.id, rocData, matrices);
+				drawDistr('distribution' + this.id, disData, matrices);
+			})
 		},
 		methods: {
 

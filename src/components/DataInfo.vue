@@ -1,31 +1,34 @@
 <template>
 	<left-right>
 		<div slot="left" ref="info-left">
-			<div class="target">
-				<div style="display: inline-block; width: 210px; margin-right: 80px;">
+			<div class="target" v-if="!inTrain">
+				<div style="display: inline-block; width: 210px; margin-right: 1%; flex: 2">
 					<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
 					<div v-else class="target-label" for="target">输入预测目标</div>
 					<el-autocomplete
 				      v-model="target"
 				      :fetch-suggestions="querySearch"
 				      placeholder="输入预测目标"
-				      @select="showBar(target)"
+				      @select="showBar({name: target})"
 				      class="target-input"
 				    ></el-autocomplete>	
 				</div>
 
-				<div class="chart-con">
+				<div class="chart-con">	
 					<div id="bar-chart"></div>
-				</div>					
-				<el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button>
-				<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
+				</div>
+
+				<div style="display: inline-block; flex: 2;">	
+					<el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button>
+					<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
+				</div>
 				<div class="tips" v-if="tipsStatus">
 					{{ tips }}
 				</div>
 			</div>
 
 			<!-- 显示高级选项 -->
-			<div class="data-info-avo">
+			<div class="data-info-avo" v-if="!inTrain">
 				<div @click="advancedOption" class="info-avo-option">
 					<span class="info-avo-label">显示高级选项</span>
 					<img v-if="!showAdvancedOption" src="../images/Down-arrow-small.png">
@@ -37,12 +40,7 @@
 			</div> 
 
 			<!-- 表格 -->
-			<core-data :maxHeight="maxHeight" v-on:setTarget="showBar"></core-data>
-
-			<!-- 下标 -->
-			<div class="data-foot">
-				{{ filename }}
-			</div>
+			<core-data style="margin-top: 20px;" :inTrainStep="inTrain" :maxHeight="maxHeight" v-on:setTarget="showBar"></core-data>
 		</div>
 	</left-right>
 </template>
@@ -59,6 +57,7 @@
 		width: 90%;
 		margin-left: 5%;
 		text-align: left;
+		display: flex;
 		.target-label {
 			margin-top: 87px;
 			font-size: 20px;
@@ -96,18 +95,19 @@
 		    color:    #ccc;
 		}
 		.chart-con {
-			display: inline-block;
-			vertical-align: top;
-			max-width: 677px;
-			height: 300px;
+			margin: 0 auto;
+			width: 0;
+			height: 190px;
+			flex: 10;
 			text-align: center;
+			margin-top: 50px;
 			#bar-chart {
-				margin-left: 189px;
-				margin-top: 50px;
-				text-align: center;
-				width: 300px;
-				height: 200px;
-			}	
+				margin-left: 10%;
+				margin-right: 10%;
+				width: 80%;
+				height: 190px;
+				background: red;
+			}
 		}
 		.run-default {
 			background-color: #ccc;
@@ -134,9 +134,9 @@
 		.start-run {
 			position: absolute;
 			top: 107px;
-			right: 87px;
+			right: 2%;
 			float: right;
-			width: 127px;
+			flex: 1;
 			height: 51px;
 			outline: none;
 			border-radius: 4px;
@@ -162,7 +162,6 @@
 	}
 	// 高级选项
 	.data-info-avo {
-		margin-bottom: 21px; 
 		text-align: center;
 		.info-avo-option {
 			cursor: pointer; 
@@ -182,74 +181,12 @@
 			background-color: #fafafa;
 		}
 	}
-
-	.data-process {
-		background: #eff3f5;
-		height: 68px;
-		position: relative;
-	    
-		.data-process-con {
-			position: absolute;
-			top: 15px; 
-			left: 20%
-		}
-	}
-	.load-effect {
-		right: 20%; 
-		top: 24px; 
-		position: absolute;
-	}
-	.loading-progress {
-		text-align: center;
-		height: 74px;
-		font-size: 15px;
-		letter-spacing: 1px;
-		border-radius: 0px 4px 4px 0px;
-		position: relative;
-		.loading-progress-con {
-			padding-top: 12px; 
-			height: 56px;
-			position: absolute;
-			color: #666666;
-			font-size: 15px;
-		    letter-spacing: 1px;
-		}
-		.load-progress-border {
-			width: 100%;
-			height: 1px;
-			position: absolute;
-			top: 74px;
-			background-color: #eeeeee;
-		}
-		.load-progress-status {
-			font-size: 12px;
-		}
-	}
-	.load-fail-tip {
-		font-size: 12px;
-		letter-spacing: 1px;
-		color: #e00202;
-	}
-	
 	
 	.el-tooltip__popper.is-dark {
 		background: #187fe8;
 	}
 	.el-dropdown-menu__item {
 		font-size: 12px;
-	}
-	.eigen-label {
-		display: inline-block; 
-		height: 100%;
-		cursor: pointer; 
-		color: #333; 
-		font-size: 14px;
-		letter-spacing: 1px; 
-		img {
-			width: 13px; 
-			height: 13px;
-			margin-right: 5px;
-		}
 	}
 </style>
 <script>
@@ -258,22 +195,9 @@
 	import leftRight from '@/components/LeftRight.vue'
 	import coreData from '@/components/CoreData'
 
-	import { getFeatureData, getFeatureList, poll, showOriginalData, train } from "@/api/api"
+	import { poll, train } from "@/api/api"
 
-    const values = ['未知', '连续', '离散', '时间'];
-    let obj = {};
-    function $ (id) {
-    	return document.getElementById(id);
-    }
-    window.onresize = () => {
-    	const tablePart = $('tablePart');
-    	const eigenPart = $('eigenPart');
-    	if (tablePart && eigenPart) {
-    		obj.originalPartwidth = (tablePart.offsetWidth - eigenPart.offsetWidth - 100);
-    	}
-    	
-    }
-    
+  
 	export default {
 		components: {
 			advancedOption,
@@ -282,37 +206,57 @@
 		},
 		data () {
 			return {
-				projectId: '',
+				inTrain: false,
+				projectId: this.$route.params.projectId,
 				featureList: [],
-				isListNameShow: false,
-				listName: '',
 				dataPicFinished: false,
-				progressOk: true,
 				testPercent: 0,
-				varifyNum: 0,
 				showAdvancedOption: false,
-				filename: '',
 				maxHeight: '374px',
-				uploadProgress: '0%',
 				target: ''
 			}
 		},
 		methods: {
-			
-			
+			/**
+			 * toggle高级选项
+			 */
 			advancedOption () {
             	this.showAdvancedOption = !this.showAdvancedOption;
 			},
+
+			/**
+			 * 展示目标
+			 *
+			 * @param {string} target 特征目标
+			 */
 			showBar (target) {
+				const chartCon = document.getElementById('bar-chart');
+				const barChart = echarts.init(chartCon);
+				barChart.clear();
+				const titleText = '共150个特征，显示前10个特征';
+
 				if (target) {
-					this.target = target;	
+					this.target = target.name;
+					// 置空
+					if (!this.target) {
+						this.dataPicFinished = false;
+						return;
+					}
 				}
+				this.$store.state.trainObj.targetFeatureId = target.feature_id;
 				this.dataPicFinished = true;
-				var barChart = echarts.init(document.getElementById('bar-chart'));
+
+				
 				var option = {
 					color: '#71b2f3',
 		            title: {
-		                text: 'ECharts 入门示例'
+		                text: titleText,
+		                left: 'center',
+		                textStyle: {
+		                	color: '#ccc',
+		                	fontSize: 10,
+		                	align: 'center'
+		                }
 		            },
 		            tooltip: {},
 		            legend: {
@@ -355,12 +299,17 @@
 		                }
 		        	],
 		            grid: {
+		            	x: '25%',
+		            	y: 100,
+		            	x2: '25%',
+		            	y2: 150,
 		            	show: 'true',
 		            	borderWidth:'0'
 		            },
 		            series: [
 				        {
 				            type: 'bar',
+				            symbol:'circle',
 				            itemStyle: {
 				                normal: {
 				                    color: new echarts.graphic.LinearGradient(
@@ -383,33 +332,41 @@
 				                    )
 				                }
 				            },
-				            barWidth: '80%',
+				            barWidth: '30%',
 				            data: [5, 20, 36, Math.random() * 20 + 10, 10]
 				        }
 		            ]
 		        };
 				barChart.setOption(option);
 			},
+
 			/**
 			 * 开始训练 @TODO
 			 *
 			 * @params {}
 			 */
 			startRun () {
+				const trainObj = this.$store.state.trainObj;
 				const params = {
 					project_id: this.projectId,
-                	feature_list_id: this.featureListId || 2,
-                	target_feature_id: this.targetFeatureId || 2,
+                	feature_list_id: trainObj.featureListId || -1,
+                	target_feature_id: trainObj.targetFeatureId || 2,
                 	config: {
-                		split_method: this.splitMethod,
-                		cross_valid_fold: 2,
-        				time_serial_feature_id: 2,
+                		split_method: trainObj.splitMethod,
+                		cross_valid_fold: trainObj.varifyNum / 10,
+        				// 当选择“随时间划分”时出现 @TODO 标示区分方法
+        				//time_serial_feature_id: trainObj.timeSerialFeatureId,
         				test_ratio:  2,// 百分位
-        				max_run_time: 2,
+        				//max_run_time: 2,
                 	},
 				};
+				if (trainObj.timeSerialFeatureId) {
+					params.config.time_serial_feature_id = trainObj.timeSerialFeatureId;
+				}
 				train(params).then(data => {
-
+					this.inTrain = true;
+					this.maxHeight = '1000px';
+					this.pollTask(this.projectId, 500);
 					console.log(data);
 				})
 			},
@@ -426,11 +383,17 @@
 		          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
 		        };
 		    },
-			// 状态栏轮询
+
+			/**
+			 * 状态栏轮询
+			 *
+			 * @param {string} projectId 任务id
+			 * @param {number} interval 间隔
+			 */
 			pollTask (projectId,  interval) {
 				const timer = setInterval ( () => {
 					poll(projectId).then(data => {
-
+						console.log(data);
 						let { dataset_task, portrait_task } = data;
 						
 						const datasetStatus = dataset_task.status;
@@ -465,21 +428,6 @@
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
 										portraitProgress.duration = portrait_task.duration + 's';
-										// 获取特征列表
-										getFeatureList({project_id: projectId}).then(data => {
-											let { feature_lists } = data;
-											this.featureList.length = 0;
-											for (let i = 0, len = feature_lists.length; i < len; i++) {
-												const item = feature_lists[i];
-
-												this.featureList.push({
-													name: item.name || '全部特征',
-													id: item.feature_list_id
-												});
-											}
-											console.log('in feature_lists');
-											console.log(this.featureList);
-										})
 										break;
 									case 5: 
 										clearInterval(timer);
@@ -490,7 +438,7 @@
 								clearInterval(timer);
 								uploadProgress.percent = '0%';
 								uploadProgress.status = -1;
-								uploadProgress.failReason = task.failed_reason;
+								uploadProgress.failReason = dataset_task.failed_reason;
 							break;
 								break;
 						}
@@ -498,29 +446,30 @@
 						
 					})
 				}, interval);
+			},
+
+			/**
+			 * 状态栏初始化
+			 */
+			progressInit () {
+            	this.$store.state.progressItems.length = 0;
+            	const uploadProgress = this.$store.state.uploadProgress;
+            	const portraitProgress = this.$store.state.portraitProgress;
+            	portraitProgress.status = 1;
+            	portraitProgress.percent = '0%';
+				this.$store.state.progressItems.push(uploadProgress, portraitProgress);
 			}
 		},
 		mounted () {
-			obj = this;
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            this.maxHeight = (h - 100);
-            this.uploadProgress = '30%';
-            this.filename = this.$store.state.filename;
+            this.maxHeight = (h - 100) + 'px';
             this.$store.commit('SET_PROJECT_STATUS', true);
-
-            this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
-            this.$store.state.portraitProgress.status = 1;
-        
-            const projectId = this.$route.params.projectId;
-            this.projectId = projectId;
-
-            this.$store.state.progressItems.length = 0;
-            const uploadProgress = this.$store.state.uploadProgress;
-            const portraitProgress = this.$store.state.portraitProgress;
-			this.$store.state.progressItems.push(uploadProgress, portraitProgress);
-
+            this.$store.commit('SET_PROJECT_ID', this.projectId);
+           	
+           	// 状态栏初始化
+            this.progressInit();
 			// 轮询
-			this.pollTask(projectId, 500);
+			this.pollTask(this.projectId, 500);
 		},
 		computed: {
 			tips () {

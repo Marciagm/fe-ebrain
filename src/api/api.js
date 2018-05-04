@@ -75,10 +75,11 @@ export const showFeatureData = (featureListId, params) => {
 	return axios.get(`${base}/datasets/show/${featureListId}`, params).then(res => res.data);
 }
 
-// @TODO id是什么鬼？
-export const updateFeature = () => {
-	return axios.post(`${base}/features/update/`, params).then(res => res.data); 
+// 连续 离散 时间 
+export const updateFeature = (featureId, params) => {
+	return axios.post(`${base}/features/update/${featureId}`, params).then(res => res.data); 
 }
+
 // get project list
 export const getProjectList = (params) => {
 	// return axios.get(`${base}/projects/list`, params).then(res => res.data); 
@@ -104,6 +105,12 @@ export const getBluePrint = (modelId, params) => {
 export const getModelData = (modelId, params) => {
 	return axios.get(`${base}/models/metrics/${modelId}`, { params: params }).then(res => res.data); 
 }
+
+// 获取模型特征重要性
+export const getModelFeatureData = (modelId, params) => {
+	return axios.get(`${base}/models/features/${modelId}`, { params: params }).then(res => res.data);
+}
+
 
 
 

@@ -29,13 +29,13 @@
 					<el-col :span="3">训练时长</el-col>
 					<el-col :span="3">验证集</el-col>
 					<el-col :span="3">交叉验证</el-col>
-					<el-col :span="3">测试集</el-col>
+					<el-col :span="3" style="color: #0d68c4;">测试集</el-col>
 				</el-row>
 				<div v-for="item in showList">
 					<div class="model-item" @click="showDetail(item)" v-if="!item.show">
 						<el-col :span="3" >
 							<div class="algorithm-name">{{ item.name }}</div>
-							<span class="algorithm-desc">descccccc</span>
+							<span class="algorithm-desc">{{ item.desc }}</span>
 						</el-col>
 						<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
 						<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
@@ -48,7 +48,7 @@
 					<div v-else class="model-item" @click="showDetail(item)" style="background: #f3f4f6">
 						<el-col :span="3" >
 							<div class="algorithm-name">{{ item.name }}</div>
-							<span class="algorithm-desc">descccccc</span>
+							<span class="algorithm-desc">{{ item.desc }}</span>
 						</el-col>
 						<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
 						<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
@@ -307,10 +307,44 @@
 		},
 		mounted () {
 			this.showList = this.modelList;
+			this.modelList.length = 0;
+			const timer = setInterval(() => {
+				getModelList({project_id: this.projectId}).then(data => {
+					console.log(data);
+					const { error, models } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					this.modelList.length = 0;
+					let goOn = 0;
+					for (let i = 0, len = models.length; i < len; i++) {
+						const model = models[i];
+						const item = {
+							name: model.algorithm_name,
+							listName: model.feature_list_name,
+							createTime: '',
+							duration: '',
+							validationSet: model.valid_indicator_value,
+							crossValidation: model.cv_indicator_value,
+							testSet: model.test_indicator_value,
+							desc: '',
+							show: false,
+							curId: 0,
+							id: model.model_id
+						};
+						if (model.status !== 4) {
+							goOn = 1;
+						}
 
-			getModelList({project_id: this.projectId}).then(data => {
-				console.log(data);
-			})
+						this.modelList.push(item);
+					}
+	 				if (!goOn) {
+	 					clearInterval(timer);
+	 				}
+				})
+			}, 500);
+			
 		},
 		methods: {
 			chooseEigenList (command) {

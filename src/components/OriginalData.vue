@@ -1,5 +1,5 @@
 <template>
-  <div class="original-data" :max-height="maxHeight">
+  <div class="original-data" :style="{maxHeight: maxHeight}">
     <table cellspacing="0" cellpadding="0" :max-height="maxHeight">
         <tr v-for="item in originalData">
             <td  v-for="col in item">           
@@ -12,7 +12,6 @@
 <style lang="scss">
     .original-data {
         overflow: scroll;
-        max-height: 400px;
         table {
             border-radius: 4px;
             width: 100%;
@@ -49,20 +48,24 @@
             }
             const projectId = this.$route.params.projectId;
             showOriginalData(projectId).then(data => {
-                let { dataset } = data;
-                console.log(dataset);
+                let { error, dataset } = data;
+                if (error) {
+                    this.$message.error(error.desc);
+                    return;
+                }
                 if (dataset) {
-                    //this.$store.commit('SET_ORIGINAL_DATA', dataset);
-                    let { sampled_data } = dataset;
+                    let { sampled_data, name } = dataset;
                     if (sampled_data) {
                         const sampledData = JSON.parse(sampled_data);
                         this.originalData = sampledData;
                     }
                     this.$store.commit('SET_TIPS_STATUS', true);
-                    this.$store.commit('SET_TIPS', '原始数据共xx行，仅显示100行');
+                    let { lines } = dataset;
+                    this.$store.commit('SET_TIPS', `原始数据共${lines}行，仅显示100行`);
                     // @TODO 添加消失逻辑
                     setTimeout(() => {
                         this.$store.commit('SET_TIPS_STATUS', false);
+                        this.$store.commit('SET_FILE_NAME', name);
                     }, 1000)
                 }
             })

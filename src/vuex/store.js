@@ -47,7 +47,17 @@ const state = {
     },
     progressItems: [],
     eigenData: [],
-    queryList: []
+    queryList: [],
+    trainObj: {
+        featureName: '全部特征',
+        featureNum: 0,
+        featureListId: -1,
+        targetFeatureId: '',
+        timeSerialFeatureId: '',
+        varifyNum: 0,
+        splitMethod: 1
+    },
+    timeTypeList: []
 }
 
 // 定义所需的 mutations
@@ -89,15 +99,17 @@ const mutations = {
     },
 
     SET_EIGEN_DATA (state, eigenData) {
+        /*state.eigenData.length = 0;
         for (let i = 0, len = eigenData.length; i < len; i++) {
             state.eigenData[i] = eigenData[i];   
-        }
+        }*/
+        state.eigenData = eigenData;
     },
     SET_QUERY_LIST (state, queryList) {
-        state.queryList.length = 0;
-        for (let i = 0, len = queryList.length; i < len; i++) {
-            state.queryList.push(queryList[i]);
-        }
+        state.queryList = queryList;
+    },
+    SET_TYPE_LIST (state, timeTypeList) {
+        state.timeTypeList = timeTypeList;
     }
 }
 

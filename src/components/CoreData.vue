@@ -7,7 +7,7 @@
 					<span>特征详情</span>
 				</div>
 				<el-autocomplete
-			      v-model="state1"
+			      v-model="state"
 			      :fetch-suggestions="querySearch"
 			      placeholder="搜索"
 			      @select="search"
@@ -15,7 +15,7 @@
 			    ></el-autocomplete>	
 				<el-dropdown style="cursor: pointer;" @command="getList">
 					<span class="el-dropdown-link">
-					    <span>全部特征</span>
+					    <span>{{ curFeatureObj.name }}</span>
 					    <span style="color: #666; font-size: 10px;">(特征列表)</span>
 					    <i class="el-icon-arrow-down el-icon--right"></i>
 					</span>
@@ -45,7 +45,7 @@
 			<!-- <eigenvalue-table :max-height="maxHeight" v-if="isEigenActive" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table> -->
 			
 			<el-table
-				v-if="isEigenActive"
+				v-show="isEigenActive"
 			 	width="0"
 				align="center"
 				stripe
@@ -62,7 +62,9 @@
 			    style="border-radius: 4px;"
 			    >
 			    <el-table-column
-			      type="selection">
+			      type="selection"
+			    >
+			    
 			    </el-table-column>
 			    <el-table-column
 			      type="expand"
@@ -99,6 +101,13 @@
 			      sortable
 			    >
 			    </el-table-column>
+			     <el-table-column
+			      prop="column_index"
+			      label="特征重要性"
+			      width="120"
+			      v-if="inTrainStep"
+			    >
+			    </el-table-column>
 			    <el-table-column
 			      prop="typeValue"
 			      sortable
@@ -106,7 +115,8 @@
 			      width="100"
 			      show-overflow-tooltip>
 			      <template slot-scope="props" style="text-align: left;">
-			      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType">
+			      	<span v-if="inTrainStep">{{ props.row.typeValue }}</span>
+			      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType" v-else>
 				      	<span>
 						    {{ props.row.typeValue }}
 						    <i class="el-icon-arrow-down el-icon--right"></i>
@@ -183,6 +193,19 @@
 		margin-left: 5%;
 		width: 90%;
 		overflow: hidden;
+		.eigen-label {
+			display: inline-block; 
+			height: 100%;
+			cursor: pointer; 
+			color: #333; 
+			font-size: 14px;
+			letter-spacing: 1px; 
+			img {
+				width: 13px; 
+				height: 13px;
+				margin-right: 5px;
+			}
+		}
 		#eigenPart {
 			padding-left: 14px;
 			padding-right: 14px;
@@ -340,75 +363,112 @@
 </style>
 <script>
 	import echarts from 'echarts'
-	import { getFeatureData, createFeatureList, getFeatureList } from '../api/api'
+	import { getFeatureData, createFeatureList, getFeatureList, updateFeature } from '../api/api'
 	import originalData from '@/components/OriginalData'
 
 	const values = ['未知', '连续', '离散', '时间'];
-
+	let obj = {};
+    function $ (id) {
+    	return document.getElementById(id);
+    }
+    window.onresize = () => {
+    	const tablePart = $('tablePart');
+    	const eigenPart = $('eigenPart');
+    	if (tablePart && eigenPart) {
+    		//obj.originalPartwidth = (tablePart.offsetWidth - eigenPart.offsetWidth - 100);
+    	}
+    }
 	export default {
-		props: ['maxHeight'],
+		props: ['maxHeight', 'inTrainStep'],
 		components: {
 			originalData
 		},
 		data () {
 			return {
+				curFeatureObj: {
+					name: '全部特征',
+					id: ''
+				},
 				projectId: this.$route.params.projectId,
 				isEigenActive: false,
+
+				// 样式
 				active: 'active',
 				notActive: 'not-active',
 				originalActive: 'original-active',
 				originalNotActive: 'original-not-active',
+
 				originalPartwidth: '',
 				eigenData: [],
+				
 				dataDistr: '#0d68c4',
 				topn: '#666',
+
 				multipleSelection: [],
 				queryList: [],
-				state1: '',
-				searchItem: '',
-				projectId: '',
+				state: '',
 				featureList: [],
 				isListNameShow: false,
 				listName: '',
 				dataPicFinished: false,
-				progressOk: true,
-				testPercent: 0,
-				varifyNum: 0,
 				showAdvancedOption: false,
-				filename: '',
-				uploadProgress: '0%',
 				target: ''
 			}
 		},
 		methods: {
 			tab (tag) {
+				const projectId = this.projectId;
 				if (tag === 'detail') {
 					this.isEigenActive = true;
-					if (this.$store.state.selection && this.$store.state.selection.length) {
-						this.isListNameShow = true;
+					if (!this.eigenData || !this.eigenData.length) {
+						this.getFeatureData(-1, projectId);
+						getFeatureList({project_id: projectId}).then(data => {
+							let { feature_lists } = data;
+							this.featureList.length = 0;
+							for (let i = 0, len = feature_lists.length; i < len; i++) {
+								const item = feature_lists[i];
+								this.featureList.push({
+									name: item.name || '全部特征',
+									id: item.feature_list_id
+								});
+							}
+						})	
 					}
-					// set selection
+					else {
+						/*setTimeout(() => {
+							const selection = this.$store.state.selection;
+							if (selection && selection.length) {
+								this.isListNameShow = true;
+								selection.forEach( row => {
+					            	this.$refs.multipleTable.toggleRowSelection(this.eigenData[row.order]);
+								})
+							}
+						}, 0)*/
+					}
 				}
 				else {
 					this.isEigenActive = false;
-					this.isListNameShow = false;
+					//this.isListNameShow = false;
 				}
 			},
 			setList () {
 				if (this.listName) {
-					console.log(this.listName);
-					console.log(this.$store.state.selection);
 					const ids = [];
 					this.$store.state.selection.forEach((value, index) => {
 						ids.push(value.feature_id);
 					})
 					const param = {
-						project_id: this.$store.state.projectId,
+						project_id: this.projectId,
 						name: this.listName,
 						feature_ids: ids
 					};
 					createFeatureList(param).then(data => {
-						console.log(data);
+						const { error, feature_list } = data;
+						if (error) {
+							this.$message.error('创建失败！' + error.desc);
+							return;
+						}
+						this.getFeatureData(feature_list.feature_list_id, this.projectId);
 						getFeatureList({ project_id: this.projectId }).then(data => {
 							let { feature_lists } = data;
 							this.featureList.length = 0;
@@ -419,8 +479,6 @@
 									id: item.feature_list_id
 								})
 							}
-							console.log(data);
-							// @TODO add feature list
 						})
 					})
 
@@ -428,53 +486,61 @@
 				else {
 					this.$message.error('填列表名字啊！');
 				}
-				
 			},
 			getList (item) {
 				this.isEigenActive = true;
-				console.log(item);
-				getFeatureData(item.id, {project_id: this.projectId}).then(data => {
-					let { feature_list } = data;
-					let { features } = feature_list;
-					this.queryList.length = 0;
-					// this.featureData = features;
-					for (let i = 0, len = features.length; i < len; i++) {
-						const item = features[i];
-						item.showTip = false;
-						item.typeValue = values[item.type];
-						item.order = i;
-						//this.queryList.push(item);
-					} 
-					console.log('in getList ');
-					console.log(queryList);
-					//this.eigenData = features;
-					this.$store.commit('SET_EIGEN_DATA', features);
-
-
-					console.log('in test');
-					console.log(features);
-					console.log(this.$store.state.eigenData);
-				})
+				this.isListNameShow = false;
+				this.curFeatureObj.name = item.name;
+				this.curFeatureObj.id = item.id;
+				this.getFeatureData(item.id, this.projectId);
+				//this.$emit('setTarget', {name: ''});
 			},
 			getFeatureData (featureListId, projectId) {
+				this.isListNameShow = false;
+
+				const timeTypeList = [];
+
 				getFeatureData(featureListId, { project_id: projectId }).then(data => {
-					let { feature_list } = data;
+					let { error, feature_list } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					if (!feature_list) {
+						this.$store.commit('SET_EIGEN_DATA', []);
+						return;
+					}
 					let { features } = feature_list;
+					if (!feature_list && !features) {
+						this.$store.commit('SET_EIGEN_DATA', []);
+						return;
+					}
 					this.queryList.length = 0;
-					for (let i = 0, len = features.length; i < len; i++) {
+					const len = features.length;
+					//timeTypeList.length = 0;
+					for (let i = 0; i < len; i++) {
 						const item = features[i];
 						item.showTip = false;
 						item.typeValue = values[item.type];
+						if (item.type == 3) {
+							timeTypeList.push({name: item.name, id: item.feature_id});	
+						}
 						item.order = i;
 						this.queryList.push({value: item.name, id: item.feature_id})
 					}
+
+					this.$store.commit('SET_TYPE_LIST', timeTypeList);
+					console.log(this.$store.state.timeTypeList);
 					this.$store.commit('SET_QUERY_LIST', this.queryList);
 					this.eigenData = features;
+					this.curFeatureObj.name = feature_list.name || '全部特征';
+					this.curFeatureObj.id = featureListId;
+					const trainObj = this.$store.state.trainObj;
+					trainObj.featureName = feature_list.name || '全部特征';
+					trainObj.featureNum = len;
+					trainObj.featureListId = featureListId;
 
 					this.$store.commit('SET_EIGEN_DATA', features);
-					console.log('data in getFeatureData');
-					// @TODO add feature data
-					console.log(data);
 				})
 			},
 			createFilter(queryString) {
@@ -482,110 +548,31 @@
 		          return (queryList.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
 		        };
 		    },
-			showBar (target) {
-				if (target) {
-					this.target = target;	
-				}
-				this.dataPicFinished = true;
-				var barChart = echarts.init(document.getElementById('bar-chart'));
-				var option = {
-					color: '#71b2f3',
-		            title: {
-		                text: 'ECharts 入门示例'
-		            },
-		            tooltip: {},
-		            legend: {
-		                data:['销量']
-		            },
-		            xAxis: [
-		            	{
-		                    splitLine:{show: false},//去除网格线
-		                    type : 'category',
-		                	data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋"],
-		                	show: true,
-		                	color: '#fff',
-			                axisLabel: {
-			                	rotate: -45,
-			                	textStyle:{
-                            		color: "#999"  
-                        		}  
-			                },
-			                axisLine: {
-			                	lineStyle: {
-			                		color: '#fff',
-			                		width: 1
-			                	}
-			                }
-		                }
-		            ],
-		            yAxis: [
-		            	{
-		                    splitLine:{show: false},//去除网格线
-		                    type : 'value',
-		                    axisLine: {
-			                	lineStyle: {
-			                		color: '#ccc',
-			                		width: 2
-			                	}
-			                },
-			                nameTextStyle: {
-			                	color: '#b3b3b3'
-			                }
-		                }
-		        	],
-		            grid: {
-		            	show: 'true',
-		            	borderWidth:'0'
-		            },
-		            series: [
-				        {
-				            type: 'bar',
-				            itemStyle: {
-				                normal: {
-				                    color: new echarts.graphic.LinearGradient(
-				                        0, 0, 0, 1,
-				                        [
-				                            {offset: 0, color: '#83bff6'},
-				                            {offset: 0.5, color: '#188df0'},
-				                            {offset: 1, color: '#188df0'}
-				                        ]
-				                    )
-				                },
-				                emphasis: {
-				                    color: new echarts.graphic.LinearGradient(
-				                        0, 0, 0, 1,
-				                        [
-				                            {offset: 0, color: '#2378f7'},
-				                            {offset: 0.7, color: '#2378f7'},
-				                            {offset: 1, color: '#83bff6'}
-				                        ]
-				                    )
-				                }
-				            },
-				            barWidth: '80%',
-				            data: [5, 20, 36, Math.random() * 20 + 10, 10]
-				        }
-		            ]
-		        };
-				barChart.setOption(option);
-			},
 			querySearch(queryString, cb) {
 		        var queryList = this.queryList;
 		        var results = queryString ? queryList.filter(this.createFilter(queryString)) : queryList;
 		        // 调用 callback 返回建议列表的数据
 		        cb(results);
 		    },
+
+		    /**
+		     * 搜索
+		     *
+		     * @param {Object} item 搜索项
+		     */
 			search (item) {
-				console.log(item);
 				if (item && item.id) {
 					document.getElementById(item.id).scrollIntoView();
 				}
 			},
 
-			// 表格操作
+			/**
+			 * 勾选
+			 *
+			 * @param {Object} selection 选项数据 
+			 * @param {Object} row 行信息
+			 */
 			select (selection, row) {
-
-				console.log(selection);
 				if (!selection.length) {
 					this.isListNameShow = false;
 				}
@@ -601,24 +588,77 @@
 				}*/
 				this.$store.commit('SET_SELECTION', selection);
 			},
+
+			/**
+			 * 显示tip
+			 * 
+			 * @param {Object} row 行信息
+			 * @param {Object} column 列信息
+			 * @param {Object} cell 单元信息
+			 * @param {Object} event 事件对象
+			 */
 			showTip (row, column, cell, event) {
+				if (this.inTrainStep) {
+					return;
+				}
 				setTimeout(() => {
 					row.showTip = true;
 				}, 0)
 				
 			},
+
+			/**
+			 * 隐藏tip
+			 *
+			 * @param {Object} row 行信息
+			 * @param {Object} column 列信息
+			 * @param {Object} cell 单元信息
+			 * @param {Object} event 事件对象
+			 */
 			hideTip (row, column, cell, event) {
 				row.showTip = false;
 			},
+
+			/**
+			 * 选择目标
+			 *
+			 * @param {Object} row 行信息
+			 */
 			chooseTarget (row) {
-				this.$emit('setTarget', row.name);
+				this.$emit('setTarget', row);
 			},
+
+			/**
+			 * 设置数据类型
+			 *
+			 * @param {Object} command 数据类型对象
+			 */
 			selectDataType (command) {
 				const row = command.n;
 				row.type = command.v;
 				row.typeValue = values[command.v];
-				// 此处有接口
+
+				const params = {
+					type: parseInt(row.type)
+				};
+
+				// 更新数据类型
+				updateFeature(row.feature_id, params).then(data => {
+					const { error } = data;
+					if (error) {
+						this.$message.error('修改失败！' + error.desc);
+						return;
+					}
+					this.getFeatureData(this.$store.state.trainObj.featureListId, this.projectId);
+				})
 			},
+
+			/**
+			 * 展开显示图标等数据详情
+			 *
+			 * @param {Object} row 行信息
+			 * @param {Object} expandRows 展开行信息
+			 */
 			expand (row, expandRows) {
 				setTimeout(() => {
 					expandRows.isShow = expandRows.isShow || false;
@@ -631,6 +671,13 @@
 				}, 0)
 				
 			},
+
+			/**
+			 * 显示数据信息，数据分布或者topn
+			 *
+			 * @param {string} tag 展示部分标识
+			 * @param {Object} row 行信息
+			 */
 			showData (tag, row) {
 				if (tag !== 'topn') {
 					var dataShow = document.getElementById('dataShow');
@@ -836,13 +883,15 @@
 					};
 					chart.setOption(option);
 				}
-
 			}
 		},
 		mounted () {
-			const projectId = this.$route.params.projectId;
-			this.getFeatureData(-1, projectId);
-			//this.queryList = this.loadAll();
+			obj = this;
+			//this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
 		}
 	}
 </script>
+
+
+
+

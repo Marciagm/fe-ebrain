@@ -110,6 +110,7 @@
 				alert('goODBC');
 			},
 			beforeUpload (file) {
+				this.$store.commit('SET_FILE_NAME', file.name);
 				this.$router.push('/main/data/loading');
 			},
 			onUploadProgress (event, file, fileList) {
@@ -139,6 +140,19 @@
 			// init
 			this.$store.commit('SET_PROJECT_STATUS', false);
 			this.$store.commit('SET_PROJECT_NAME', '未命名任务');
+			/*if (this.$store.state.projectId) {
+				this.$router.push('/main/data/info/' + this.$store.state.projectId);
+			}*/
 		}
 	}
 </script>
+
+
+
+
+
+
+
+
+
+
