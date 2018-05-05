@@ -29,7 +29,7 @@
 					<div class="progress-con progress-bg"></div>
 					<div class="progress-con offset">
 						<div>{{ item.name }}</div>
-						<span class="progress-status" >({{ item.duration }})</span>
+						<span class="progress-status duration" >({{ item.duration }})</span>
 					</div>
 					<img src="../images/finish.png" class="load-effect">
 					<div class="progress-border"></div>
@@ -46,7 +46,7 @@
 					
 					<div class="progress-con offset">
 						<div>{{ item.name }}</div>
-						<span v-if="item.status==2" class="progress-status" >({{ item.duration }})</span>
+						<span v-if="item.status==2" class="progress-status duration" >({{ item.duration }})</span>
 						<span v-if="item.status==1" class="progress-status">已完成{{ item.percent }}</span>
 						<span v-if="item.status==-1" class="load-fail-tip">
 							{{ item.failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
@@ -130,6 +130,7 @@
 					height: 56px;
 					position: absolute;
 					color: #666666;
+					text-align: left;
 				}
 				.progress-border {
 					width: 100%;
@@ -140,6 +141,12 @@
 				}
 				.progress-status {
 					font-size: 12px;
+					letter-spacing: 1px;
+					color: #666;
+				}
+				.duration {
+					color: #e0952a;
+					margin-left: 15px;
 				}
 			}
 			.load-fail-tip {
@@ -167,7 +174,8 @@
 	export default {
 		data () {
 			return {
-				minHeight: ''
+				minHeight: '',
+				taskId: this.$route.params.taskId || 0
 			}
 		},
 		mounted () {
@@ -185,8 +193,9 @@
 			},
 
 			showTargetTips () {
+
 				return this.$store.state.uploadProgress.status === 2 
-					&& this.$store.state.portraitProgress.status === 2;
+					&& this.$store.state.portraitProgress.status === 2 && !this.taskId;
 			},
 			/**
 			 * 特征名称

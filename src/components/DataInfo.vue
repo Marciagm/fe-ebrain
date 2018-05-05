@@ -364,10 +364,23 @@
 					params.config.time_serial_feature_id = trainObj.timeSerialFeatureId;
 				}
 				train(params).then(data => {
-					this.inTrain = true;
-					this.maxHeight = '1000px';
-					this.pollTask(this.projectId, 500);
-					console.log(data);
+					const { error, task } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					if (task) {
+						const { task_id } = task;
+						console.log(`task_id: ${task_id}`);
+						this.inTrain = true;
+						this.maxHeight = '1000px';
+						this.$router.push(`/main/data/train/${this.projectId}/${task_id}`);
+						// this.$store.state.progressItems.length = 0;
+
+						//this.pollTrainTask(this.projectId, 500);
+						console.log(data);
+					}
+					
 				})
 			},
 			querySearch(queryString, cb) {
@@ -394,8 +407,11 @@
 				const timer = setInterval ( () => {
 					poll(projectId).then(data => {
 						console.log(data);
-						let { dataset_task, portrait_task } = data;
-						
+						let { error, dataset_task, portrait_task } = data;
+						if (error) {
+							this.$message.error('');
+							return;
+						}
 						const datasetStatus = dataset_task.status;
 						const uploadProgress = this.$store.state.uploadProgress;
 
@@ -442,8 +458,9 @@
 							break;
 								break;
 						}
-
-						
+					}).catch((error) => {
+						console.log(error);
+						clientHeight(timer);
 					})
 				}, interval);
 			},

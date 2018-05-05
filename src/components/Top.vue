@@ -243,6 +243,8 @@
 		name: 'top',
 		data () {
 			return {
+				projectId: this.$route.params.projectId,
+				taskId: this.$route.params.taskId,
 				sysUserName: 'User',
 				curIndex: 0,
 				projectName: '',
@@ -277,6 +279,9 @@
 					this.$router.push(item.path + this.$store.state.projectId);	
 				}
 				else {
+					if (this.projectId || this.taskId) {
+						return;
+					}
 					this.$router.push(item.path);	
 				}
 			},
@@ -341,9 +346,6 @@
         		get (value) {
         			return this.$store.state.projectName;
         		}
-        	},
-        	projectId () {
-        		return this.$store.state.projectId;
         	}
         },
 		mounted () {

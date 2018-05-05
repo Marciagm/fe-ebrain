@@ -31,7 +31,7 @@
 					<el-col :span="3">交叉验证</el-col>
 					<el-col :span="3" style="color: #0d68c4;">测试集</el-col>
 				</el-row>
-				<div v-for="item in showList">
+				<div v-for="item in showList" style="padding-bottom: 50px;">
 					<div class="model-item" @click="showDetail(item)" v-if="!item.show">
 						<el-col :span="3" >
 							<div class="algorithm-name">{{ item.name }}</div>
@@ -325,9 +325,11 @@
 							listName: model.feature_list_name,
 							createTime: '',
 							duration: '',
-							validationSet: model.valid_indicator_value,
-							crossValidation: model.cv_indicator_value,
-							testSet: model.test_indicator_value,
+
+							validationSet: model.valid_status == 4 ? model.valid_indicator_value : '训练中',
+							crossValidation: model.cv_status == 4 ? model.cv_indicator_value : '训练中',
+							testSet: model.test_status == 4 ? model.test_indicator_value : '训练中',
+							
 							desc: '',
 							show: false,
 							curId: 0,
@@ -335,8 +337,11 @@
 						};
 						if (model.status !== 4) {
 							goOn = 1;
+							item.finished = 0;
 						}
-
+						else {
+							item.finished = 1;
+						}
 						this.modelList.push(item);
 					}
 	 				if (!goOn) {
@@ -360,6 +365,9 @@
 				})
 			},
 			showDetail (item) {
+				if (!item.finished) {
+					return;
+				}
 				item.show = !item.show;
 			},
 			showChart (nav, item) {

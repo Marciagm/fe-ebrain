@@ -63,6 +63,7 @@
 			    >
 			    <el-table-column
 			      type="selection"
+			      :selectable="checkboxInit"
 			    >
 			    
 			    </el-table-column>
@@ -105,8 +106,12 @@
 			      prop="column_index"
 			      label="特征重要性"
 			      width="120"
-			      v-if="inTrainStep"
+			      v-if="taskId"
 			    >
+			    <template slot-scope="props">
+			    	<span v-if="props.row.isTarget"></span>
+			    	<el-progress v-else :percentage="70" :show-text="false"></el-progress>
+			    </template>
 			    </el-table-column>
 			    <el-table-column
 			      prop="typeValue"
@@ -115,7 +120,7 @@
 			      width="100"
 			      show-overflow-tooltip>
 			      <template slot-scope="props" style="text-align: left;">
-			      	<span v-if="inTrainStep">{{ props.row.typeValue }}</span>
+			      	<span v-if="taskId">{{ props.row.typeValue }}</span>
 			      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType" v-else>
 				      	<span>
 						    {{ props.row.typeValue }}
@@ -385,6 +390,7 @@
 		},
 		data () {
 			return {
+				taskId: this.$route.params.taskId || 0,
 				curFeatureObj: {
 					name: '全部特征',
 					id: ''
@@ -416,6 +422,14 @@
 			}
 		},
 		methods: {
+			checkboxInit (row, index) {
+				if (this.taskId && !index) {
+					return false;
+				}
+				else {
+					return true;
+				}
+			},
 			tab (tag) {
 				const projectId = this.projectId;
 				if (tag === 'detail') {
@@ -468,24 +482,27 @@
 							this.$message.error('创建失败！' + error.desc);
 							return;
 						}
-						this.getFeatureData(feature_list.feature_list_id, this.projectId);
-						getFeatureList({ project_id: this.projectId }).then(data => {
-							let { feature_lists } = data;
-							this.featureList.length = 0;
-							for (let i = 0; i < feature_lists.length; i++) {
-								const item = feature_lists[i];
-								this.featureList.push({
-									name: item.name || '全部特征',
-									id: item.feature_list_id
-								})
-							}
-						})
+						this.init(feature_list.feature_list_id);
 					})
 
 				}
 				else {
 					this.$message.error('填列表名字啊！');
 				}
+			},
+			init (featureListId) {
+				this.getFeatureData(featureListId, this.projectId);
+				getFeatureList({ project_id: this.projectId }).then(data => {
+					let { feature_lists } = data;
+					this.featureList.length = 0;
+					for (let i = 0; i < feature_lists.length; i++) {
+						const item = feature_lists[i];
+						this.featureList.push({
+							name: item.name || '全部特征',
+							id: item.feature_list_id
+						})
+					}
+				})
 			},
 			getList (item) {
 				this.isEigenActive = true;
@@ -598,7 +615,7 @@
 			 * @param {Object} event 事件对象
 			 */
 			showTip (row, column, cell, event) {
-				if (this.inTrainStep) {
+				if (this.inTrainStep || this.taskId) {
 					return;
 				}
 				setTimeout(() => {
@@ -887,6 +904,13 @@
 		},
 		mounted () {
 			obj = this;
+			this.$store.commit('SET_PROJECT_ID', this.projectId);
+			if (this.taskId) {
+				this.isEigenActive = true;
+				//this.getFeatureData(-1, this.projectId);
+				this.init(-1);
+
+			}
 			//this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
 		}
 	}

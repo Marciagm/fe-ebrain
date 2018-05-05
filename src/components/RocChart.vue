@@ -178,7 +178,7 @@
 	import echarts from 'echarts'
 	import { getModelData } from '@/api/api'
 	let obj;
-	function drawChart (id, data, matrices) {
+	function drawChart (id, data, matrices, disData) {
 		const chart = echarts.init(document.getElementById(id));
 		const option = {
 			color: ['#589de2', '#deac2c'],
@@ -195,6 +195,7 @@
 		    tooltip: {
 		        trigger: 'axis',
 		        formatter (data) {
+		        	console.log(data);
 		        	const dataIndex = data[0].dataIndex;
 		        	const item = matrices[dataIndex];
 
@@ -210,6 +211,13 @@
 		        	obj.basicIndex[5].value = item.npv;
 		        	// 准确率
 		        	obj.basicIndex[6].value = item.ppv;
+		        	const vv = [0.6, 0.8, 0.6, 0.8];
+		        	const index = Math.floor(Math.random() * 4);
+		        	console.log('index: ' + index + '  ' + vv[index]);
+		        	console.log(vv[index]);
+		        	disData.poniter = vv[index];
+		        	drawDistr('distribution' + obj.id, disData, matrices);
+		        	return data[0].value;
 		        },
 		    },
 		    legend: {
@@ -311,9 +319,10 @@
 		chart.setOption(option);
 	}
 	function drawDistr (id, data, matrices) {
+		console.log('poniter: ' + data.poniter);
 		const chart = echarts.init(document.getElementById(id));
 		var colors = ['#5793f3', '#d14a61', '#675bba'];
-
+		//chart.clear();
 		const option = {
 			color: ['#589de2', '#deac2c'],
 		    title: {
@@ -323,15 +332,40 @@
 		        	fontSize: 14
 		        },
 		        padding: [0, 0, 20, 50],
-		        subtext: '预估概率（0～1）',
-		        rich: {
-		        	a: {
-
-		        	}
-		        }
+		        subtext: '预估概率（0～1): ' + data.poniter,
 		    },
 		    tooltip: {
-		        trigger: 'axis'
+		        trigger: 'axis',
+		        axisPointer: { 
+		            value: data.poniter,
+		            //value: data.poniter,
+		            snap: true,
+		            //snap: false,
+		            lineStyle: {
+		                color: '#ccc',
+		                opacity: 1,
+		                width: 1
+		            },
+		            label: {
+		                //show: true,
+		                show: false,
+		                formatter: function (params) {
+		                    console.log(params);
+		                    return 0.8;
+		                    //return data.poniter;
+		                    //return params.value;
+		                    //return echarts.format.formatTime('yyyy-MM-dd', params.value);
+		                },
+		                //backgroundColor: 'red'
+		            },
+		            handle: {
+		                show: true,
+		                size: 0,
+		                //show: false,
+		                //color: '#004E52'
+		                color: '#fff'
+		            }
+		        },
 		    },
 		    legend: {
 		        //data:['K值', 'S值'],
@@ -369,6 +403,36 @@
 		        nameLocation: 'middle',
 		        nameGap: 25,
 		        //data: [0, 0.3, 0.8, 0.9],
+		        axisPointer: { 
+		            value: data.poniter,
+		            //value: data.poniter,
+		            snap: true,
+		            //snap: false,
+		            lineStyle: {
+		                color: '#ccc',
+		                opacity: 1,
+		                width: 1
+		            },
+		            label: {
+		                //show: true,
+		                show: false,
+		                formatter: function (params) {
+		                    console.log(params);
+		                    return 0.8;
+		                    //return data.poniter;
+		                    //return params.value;
+		                    //return echarts.format.formatTime('yyyy-MM-dd', params.value);
+		                },
+		                //backgroundColor: 'red'
+		            },
+		            handle: {
+		                show: true,
+		                size: 0,
+		                //show: false,
+		                //color: '#004E52'
+		                color: '#fff'
+		            }
+		        },
 		        axisLabel: {
 		        	textStyle: {
 		        		color: '#999'
@@ -402,7 +466,7 @@
 		    },
 		    series: [
 		        {
-		            name:'K值',
+		            name:'预估概率',
 		            type:'line',
 		            data: data.ratios,
 		            symbol: 'circle',
@@ -425,10 +489,39 @@
 			                }
 			            }
 		            },
+		            label: {
+					    // 在文本中，可以对部分文本采用 rich 中定义样式。
+					    // 这里需要在文本中使用标记符号：
+					    // `{styleName|text content text content}` 标记样式名。
+					    // 注意，换行仍是使用 '\n'。
+					    formatter: [
+					        '{a|这段文本采用样式a}',
+					        '{b|这段文本采用样式b}这段用默认样式{x|这段用样式x}'
+					    ].join('\n'),
+
+					    rich: {
+					        a: {
+					            color: 'red',
+					            lineHeight: 10
+					        },
+					        b: {
+					            backgroundColor: {
+					                image: 'xxx/xxx.jpg'
+					            },
+					            height: 40
+					        },
+					        x: {
+					            fontSize: 18,
+					            fontFamily: 'Microsoft YaHei',
+					            borderColor: '#449933',
+					            borderRadius: 4
+					        }
+					    }
+					},
 
 		        },
 		        {
-		            name:'S值',
+		            name:'样本比例',
 		            type:'line',
 		            data: data.probabilities,
 		            symbol: 'circle',
@@ -451,6 +544,47 @@
 			                }
 			            }
 		            },
+		        },
+		        {
+		        	type: 'line',
+		        	markLine: {
+		        		symbol: 'diamond',
+		        		symbolSize: 0,
+		                itemStyle: {
+		                    normal: {
+		                        borderWidth: 1,
+
+		                        lineStyle: {
+		                            type: 'dash',
+		                            //color: '#333 ',
+		                            color: '#ed0101',
+		                            width: 1,
+		                        },
+
+		                        label: {
+		                            formatter: '',
+		                            textStyle: {
+		                                fontSize: 16,
+		                                fontWeight: "bolder",
+		                            },
+		                        }
+		                    },
+
+		                },
+		                data:  [
+		                    // {type: 'average', name: '平均值'},
+		                    [{
+		                    	coord: [data.poniter, 0]
+		                    }, {
+		                    	coord: [data.poniter, 1]
+		                    }],
+		                    [{
+		                        coord: ['0.8', 0]
+		                    }, {
+		                        coord: ['0.8', 1]
+		                    }]
+		                ]
+		            }
 		        }
 		    ]
 		};
@@ -530,18 +664,22 @@
 				}
 				this.auc = auc;
 				this.maxFscoreIndex = max_fscore_index;
-				const matrices = confusion_matrices;
+				const matrices = confusion_matrices.sort((a, b) => {
+					return a.probability - b.probability;
+				});
+
 				for (let i = 0, len = matrices.length; i < len; i++) {
 					const item = matrices[i];
-					item.auc = 
+					//item.auc = 
 					rocData.tprs.push(item.tpr);
 					rocData.fprs.push(item.fpr);
 					disData.probabilities.push(item.probability);
 					// @TODO check
 					disData.ratios.push(item.tpr);
-				}
 
-				drawChart('roc' + this.id, rocData, matrices);
+				}
+				disData.poniter = '0';
+				drawChart('roc' + this.id, rocData, matrices, disData);
 				drawDistr('distribution' + this.id, disData, matrices);
 			})
 		},

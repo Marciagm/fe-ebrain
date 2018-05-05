@@ -5,6 +5,7 @@ import DataDeal from '@/components/DataDeal'
 import DataUpload from '@/components/DataUpload'
 import Loading from '@/components/Loading'
 import DataInfo from '@/components/DataInfo'
+import TrainInfo from '@/components/TrainInfo'
 import ProManagement from '@/components/ProManagement'
 import Model from '@/components/Model'
 
@@ -62,14 +63,13 @@ let routes = [
                 children: [
                     { path: 'upload', component: DataUpload, name: '数据上传'},
                     { path: 'loading', component: Loading, name: '数据上传中'},
-                    { path: 'info/:projectId', component: DataInfo, name: '数据画像'}
+                    { path: 'info/:projectId', component: DataInfo, name: '数据画像'},
+                    { path: 'train/:projectId/:taskId', component: TrainInfo, name: '训练任务'}
                 ]
             },
             { path: 'project', component: ProManagement, name: '任务管理'},
-
             { path: 'chart', component: Chart, name: '图表'},
             { path: '/main/model/:projectId', component: Model, name: '模型' },
-            
             { path: '/main/algorithm-lib', component: ModelList, name: '算法库' },
             
             { path: '/main/modelList', component: ModelList, name: '模型列表' },

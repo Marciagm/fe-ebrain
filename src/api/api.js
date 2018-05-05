@@ -41,7 +41,7 @@ export const getProjectInfo = (projectId, params) => {
 }
 
 // upload file
-export const uploadFile = `${base}/tasks/create_dataset_from_file`;
+export const uploadFile = `${base}/tasks/create_dataset_from_file_and_portrait`;
 /*export const uploadFile = (params) => {
 	return axios.post(`${base}/tasks/create_dataset_from_file`, params).then(res => res.data);
 }*/
