@@ -15,7 +15,7 @@
 </style>
 <script>
 	import leftRight from '@/components/LeftRight.vue'
-	import { poll } from '@/api/api'
+	import { poll, getFeatureData, getFeatureList } from '@/api/api'
 	import coreData from '@/components/CoreData'
 
 	export default {
@@ -25,12 +25,84 @@
 		},
 		data () {
 			return {
+				fListId: this.$route.params.featureListId,
+				targetId: this.$route.params.targetId,
 				projectId: this.$route.params.projectId,
 				taskId: this.$route.params.taskId
 			}
 		},
 		methods: {
+			init (featureListId, params) {
+				this.getFeatureData(featureListId, params);
+				/*getFeatureList({ project_id: this.projectId }).then(data => {
+					let { feature_lists } = data;
+					this.featureList.length = 0;
+					for (let i = 0; i < feature_lists.length; i++) {
+						const item = feature_lists[i];
+						this.featureList.push({
+							name: item.name || '全部特征',
+							id: item.feature_list_id
+						})
+					}
+				})*/
+			},
 
+			/**
+			 * 获取特征列表数据
+			 */
+			getFeatureData (featureListId, params) {
+				this.isListNameShow = false;
+
+				const timeTypeList = [];
+
+				getFeatureData(featureListId, params).then(data => {
+					console.log('featureNum');
+					console.log(data);
+					let { error, feature_list } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					if (!feature_list) {
+						this.$store.commit('SET_EIGEN_DATA', []);
+						return;
+					}
+					let { features } = feature_list;
+					this.$store.commit('SET_EIGEN_DATA', features);
+					return;
+
+					if (!feature_list && !features) {
+						this.$store.commit('SET_EIGEN_DATA', []);
+						return;
+					}
+					// this.queryList.length = 0;
+					const len = features.length;
+					//timeTypeList.length = 0;
+					for (let i = 0; i < len; i++) {
+						const item = features[i];
+						item.showTip = false;
+						item.typeValue = values[item.type];
+						if (item.type == 3) {
+							timeTypeList.push({name: item.name, id: item.feature_id});	
+						}
+						item.order = i;
+						// this.queryList.push({value: item.name, id: item.feature_id})
+					}
+
+					this.$store.commit('SET_TYPE_LIST', timeTypeList);
+					console.log(this.$store.state.timeTypeList);
+					this.$store.commit('SET_QUERY_LIST', this.queryList);
+					//this.eigenData = features;
+					//this.curFeatureObj.name = feature_list.name || '全部特征';
+					//this.curFeatureObj.id = featureListId;
+					const trainObj = this.$store.state.trainObj;
+					trainObj.featureName = feature_list.name || '全部特征';
+					trainObj.featureNum = len;
+					trainObj.featureListId = featureListId;
+
+					
+				})
+			},
 			/**
 			 * 
 			 */
@@ -95,11 +167,32 @@
 						clearInterval(timer);
 					})
 				}, interval);
-			}
+			},
+
+			/**
+			 * 获取特征列表数据
+			 */
+			/*getFeatureData (featureListId, params) {
+				getFeatureData(featureListId, params).then(data => {
+					const { error, feature_list } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					console.log(data);
+				}).catch (error => {
+					console.log(error);
+				})
+			}*/
 		},
 		mounted () {
 			this.$store.state.progressItems.length = 0;
 			this.pollTrainTask(this.projectId, 500);
+			const params = {
+				project_id: this.projectId
+			};
+
+			this.init(-1, params);
 		}
 	}
 </script>

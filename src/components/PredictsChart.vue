@@ -120,7 +120,7 @@
 	}
 </style>
 <script>
-	import { uploadFile } from '@/api/api'
+	import { uploadPredicFile } from '@/api/api'
 	var token = localStorage.getItem('token');
 
 	export default {
@@ -130,7 +130,7 @@
 				filename: '',
 				isUploading: false,
 				percent: 0,
-				uploadApi: uploadFile,
+				uploadApi: uploadPredicFile,
 				formData: {
 					type: 2,
 					project_id: this.$route.params.projectId

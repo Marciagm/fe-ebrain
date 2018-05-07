@@ -6,11 +6,12 @@
 					<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
 					<div v-else class="target-label" for="target">输入预测目标</div>
 					<el-autocomplete
-				      v-model="target"
+				      v-model="targetInfo.value"
 				      :fetch-suggestions="querySearch"
 				      placeholder="输入预测目标"
-				      @select="showBar({name: target})"
+				      @select="showBar"
 				      class="target-input"
+				      :disabled="targetFixed"
 				    ></el-autocomplete>	
 				</div>
 
@@ -18,8 +19,10 @@
 					<div id="bar-chart"></div>
 				</div>
 
-				<div style="display: inline-block; flex: 2;">	
-					<el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button>
+				<div style="display: inline-block; flex: 2;">
+					<!-- <el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button> -->
+					<el-button v-if="!targetId" type="info" class="start-run run-default" disabled>启动训练</el-button>
+					
 					<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
 				</div>
 				<div class="tips" v-if="tipsStatus">
@@ -105,8 +108,7 @@
 				margin-left: 10%;
 				margin-right: 10%;
 				width: 80%;
-				height: 190px;
-				background: red;
+				height: 230px;
 			}
 		}
 		.run-default {
@@ -195,8 +197,115 @@
 	import leftRight from '@/components/LeftRight.vue'
 	import coreData from '@/components/CoreData'
 
-	import { poll, train } from "@/api/api"
+	import { poll, train, getFeatureDistr } from "@/api/api"
+	/**
+	 * 绘制图表
+	 *
+	 * @param {string} id 图表展示的区域
+	 * @param {Object} data 绘制图表的数据 
+	 */
+	function drawChart(id, data) {
+		console.log('in drawChart');
+		// @TODO 时间类型
+		const type = data.type == 1 ? 'line' : 'bar';
 
+		//const titleText = '共150个特征，显示前10个特征';
+		const titleText = data.titleText;
+		const chart = echarts.init(document.getElementById(id));
+		var option = {
+			color: '#71b2f3',
+            title: {
+                text: titleText,
+                left: 'center',
+                textStyle: {
+                	color: '#ccc',
+                	fontSize: 10,
+                	align: 'center'
+                }
+            },
+            tooltip: {},
+            
+            xAxis: [
+            	{
+                    splitLine:{show: false},//去除网格线
+                    type : 'category',
+                	data: data.value,
+                	show: true,
+                	color: '#fff',
+	                axisLabel: {
+	                	rotate: -45,
+	                	textStyle:{
+                    		color: "#999"  
+                		}  
+	                },
+	                axisLine: {
+	                	lineStyle: {
+	                		color: '#fff',
+	                		width: 1
+	                	}
+	                }
+                }
+            ],
+            yAxis: [
+            	{
+                    splitLine:{show: false},//去除网格线
+                    type : 'value',
+                    axisLine: {
+	                	lineStyle: {
+	                		color: '#ccc',
+	                		width: 2
+	                	}
+	                },
+	                nameTextStyle: {
+	                	color: '#b3b3b3'
+	                }
+                }
+        	],
+            grid: {
+            	//x: '25%',
+            	x: data.margin,
+            	y: 60,
+            	//x2: '25%',
+            	x2: data.margin,
+            	y2: 60,
+            	show: 'true',
+            	borderWidth:'0'
+            },
+            series: [
+		        {
+		            //type: 'bar',
+		            type: type,
+		            symbol:'circle',
+		            itemStyle: {
+		                normal: {
+		                    color: new echarts.graphic.LinearGradient(
+		                        0, 0, 0, 1,
+		                        [
+		                            {offset: 0, color: '#83bff6'},
+		                            {offset: 0.5, color: '#188df0'},
+		                            {offset: 1, color: '#188df0'}
+		                        ]
+		                    )
+		                },
+		                emphasis: {
+		                    color: new echarts.graphic.LinearGradient(
+		                        0, 0, 0, 1,
+		                        [
+		                            {offset: 0, color: '#2378f7'},
+		                            {offset: 0.7, color: '#2378f7'},
+		                            {offset: 1, color: '#83bff6'}
+		                        ]
+		                    )
+		                }
+		            },
+		            barWidth: '30%',
+		            //data: [5, 20, 36, Math.random() * 20 + 10, 10]
+		            data: data.freq
+		        }
+            ]
+        };
+		chart.setOption(option);
+	}
   
 	export default {
 		components: {
@@ -213,7 +322,12 @@
 				testPercent: 0,
 				showAdvancedOption: false,
 				maxHeight: '374px',
-				target: ''
+				targetFixed: false,
+				targetId: '',
+				targetInfo: {
+					name: '',
+					feature_id: ''
+				}
 			}
 		},
 		methods: {
@@ -230,11 +344,42 @@
 			 * @param {string} target 特征目标
 			 */
 			showBar (target) {
-				const chartCon = document.getElementById('bar-chart');
-				const barChart = echarts.init(chartCon);
-				barChart.clear();
-				const titleText = '共150个特征，显示前10个特征';
+				// 
+				console.log(target);
+				//this.targetInfo = target;
+				this.targetInfo.value = target.value;
+				this.targetInfo.id = target.id;
+				
+				this.targetId = target.id;
+				getFeatureDistr(target.id).then (data => {
+					console.log(data);
+					const { error, histogram } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					if (histogram && histogram.length) {
+						const xData = {
+							type: target.type,
+							freq: [],
+							value: [],
+							//margin: '25%'
+						};
+						const len = histogram.length;
+						// @TODO length不同margin不同
+						xData.margin = (25 - (len - 2) * 2) + '%';
+						xData.titleText = len > 10 ? `共${len}个特征，显示前10个特征` : '';
 
+						for (let i = 0; i < Math.min(len, 10); i++) {
+							const item = histogram[i];
+							xData.freq.push(item.freq);
+							xData.value.push(item.value);	 
+						}
+						drawChart('bar-chart', xData);
+					}
+					return;
+				})
+				
 				if (target) {
 					this.target = target.name;
 					// 置空
@@ -245,99 +390,7 @@
 				}
 				this.$store.state.trainObj.targetFeatureId = target.feature_id;
 				this.dataPicFinished = true;
-
-				
-				var option = {
-					color: '#71b2f3',
-		            title: {
-		                text: titleText,
-		                left: 'center',
-		                textStyle: {
-		                	color: '#ccc',
-		                	fontSize: 10,
-		                	align: 'center'
-		                }
-		            },
-		            tooltip: {},
-		            legend: {
-		                data:['销量']
-		            },
-		            xAxis: [
-		            	{
-		                    splitLine:{show: false},//去除网格线
-		                    type : 'category',
-		                	data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋"],
-		                	show: true,
-		                	color: '#fff',
-			                axisLabel: {
-			                	rotate: -45,
-			                	textStyle:{
-                            		color: "#999"  
-                        		}  
-			                },
-			                axisLine: {
-			                	lineStyle: {
-			                		color: '#fff',
-			                		width: 1
-			                	}
-			                }
-		                }
-		            ],
-		            yAxis: [
-		            	{
-		                    splitLine:{show: false},//去除网格线
-		                    type : 'value',
-		                    axisLine: {
-			                	lineStyle: {
-			                		color: '#ccc',
-			                		width: 2
-			                	}
-			                },
-			                nameTextStyle: {
-			                	color: '#b3b3b3'
-			                }
-		                }
-		        	],
-		            grid: {
-		            	x: '25%',
-		            	y: 100,
-		            	x2: '25%',
-		            	y2: 150,
-		            	show: 'true',
-		            	borderWidth:'0'
-		            },
-		            series: [
-				        {
-				            type: 'bar',
-				            symbol:'circle',
-				            itemStyle: {
-				                normal: {
-				                    color: new echarts.graphic.LinearGradient(
-				                        0, 0, 0, 1,
-				                        [
-				                            {offset: 0, color: '#83bff6'},
-				                            {offset: 0.5, color: '#188df0'},
-				                            {offset: 1, color: '#188df0'}
-				                        ]
-				                    )
-				                },
-				                emphasis: {
-				                    color: new echarts.graphic.LinearGradient(
-				                        0, 0, 0, 1,
-				                        [
-				                            {offset: 0, color: '#2378f7'},
-				                            {offset: 0.7, color: '#2378f7'},
-				                            {offset: 1, color: '#83bff6'}
-				                        ]
-				                    )
-				                }
-				            },
-				            barWidth: '30%',
-				            data: [5, 20, 36, Math.random() * 20 + 10, 10]
-				        }
-		            ]
-		        };
-				barChart.setOption(option);
+				//barChart.setOption(option);
 			},
 
 			/**
@@ -347,10 +400,12 @@
 			 */
 			startRun () {
 				const trainObj = this.$store.state.trainObj;
+				const featureListId = trainObj.featureListId || -1;
+				const targetId = trainObj.targetFeatureId || this.targetId;
 				const params = {
 					project_id: this.projectId,
-                	feature_list_id: trainObj.featureListId || -1,
-                	target_feature_id: trainObj.targetFeatureId || 2,
+                	feature_list_id: featureListId,
+                	target_feature_id: targetId,
                 	config: {
                 		split_method: trainObj.splitMethod,
                 		cross_valid_fold: trainObj.varifyNum / 10,
@@ -374,7 +429,7 @@
 						console.log(`task_id: ${task_id}`);
 						this.inTrain = true;
 						this.maxHeight = '1000px';
-						this.$router.push(`/main/data/train/${this.projectId}/${task_id}`);
+						this.$router.push(`/main/data/train/${this.projectId}/${task_id}/${featureListId}/${targetId}`);
 						// this.$store.state.progressItems.length = 0;
 
 						//this.pollTrainTask(this.projectId, 500);
@@ -388,6 +443,8 @@
 		        var results = queryString ? queryList.filter(this.createFilter(queryString)) : queryList;
 		        // 调用 callback 返回建议列表的数据
 		        console.log(results);
+		        console.log('before callback');
+		        console.log(queryList);
 		        cb(results);
 		    },
 
@@ -428,13 +485,17 @@
 								break;
 							// 上传成功后再判断数据画像
 							case 4: 
-								const portraitstatus = portrait_task.status;
-								const portraitProgress = this.$store.state.portraitProgress;
 								this.$store.state.uploadProgress.percent = '100%';
 								this.$store.state.uploadProgress.duration = '10s';
 								this.$store.state.uploadProgress.status = 2;
-
+								if (!portrait_task) {
+									return;
+								}
+								const portraitstatus = portrait_task.status;
+								const portraitProgress = this.$store.state.portraitProgress;
+								
 								portraitProgress.percent = portrait_task.percentage + '%';
+								
 								// 数据画像
 								switch (portraitstatus) {
 									case 0: 
@@ -460,7 +521,8 @@
 						}
 					}).catch((error) => {
 						console.log(error);
-						clientHeight(timer);
+						clearInterval(timer);
+						//clientHeight(timer);
 					})
 				}, interval);
 			},
@@ -482,11 +544,31 @@
             this.maxHeight = (h - 100) + 'px';
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.$store.commit('SET_PROJECT_ID', this.projectId);
-           	
+
+           	const query = this.$route.query;
+  			console.log(query);
+			if (query && query.targetId && query.fLId) {
+				console.log(this.queryList);
+
+				for (let i = 0, len = this.queryList.length; i < len; i++) {
+					if (this.queryList[i].id == query.targetId) {
+						setTimeout(() => {
+							this.targetInfo.id = this.queryList[i].id;
+							this.targetInfo.vaule =  this.queryList[i].vaule;
+						}, 0)
+						break;
+					}
+				}
+				this.targetId = query.targetId;
+				this.targetFixed = true;
+				this.showBar({feature_id: this.targetId});
+			}
            	// 状态栏初始化
             this.progressInit();
 			// 轮询
 			this.pollTask(this.projectId, 500);
+
+			
 		},
 		computed: {
 			tips () {

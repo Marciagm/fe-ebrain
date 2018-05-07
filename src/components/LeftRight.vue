@@ -59,6 +59,16 @@
 				</div>
 			</div>
 			<div v-if="showTargetTips" class="tips offset">*请选择目标继续</div>
+			
+			<!-- 算法 -->
+			<div style="margin-top: 43px;">
+				<div style="font-size: 12px; color: #999; margin-left: 30px;">
+					训练结束
+				</div>
+				<div style="height: 29px; line-height:29px; font-size: 12px;  background: #eee; width: 99px; text-align: center; border: solid 1px #e6e6e6; margin-left: 20px; margin-top: 20px;letter-spacing: 1px; cursor: pointer;" @click="goToTrain">
+					重新训练模型
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -175,13 +185,23 @@
 		data () {
 			return {
 				minHeight: '',
-				taskId: this.$route.params.taskId || 0
+				taskId: this.$route.params.taskId || 0,
+				projectId: this.$route.params.projectId,
+				fLId: this.$route.params.featureListId,
+				targetId: this.$route.params.targetId
 			}
 		},
 		mounted () {
 			obj = this;
 			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
 			this.minHeight = (h - 88) + 'px';
+		},
+		methods: {
+			goToTrain () {
+				console.log('in goToTrain');
+				console.log(this.$route);
+				this.$router.push(`/main/data/info/${this.projectId}?fLId=${this.fLId}&targetId=${this.targetId}`);
+			}
 		},
 		computed: {
 			filename () {

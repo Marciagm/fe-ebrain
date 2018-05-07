@@ -130,7 +130,8 @@
                             }
                             else {
                                 localStorage.setItem('user', JSON.stringify({nickname: this.registForm.nickname}));
-                                this.$router.push({path: '/main'});
+                                //this.$router.push({path: '/main'});
+                                this.$router.push('/login');
                             }
                             /*var data = res.data;
                             console.log(res.status);

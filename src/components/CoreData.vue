@@ -360,15 +360,17 @@
 				
 			}
 			#dataShow {
-				width: 400px;
+				width: 450px;
 				height: 316px;
+				padding-left: 30px;
+				padding-bottom: 20px;
 			}
 		}
 	}
 </style>
 <script>
 	import echarts from 'echarts'
-	import { getFeatureData, createFeatureList, getFeatureList, updateFeature } from '../api/api'
+	import { getFeatureData, createFeatureList, getFeatureList, updateFeature, getFeatureDistr } from '../api/api'
 	import originalData from '@/components/OriginalData'
 
 	const values = ['未知', '连续', '离散', '时间'];
@@ -383,6 +385,234 @@
     		//obj.originalPartwidth = (tablePart.offsetWidth - eigenPart.offsetWidth - 100);
     	}
     }
+
+    /**
+     * 绘制图表
+     *
+     * @param {string} id 绘制区域id
+     * @param {Object} data 数据
+     */
+    function drawChart (id, data) {
+    	const type = data.type == 1 ? 'line' : 'bar';
+    	console.log(data);
+    	const chart = echarts.init(document.getElementById(id));
+    	const option = {
+			color: '#71b2f3',
+            title: {
+            	text: '数据分布',
+                show: false
+            },
+            tooltip: {},
+            legend: {
+                data:['销量']
+            },
+            xAxis: [
+            	{
+                    splitLine:{show: false},//去除网格线
+                    type : 'category',
+                	data: data.value,
+                	show: true,
+                	color: '#fff',
+	                axisLabel: {
+	                	rotate: -45,
+	                	textStyle:{
+                    		color: "#999"  
+                		}  
+	                },
+	                axisLine: {
+	                	lineStyle: {
+	                		color: '#fff',
+	                		width: 1
+	                	}
+	                }
+                }
+            ],
+            yAxis: [
+            	{
+                    splitLine:{show: false},//去除网格线
+                    type : 'value',
+                    axisLine: {
+	                	lineStyle: {
+	                		color: '#ccc',
+	                		width: 2
+	                	}
+	                },
+	                nameTextStyle: {
+	                	color: '#b3b3b3'
+	                }
+                }
+        	],
+            grid: {
+            	show: 'true',
+            	borderWidth:'0'
+            },
+            series: [
+		        {
+		            //type: 'bar',
+		            type: type,
+		            itemStyle: {
+		                normal: {
+		                    color: new echarts.graphic.LinearGradient(
+		                        0, 0, 0, 1,
+		                        [
+		                            {offset: 0, color: '#83bff6'},
+		                            {offset: 0.5, color: '#188df0'},
+		                            {offset: 1, color: '#188df0'}
+		                        ]
+		                    )
+		                },
+		                emphasis: {
+		                    color: new echarts.graphic.LinearGradient(
+		                        0, 0, 0, 1,
+		                        [
+		                            {offset: 0, color: '#2378f7'},
+		                            {offset: 0.7, color: '#2378f7'},
+		                            {offset: 1, color: '#83bff6'}
+		                        ]
+		                    )
+		                }
+		            },
+		            barWidth: '40%',
+		            //data: [5, 20, 36, Math.random() * 20 + 10, 10],
+		            data: data.freq,
+		            label: {
+		            	normal: {
+		            		show: false
+		            	}
+		            }
+		        }
+            ]
+        };
+    	chart.setOption(option);
+    }
+
+	/**
+     * 绘制图表
+     *
+     * @param {string} id 绘制区域id
+     * @param {Object} data 数据
+     */
+    function drawDistr (id, data) {
+    	const type = data.type == 1 ? 'line' : 'bar';
+    	console.log(data);
+    	const barWidth = data.barWidth;
+    	const chart = echarts.init(document.getElementById(id));
+    	const option = {
+		    title: {
+		        text: '特征名',
+		        textStyle: {
+		        	color: '#999',
+		        	fontSize: '12px'
+		        }
+		    },
+		    tooltip: {
+		        trigger: 'axis',
+		        axisPointer: {
+		            type: 'shadow'
+		        }
+		    },
+		    legend: {
+		        //data: ['2011年', '2012年']
+		    },
+		    grid: {
+		        left: '3%',
+		        right: '14%',
+		        bottom: '3%',
+		        containLabel: true
+		    },
+		    xAxis: {
+		    	splitLine: {
+		    		// false 时没有网格线
+		    		//show: true
+		    		show: false
+		    	},
+		        type: 'value',
+		        name: '频次',
+		        nameLocation: 'end',
+		        color: '#ccc',
+		        nameGap: 15,
+		        //nameLocation: 'end',
+		        // boundaryGap: [0, 0.01],
+		        axisLabel: {
+		        	color: '#ccc',
+		        	textStyle: {
+		        		color: '#fff'
+		        	}
+		        },
+		        axisLine: {
+		        	lineStyle: {
+		        		color: '#ccc',
+		        		width: 2
+		        	}
+		        }
+		    },
+		    yAxis: {
+		        type: 'category',
+		        data: data.value,
+		        name: '特征名',
+		        nameLocation: 'end',
+		        axisLabel: {
+		        	rotate: -45,
+		        	textStyle: {
+		        		color: '#999'
+		        	}
+		        },
+		        axisLine: {
+		        	lineStyle: {
+		        		color: '#ccc',
+		        		width: 2
+		        	}
+		        }
+		    },
+		    series: [
+		        {
+		            name: '特征频次',
+		            type: 'bar',
+		            color: '#000',
+		            //data: [18203, 23489, 29034, 104970, 131744, 630230],
+		            data: data.freq,
+		            itemStyle: {
+		                normal: {
+		                    color: new echarts.graphic.LinearGradient(
+		                        0, 0, 0, 1,
+		                        [
+		                            {offset: 0, color: '#4f9eef'},
+		                            {offset: 0.5, color: '#62a9f1'},
+		                            {offset: 1, color: '#71b2f3'}
+		                        ]
+		                    )
+		                },
+		                emphasis: {
+		                    color: new echarts.graphic.LinearGradient(
+		                        0, 0, 0, 1,
+		                        [
+		                            {offset: 0, color: '#2378f7'},
+		                            {offset: 0.7, color: '#2378f7'},
+		                            {offset: 1, color: '#83bff6'}
+		                        ]
+		                    )
+		                }
+		            },
+		            // 展示数据
+		            label: {
+		            	normal: {
+		            		show: true,
+		            		position: 'right'
+		            	}
+		            },
+		            barWidth: barWidth,
+		            barMaxWidth: 60
+		        }/*,
+		        {
+		            name: '2012年',
+		            type: 'bar',
+		            data: [19325, 23438, 31000, 121594, 134141, 681807]
+		        }*/
+		    ]
+		};
+    	chart.setOption(option);
+    }
+
 	export default {
 		props: ['maxHeight', 'inTrainStep'],
 		components: {
@@ -391,6 +621,8 @@
 		data () {
 			return {
 				taskId: this.$route.params.taskId || 0,
+				fLId: this.$route.params.featureListId,
+				targetId: this.$route.params.targetId,
 				curFeatureObj: {
 					name: '全部特征',
 					id: ''
@@ -423,7 +655,8 @@
 		},
 		methods: {
 			checkboxInit (row, index) {
-				if (this.taskId && !index) {
+				// if target already been set, change impossiblely
+				if (this.targetId == row.feature_id) {
 					return false;
 				}
 				else {
@@ -468,9 +701,15 @@
 			setList () {
 				if (this.listName) {
 					const ids = [];
+					console.log('targetId: ' + this.targetId);
+					if (this.targetId) {
+						ids.push(this.targetId);
+					}
+					console.log(this.$store.state.selection);
 					this.$store.state.selection.forEach((value, index) => {
 						ids.push(value.feature_id);
 					})
+					console.log(ids);
 					const param = {
 						project_id: this.projectId,
 						name: this.listName,
@@ -534,6 +773,8 @@
 					}
 					this.queryList.length = 0;
 					const len = features.length;
+					// @TODO 固定第一个
+
 					//timeTypeList.length = 0;
 					for (let i = 0; i < len; i++) {
 						const item = features[i];
@@ -545,7 +786,8 @@
 						item.order = i;
 						this.queryList.push({value: item.name, id: item.feature_id})
 					}
-
+					console.log('queryList');
+					console.log(this.queryList);
 					this.$store.commit('SET_TYPE_LIST', timeTypeList);
 					console.log(this.$store.state.timeTypeList);
 					this.$store.commit('SET_QUERY_LIST', this.queryList);
@@ -615,7 +857,7 @@
 			 * @param {Object} event 事件对象
 			 */
 			showTip (row, column, cell, event) {
-				if (this.inTrainStep || this.taskId) {
+				if (this.targetId) {
 					return;
 				}
 				setTimeout(() => {
@@ -642,7 +884,7 @@
 			 * @param {Object} row 行信息
 			 */
 			chooseTarget (row) {
-				this.$emit('setTarget', row);
+				this.$emit('setTarget', {value: row.name, id: row.feature_id});
 			},
 
 			/**
@@ -677,14 +919,16 @@
 			 * @param {Object} expandRows 展开行信息
 			 */
 			expand (row, expandRows) {
+				console.log('uuu');
+				console.log(expandRows);
 				setTimeout(() => {
-					expandRows.isShow = expandRows.isShow || false;
-					if (expandRows.isShow) {
-						expandRows.isShow = false;
+					row.isShow = row.isShow || false;
+					if (row.isShow) {
+						row.isShow = false;
 						return;
 					}
-					expandRows.isShow = true;
-					this.showData('dataDistr', expandRows);
+					row.isShow = true;
+					this.showData('dataDistr', row);
 				}, 0)
 				
 			},
@@ -701,98 +945,64 @@
 					let chart = echarts.init(dataShow);
 					this.topn = '#666';
 					this.dataDistr = '#0d68c4';
-					let option = {
-						color: '#71b2f3',
-			            title: {
-			                text: 'ECharts 入门示例',
-			                show: false
-			            },
-			            tooltip: {},
-			            legend: {
-			                data:['销量']
-			            },
-			            xAxis: [
-			            	{
-			                    splitLine:{show: false},//去除网格线
-			                    type : 'category',
-			                	data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋"],
-			                	show: true,
-			                	color: '#fff',
-				                axisLabel: {
-				                	rotate: -45,
-				                	textStyle:{
-	                            		color: "#999"  
-	                        		}  
-				                },
-				                axisLine: {
-				                	lineStyle: {
-				                		color: '#fff',
-				                		width: 1
-				                	}
-				                }
-			                }
-			            ],
-			            yAxis: [
-			            	{
-			                    splitLine:{show: false},//去除网格线
-			                    type : 'value',
-			                    axisLine: {
-				                	lineStyle: {
-				                		color: '#ccc',
-				                		width: 2
-				                	}
-				                },
-				                nameTextStyle: {
-				                	color: '#b3b3b3'
-				                }
-			                }
-			        	],
-			            grid: {
-			            	show: 'true',
-			            	borderWidth:'0'
-			            },
-			            series: [
-					        {
-					            type: 'bar',
-					            itemStyle: {
-					                normal: {
-					                    color: new echarts.graphic.LinearGradient(
-					                        0, 0, 0, 1,
-					                        [
-					                            {offset: 0, color: '#83bff6'},
-					                            {offset: 0.5, color: '#188df0'},
-					                            {offset: 1, color: '#188df0'}
-					                        ]
-					                    )
-					                },
-					                emphasis: {
-					                    color: new echarts.graphic.LinearGradient(
-					                        0, 0, 0, 1,
-					                        [
-					                            {offset: 0, color: '#2378f7'},
-					                            {offset: 0.7, color: '#2378f7'},
-					                            {offset: 1, color: '#83bff6'}
-					                        ]
-					                    )
-					                }
-					            },
-					            barWidth: '40%',
-					            data: [5, 20, 36, Math.random() * 20 + 10, 10],
-					            label: {
-					            	normal: {
-					            		show: false
-					            	}
-					            }
-					        }
-			            ]
-			        };
-					chart.setOption(option);
+					// @TODO task_id
+					const params = {};
+					if (this.taskId) {
+						params.task_id = this.taskId;
+					}
+					getFeatureDistr(row.feature_id, params).then(data => {
+						const { error, histogram, topn } = data;
+						if (error) {
+							this.$message.error(error.desc);
+							return;
+						}
+						console.log(data);
+						const xData = {
+							type: row.type,
+							value: [],
+							freq: []
+						};
+						const len = histogram.length;
+						for (let i = 0; i < len; i++) {
+							const item = histogram[i];
+							xData.value.push(item.value);
+							xData.freq.push(item.freq);
+						}
+						drawChart('dataShow', xData);
+					})
 				}
 				else {
 					var dataShow = document.getElementById('dataShow');
 					let chart = echarts.init(dataShow);
 					this.dataDistr = '#666';
 					this.topn = '#0d68c4';
+					const params = {};
+					if (this.taskId) {
+						params.task_id = this.taskId;
+					}
+					getFeatureDistr(row.feature_id, params).then(data => {
+						const { error, histogram, topn } = data;
+						if (error) {
+							this.$message.error(error.desc);
+							return;
+						}
+						console.log(data);
+						const xData = {
+							type: row.type,
+							value: [],
+							freq: [],
+							barWidth: '20%'
+						};
+						const len = histogram.length;
+						xData.barWidth = (40 - (len - 2) * 2) + '%';
+						for (let i = 0; i < len; i++) {
+							const item = histogram[i];
+							xData.value.push(item.value);
+							xData.freq.push(item.freq);
+						}
+						drawDistr('dataShow', xData);
+					})
+					return;
 					let option = {
 					    title: {
 					        text: '特征名',
@@ -889,7 +1099,7 @@
 					            	}
 					            },
 					            barWidth: 10,
-					            barMaxWidth: 30
+					            barMaxWidth: 60
 					        }/*,
 					        {
 					            name: '2012年',
@@ -905,13 +1115,25 @@
 		mounted () {
 			obj = this;
 			this.$store.commit('SET_PROJECT_ID', this.projectId);
+			const query = this.$route.query;
+			console.log(query);
+			if (query && query.fLId && query.targetId) {
+				this.isEigenActive = true;
+				this.targetId = query.targetId;
+				this.init(query.fLId || -1);
+			}
 			if (this.taskId) {
 				this.isEigenActive = true;
-				//this.getFeatureData(-1, this.projectId);
-				this.init(-1);
-
+				this.init(this.flId || -1);
+				//this.init(-1);
+				//this.init(this.fId || -1);
 			}
 			//this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
+		},
+		computed: {
+			/*eigenData () {
+				return this.$store.state.eigenData;
+			}*/
 		}
 	}
 </script>

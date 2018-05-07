@@ -64,7 +64,7 @@ let routes = [
                     { path: 'upload', component: DataUpload, name: '数据上传'},
                     { path: 'loading', component: Loading, name: '数据上传中'},
                     { path: 'info/:projectId', component: DataInfo, name: '数据画像'},
-                    { path: 'train/:projectId/:taskId', component: TrainInfo, name: '训练任务'}
+                    { path: 'train/:projectId/:taskId/:featureListId/:targetId', component: TrainInfo, name: '训练任务'}
                 ]
             },
             { path: 'project', component: ProManagement, name: '任务管理'},

@@ -1,9 +1,20 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import * as actions from './actions'
+// import * as actions from './actions'
 import * as getters from './getters'
 
+
 Vue.use(Vuex)
+
+const actions = {
+    SET_EIGEN_DATA (state, eigenData) {
+        state.eigenData.length = 0;
+        for (let i = 0, len = eigenData.length; i < len; i++) {
+            state.eigenData[i] = eigenData[i];   
+        }
+        //state.eigenData = eigenData;
+    }
+};
 
 // 应用初始状态
 const state = {
@@ -99,11 +110,11 @@ const mutations = {
     },
 
     SET_EIGEN_DATA (state, eigenData) {
-        /*state.eigenData.length = 0;
+        state.eigenData.length = 0;
         for (let i = 0, len = eigenData.length; i < len; i++) {
             state.eigenData[i] = eigenData[i];   
-        }*/
-        state.eigenData = eigenData;
+        }
+        //state.eigenData = eigenData;
     },
     SET_QUERY_LIST (state, queryList) {
         state.queryList = queryList;

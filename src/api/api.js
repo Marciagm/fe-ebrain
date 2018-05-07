@@ -40,8 +40,13 @@ export const getProjectInfo = (projectId, params) => {
 	return axios.get(`${base}/projects/show/${projectId}`, params).then(res => res.data); 
 }
 
+
 // upload file
+//export const uploadFile = `${base}/tasks/create_dataset_from_file`;
+
 export const uploadFile = `${base}/tasks/create_dataset_from_file_and_portrait`;
+export const uploadPredicFile = `${base}/tasks/create_dataset_from_file_and_predict`;
+//export const uploadPredicFile = `${base}/tasks/create_dataset_from_file_and_portrait`;
 /*export const uploadFile = (params) => {
 	return axios.post(`${base}/tasks/create_dataset_from_file`, params).then(res => res.data);
 }*/
@@ -111,7 +116,10 @@ export const getModelFeatureData = (modelId, params) => {
 	return axios.get(`${base}/models/features/${modelId}`, { params: params }).then(res => res.data);
 }
 
-
+// 获取特征分布
+export const getFeatureDistr = (featureId, params) => {
+	return axios.get(`${base}/features/values_distribution/${featureId}`, { params: params }).then(res => res.data);
+}
 
 
 
