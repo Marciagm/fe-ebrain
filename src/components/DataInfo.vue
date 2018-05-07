@@ -325,8 +325,8 @@
 				targetFixed: false,
 				targetId: '',
 				targetInfo: {
-					name: '',
-					feature_id: ''
+					value: '',
+					id: ''
 				}
 			}
 		},
@@ -344,12 +344,11 @@
 			 * @param {string} target 特征目标
 			 */
 			showBar (target) {
-				// 
 				console.log(target);
 				//this.targetInfo = target;
 				this.targetInfo.value = target.value;
 				this.targetInfo.id = target.id;
-				
+
 				this.targetId = target.id;
 				getFeatureDistr(target.id).then (data => {
 					console.log(data);
@@ -546,23 +545,25 @@
             this.$store.commit('SET_PROJECT_ID', this.projectId);
 
            	const query = this.$route.query;
-  			console.log(query);
-			if (query && query.targetId && query.fLId) {
-				console.log(this.queryList);
 
+			if (query && query.targetId && query.fLId) {
 				for (let i = 0, len = this.queryList.length; i < len; i++) {
 					if (this.queryList[i].id == query.targetId) {
-						setTimeout(() => {
-							this.targetInfo.id = this.queryList[i].id;
-							this.targetInfo.vaule =  this.queryList[i].vaule;
-						}, 0)
+						this.targetInfo.id = this.queryList[i].id;
+						this.targetInfo.value =  this.queryList[i].value;
 						break;
 					}
 				}
+				
 				this.targetId = query.targetId;
-				this.targetFixed = true;
-				this.showBar({feature_id: this.targetId});
+				console.log(this.targetInfo);
+				if (this.targetInfo.value) {
+					this.showBar(this.targetInfo);
+					this.targetFixed = true;
+				}
+				
 			}
+
            	// 状态栏初始化
             this.progressInit();
 			// 轮询
