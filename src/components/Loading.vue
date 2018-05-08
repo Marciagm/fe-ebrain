@@ -40,6 +40,12 @@
 			if (localStorage.getItem('projectId')) {
 				//this.$router.push('/main/data/info');
 			}
+			if (this.$store.state.projectId) {
+				this.$router.push(`/main/data/info/${this.$store.state.projectId}`);
+			}
+			else {
+				this.$router.push(`/main/data/upload`);
+			}
             
 			const uploadProgress = this.$store.state.uploadProgress;
 			// 

@@ -245,13 +245,16 @@
 			return {
 				projectId: this.$route.params.projectId,
 				taskId: this.$route.params.taskId,
+				fLId: this.$route.query.fLId,
+				targetId: this.$route.query.targetId,
+				currentRoute: this.$router.currentRoute,
 				sysUserName: 'User',
 				curIndex: 0,
 				projectName: '',
 				nav: [
 					{
 						name: '数据',
-						path: '/main/data'
+						path: '/main/data/'
 					}, 
 					{
 						name: '模型',
@@ -274,15 +277,26 @@
 				alert('hio');
 			},
 			tab (item, index) {
+				const { path, query, params } = this.currentRoute;
 				this.curIndex = index;
+				console.log(item.path);
+				// 模型
 				if (item.path == '/main/model/') {
-					this.$router.push(item.path + this.$store.state.projectId);	
+					const url = `/main/model/${this.projectId}/${this.taskId}?fLId=${this.fLId}&targetId=${this.targetId}`;
+					console.log('url: ' + url);
+					this.$router.push(url);
 				}
-				else {
-					if (this.projectId || this.taskId) {
+				if(item.path == '/main/data/') {
+					// 当前为数据
+					if (!this.currentRoute.path.indexOf('/main/data/') > -1) {
+						const url = `/main/data/train/${this.projectId}/${this.taskId}?fLId=${this.fLId}&&targetId=${this.targetId}`;
+						this.$router.push(url);
 						return;
 					}
-					this.$router.push(item.path);	
+					else {
+						this.$router.push(item.path);
+					}
+					
 				}
 			},
 			logout () {
@@ -333,6 +347,24 @@
            		else if (tag === 1) {
            			this.$router.push('/main/project')
            		}
+           	},
+           	init () {
+           		this.$store.commit('SET_PROJECT_STATUS', true);
+				// 模型
+				if (this.currentRoute.path.indexOf('/main/model/') > -1) {
+					this.curIndex = 1;
+				}
+				else if (this.currentRoute.path.indexOf('/main/data/') > -1) {
+					this.curIndex = 0;
+				}
+				
+				var user = localStorage.getItem('user');
+	            if (user) {
+	                user = JSON.parse(user);
+	                this.sysUserName = user.nickname || '';
+	                this.sysUserAvatar = user.avatar || '';
+	            }
+	            this.$store.state.progressItems.length = 0;
            	}
         },
         computed: {
@@ -349,13 +381,8 @@
         	}
         },
 		mounted () {
-			this.$store.commit('SET_PROJECT_STATUS', true);
-			var user = localStorage.getItem('user');
-            if (user) {
-                user = JSON.parse(user);
-                this.sysUserName = user.nickname || '';
-                this.sysUserAvatar = user.avatar || '';
-            }
+			// 开始
+			this.init();
 		}
 	}
 </script>

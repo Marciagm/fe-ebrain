@@ -68,7 +68,8 @@ const state = {
         varifyNum: 0,
         splitMethod: 1
     },
-    timeTypeList: []
+    timeTypeList: [],
+    allTrainFinished: false,
 }
 
 // 定义所需的 mutations
@@ -121,6 +122,9 @@ const mutations = {
     },
     SET_TYPE_LIST (state, timeTypeList) {
         state.timeTypeList = timeTypeList;
+    },
+    SET_TRAIN_STATUS (state, status) {
+        state.allTrainFinished = status;
     }
 }
 

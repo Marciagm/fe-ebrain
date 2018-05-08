@@ -121,6 +121,23 @@ export const getFeatureDistr = (featureId, params) => {
 	return axios.get(`${base}/features/values_distribution/${featureId}`, { params: params }).then(res => res.data);
 }
 
+// 轮询任务接口
+export const pollTaskStatus = (taskId, params) => {
+	return axios.get(`${base}/tasks/show/${taskId}`, { params: params }).then(res => res.data);
+}
+// 下载预测结果
+export const downloadPredictReport = (predictionsId, params) => {
+	// return `${base}/predictions/download/${predictionsId}`;
+	return axios.get(`${base}/predictions/download/${predictionsId}`, params).then(res => res.data);
+}
+// 删除预测结果
+export const deletePreditiction = (predictionsId, params) => {
+	return axios.post(`${base}/predictions/delete/${predictionsId}`, params).then(res => res.data); 
+}
+
+
+
+
 
 
 
@@ -179,7 +196,7 @@ export const getPredictResult = params => { return axios.get(`${base}/project/ge
 
 export const getPredictDetail = params => { return axios.get(`${base}/project/get-predict-detail`, { params: params }).then(res => res.data); };
 
-export const downloadPredictReport = params => { return axios.get(`${base}/project/download-predict-result/${params.projectId}/${params.jobId}/${params.sequence}`, { params: params }).then(res => res.data); };
+//export const downloadPredictReport = params => { return axios.get(`${base}/project/download-predict-result/${params.projectId}/${params.jobId}/${params.sequence}`, { params: params }).then(res => res.data); };
 
 export const downloadModelReport = params => { return axios.get(`${base}/project/get-predict-result`, { params: params }).then(res => res.data); };
 

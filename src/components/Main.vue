@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-row  id="mainView" class="container">
+        <el-row id="mainView" class="container">
             <el-col :span="24" class="header">
                 <el-col :span="20" :offset="2">
                     <el-col :span="4" class="logo" style="padding-left:0" >

@@ -61,7 +61,7 @@
 			<div v-if="showTargetTips" class="tips offset">*请选择目标继续</div>
 			
 			<!-- 算法 -->
-			<div style="margin-top: 43px;">
+			<div style="margin-top: 23px;" v-if="allTrainFinished">
 				<div style="font-size: 12px; color: #999; margin-left: 30px;">
 					训练结束
 				</div>
@@ -187,8 +187,8 @@
 				minHeight: '',
 				taskId: this.$route.params.taskId || 0,
 				projectId: this.$route.params.projectId,
-				fLId: this.$route.params.featureListId,
-				targetId: this.$route.params.targetId
+				fLId: this.$route.query.fLId,
+				targetId: this.$route.query.targetId
 			}
 		},
 		mounted () {
@@ -229,6 +229,9 @@
 			 */
 			featureNum () {
 				return this.$store.state.trainObj.featureNum;
+			},
+			allTrainFinished () {
+				return this.$store.state.allTrainFinished;
 			}
 		}
 	}

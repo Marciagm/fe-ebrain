@@ -3,20 +3,22 @@
 		<div slot="left" ref="info-left">
 			<div class="target" v-if="!inTrain">
 				<div style="display: inline-block; width: 210px; margin-right: 1%; flex: 2">
-					<div v-if="!dataPicFinished" class="target-label" style="color: #ccc;">输入预测目标</div>
+					<div v-if="!dataPicFinished || fLId" class="target-label" style="color: #ccc;">输入预测目标</div>
 					<div v-else class="target-label" for="target">输入预测目标</div>
 					<el-autocomplete
 				      v-model="targetInfo.value"
 				      :fetch-suggestions="querySearch"
 				      placeholder="输入预测目标"
 				      @select="showBar"
+				      @focus="focusOnTarget"
+				      @blur="blurTarget"
 				      class="target-input"
-				      :disabled="targetFixed"
+				      :disabled="!!fLId"
 				    ></el-autocomplete>	
 				</div>
 
 				<div class="chart-con">	
-					<div id="bar-chart"></div>
+					<div id="bar-chart" v-show="targetId"></div>
 				</div>
 
 				<div style="display: inline-block; flex: 2;">
@@ -43,7 +45,7 @@
 			</div> 
 
 			<!-- 表格 -->
-			<core-data style="margin-top: 20px;" :inTrainStep="inTrain" :maxHeight="maxHeight" v-on:setTarget="showBar"></core-data>
+			<core-data style="margin-top: 20px;" :inTrainStep="inTrain" :maxHeight="maxHeight" v-on:setTarget="showBar" ref="coreData"></core-data>
 		</div>
 	</left-right>
 </template>
@@ -315,6 +317,8 @@
 		},
 		data () {
 			return {
+				fLId: this.$route.query.fLId,
+				targetId: this.$route.query.targetId,
 				inTrain: false,
 				projectId: this.$route.params.projectId,
 				featureList: [],
@@ -322,7 +326,7 @@
 				testPercent: 0,
 				showAdvancedOption: false,
 				maxHeight: '374px',
-				targetFixed: false,
+				targetFixed: true,
 				targetId: '',
 				targetInfo: {
 					value: '',
@@ -331,10 +335,29 @@
 			}
 		},
 		methods: {
+			blurTarget () {
+				console.log(this.targetInfo);
+				for (let i = 0, len = this.queryList.length; i < len; i++ ) {
+					const item = this.queryList[i];
+					console.log(item);
+					if (this.targetInfo.id == item.id && this.targetInfo.value == item.value) {
+						//this.targetId = this.targetInfo.id;
+						break;
+					}
+				}
+			},
+			focusOnTarget () {
+				console.log('in focus');
+				this.targetId = '';
+			},
+
 			/**
 			 * toggle高级选项
 			 */
 			advancedOption () {
+				if (!this.dataPicFinished || this.fLId) {
+					return;
+				}
             	this.showAdvancedOption = !this.showAdvancedOption;
 			},
 
@@ -383,13 +406,12 @@
 					this.target = target.name;
 					// 置空
 					if (!this.target) {
-						this.dataPicFinished = false;
+						//this.dataPicFinished = false;
 						return;
 					}
 				}
 				this.$store.state.trainObj.targetFeatureId = target.feature_id;
 				this.dataPicFinished = true;
-				//barChart.setOption(option);
 			},
 
 			/**
@@ -428,7 +450,9 @@
 						console.log(`task_id: ${task_id}`);
 						this.inTrain = true;
 						this.maxHeight = '1000px';
-						this.$router.push(`/main/data/train/${this.projectId}/${task_id}/${featureListId}/${targetId}`);
+						// this.$router.push(`/main/data/train/${this.projectId}/${task_id}/${featureListId}/${targetId}`);
+						this.$router.push(`/main/data/train/${this.projectId}/${task_id}?fLId=${featureListId}&targetId=${targetId}`);
+						
 						// this.$store.state.progressItems.length = 0;
 
 						//this.pollTrainTask(this.projectId, 500);
@@ -504,6 +528,9 @@
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
 										portraitProgress.duration = portrait_task.duration + 's';
+										this.targetFixed = false;
+										this.dataPicFinished = true;
+										this.$refs.coreData.init(-1, {project_id: this.projectId});
 										break;
 									case 5: 
 										clearInterval(timer);

@@ -15,7 +15,7 @@
 			    ></el-autocomplete>	
 				<el-dropdown style="cursor: pointer;" @command="getList">
 					<span class="el-dropdown-link">
-					    <span>{{ curFeatureObj.name }}</span>
+					    <span style="display: inline-block; width: 80px; text-align: center;">{{ curFeatureObj.name }}</span>
 					    <span style="color: #666; font-size: 10px;">(特征列表)</span>
 					    <i class="el-icon-arrow-down el-icon--right"></i>
 					</span>
@@ -103,14 +103,14 @@
 			    >
 			    </el-table-column>
 			     <el-table-column
-			      prop="column_index"
+			      prop="importance"
 			      label="特征重要性"
 			      width="120"
-			      v-if="taskId"
+			      v-if="importanceShow"
 			    >
 			    <template slot-scope="props">
-			    	<span v-if="props.row.isTarget"></span>
-			    	<el-progress v-else :percentage="70" :show-text="false"></el-progress>
+			    	<span v-if="props.row.isTarget">目标</span>
+			    	<el-progress v-else :percentage="props.row.importance" :show-text="false"></el-progress>
 			    </template>
 			    </el-table-column>
 			    <el-table-column
@@ -120,7 +120,7 @@
 			      width="100"
 			      show-overflow-tooltip>
 			      <template slot-scope="props" style="text-align: left;">
-			      	<span v-if="taskId">{{ props.row.typeValue }}</span>
+			      	<span v-if="fLId">{{ props.row.typeValue }}</span>
 			      	<el-dropdown trigger="click"  style="font-size: 12px; color: #333; cursor: pointer;" @command="selectDataType" v-else>
 				      	<span>
 						    {{ props.row.typeValue }}
@@ -620,9 +620,10 @@
 		},
 		data () {
 			return {
+				importanceShow: false,
 				taskId: this.$route.params.taskId || 0,
-				fLId: this.$route.params.featureListId,
-				targetId: this.$route.params.targetId,
+				fLId: this.$route.query.fLId,
+				targetId: this.$route.query.targetId,
 				curFeatureObj: {
 					name: '全部特征',
 					id: ''
@@ -654,6 +655,9 @@
 			}
 		},
 		methods: {
+			showImportance () {
+				this.importanceShow = true;
+			},
 			checkboxInit (row, index) {
 				// if target already been set, change impossiblely
 				if (this.targetId == row.feature_id) {
@@ -668,7 +672,11 @@
 				if (tag === 'detail') {
 					this.isEigenActive = true;
 					if (!this.eigenData || !this.eigenData.length) {
-						this.getFeatureData(-1, projectId);
+						const params = {
+							project_id: this.projectId,
+							train_task_id: this.taskId
+						}
+						this.getFeatureData(-1, params);
 						getFeatureList({project_id: projectId}).then(data => {
 							let { feature_lists } = data;
 							this.featureList.length = 0;
@@ -721,7 +729,8 @@
 							this.$message.error('创建失败！' + error.desc);
 							return;
 						}
-						this.init(feature_list.feature_list_id);
+						//this.init(feature_list.feature_list_id);
+						this.init(feature_list.feature_list_id, { project_id: this.projectId });
 					})
 
 				}
@@ -729,9 +738,10 @@
 					this.$message.error('填列表名字啊！');
 				}
 			},
-			init (featureListId) {
-				this.getFeatureData(featureListId, this.projectId);
-				getFeatureList({ project_id: this.projectId }).then(data => {
+			init (featureListId, params) {
+				this.getFeatureData(featureListId, params);
+				console.log(params);
+				getFeatureList({ project_id: params.project_id }).then(data => {
 					let { feature_lists } = data;
 					this.featureList.length = 0;
 					for (let i = 0; i < feature_lists.length; i++) {
@@ -748,15 +758,32 @@
 				this.isListNameShow = false;
 				this.curFeatureObj.name = item.name;
 				this.curFeatureObj.id = item.id;
-				this.getFeatureData(item.id, this.projectId);
+				//this.getFeatureData(item.id, this.projectId);
+				const params = {
+					project_id: this.projectId
+					//train_task_id: this.taskId
+				}
+				if (item.id == this.fLId) {
+					params.train_task_id = this.taskId;
+					this.importanceShow = true;
+				}
+				else {
+					this.importanceShow = false;
+				}
+				this.getFeatureData(item.id, params);
 				//this.$emit('setTarget', {name: ''});
 			},
-			getFeatureData (featureListId, projectId) {
+
+			/**
+			 * 获取特征数据
+			 *
+			 * @param { string } featureListId 特征列表id
+			 * @param { Object } params 参数对象
+			 */
+			getFeatureData (featureListId, params) {
 				this.isListNameShow = false;
-
 				const timeTypeList = [];
-
-				getFeatureData(featureListId, { project_id: projectId }).then(data => {
+				getFeatureData(featureListId, params).then(data => {
 					let { error, feature_list } = data;
 					if (error) {
 						this.$message.error(error.desc);
@@ -774,24 +801,36 @@
 					this.queryList.length = 0;
 					const len = features.length;
 					// @TODO 固定第一个
-
+					let targetIndex;
 					//timeTypeList.length = 0;
 					for (let i = 0; i < len; i++) {
 						const item = features[i];
 						item.showTip = false;
 						item.typeValue = values[item.type];
+
 						if (item.type == 3) {
 							timeTypeList.push({name: item.name, id: item.feature_id});	
 						}
+						if (item.instance_feature_analysis && item.instance_feature_analysis.importance) {
+							item.importance = item.instance_feature_analysis.importance * 100;
+							console.log(item.importance);
+						}
 						item.order = i;
+						item.isTarget = false;
+						if (item.feature_id == this.targetId) {
+							item.isTarget = true;
+							targetIndex = i;
+						}
 						this.queryList.push({value: item.name, id: item.feature_id})
 					}
-					console.log('queryList');
-					console.log(this.queryList);
 					this.$store.commit('SET_TYPE_LIST', timeTypeList);
-					console.log(this.$store.state.timeTypeList);
 					this.$store.commit('SET_QUERY_LIST', this.queryList);
 					this.eigenData = features;
+					// 固定第一行
+					if (this.fLId) {
+						this.eigenData.splice(0, 0, this.eigenData.splice(targetIndex, 1)[0]);
+						
+					}
 					this.curFeatureObj.name = feature_list.name || '全部特征';
 					this.curFeatureObj.id = featureListId;
 					const trainObj = this.$store.state.trainObj;
@@ -908,7 +947,7 @@
 						this.$message.error('修改失败！' + error.desc);
 						return;
 					}
-					this.getFeatureData(this.$store.state.trainObj.featureListId, this.projectId);
+					this.getFeatureData(this.$store.state.trainObj.featureListId, { project_id: this.projectId });
 				})
 			},
 
@@ -1115,18 +1154,22 @@
 		mounted () {
 			obj = this;
 			this.$store.commit('SET_PROJECT_ID', this.projectId);
+			this.eigenData = this.$store.state.eigenData;
 			const query = this.$route.query;
-			console.log(query);
-			if (query && query.fLId && query.targetId) {
+			
+			const params = {
+				project_id: this.projectId
+			};
+			console.log('in mounted');
+			this.$store.commit('SET_TRAIN_STATUS', false);
+			if (this.fLId && this.targetId) {
 				this.isEigenActive = true;
-				this.targetId = query.targetId;
-				this.init(query.fLId || -1);
-			}
-			if (this.taskId) {
-				this.isEigenActive = true;
-				this.init(this.flId || -1);
-				//this.init(-1);
-				//this.init(this.fId || -1);
+				if (this.taskId) {
+					params.train_task_id = this.taskId;
+				}
+				if (!this.eigenData.length) {
+					this.init(query.fLId || -1, params);
+				}
 			}
 			//this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
 		},

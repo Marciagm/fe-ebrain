@@ -26,7 +26,8 @@
 			  		</el-col>
 			  		<div style="float: right; line-height: 70px; padding-right: 20px;">
 			  			<button class="upload-and-predict">上传并预测</button>
-			  			<button class="upload-predict-download" @click.stop="download">下载预测报告</button>
+			  			<button class="upload-predict-download" v-if="!downloadAble" >下载预测报告</button>
+			  			<button class="upload-and-predict" v-else @click.stop="download">下载预测报告</button>
 			  			<div style="width: 30px;vertical-align: middle; height: 70px; display: inline-block;" @click.stop="deleteFile">
 			  				<img src="../images/model-rubbish.png">
 			  			</div>
@@ -121,30 +122,36 @@
 </style>
 <script>
 	import { uploadPredicFile } from '@/api/api'
+	import { pollTaskStatus, downloadPredictReport, deletePreditiction } from '@/api/api'
+
 	var token = localStorage.getItem('token');
 
 	export default {
+		props: ['id'],
 		data () {
 			return {
+				downloadAble: false,
 				projectId: this.$route.params.projectId,
 				filename: '',
 				isUploading: false,
 				percent: 0,
 				uploadApi: uploadPredicFile,
 				formData: {
-					type: 2,
+					model_id: this.id,
 					project_id: this.$route.params.projectId
 				},
 				apiHeader: {
 					Authorization: 'Bearer ' +  token
 				},
-				tips: '文件上传中...'
+				tips: '文件上传中...',
+				predictionId: ''
 			}
 		},
 		methods: {
 			beforeUpload (file) {
 				this.filename = file.name;
 				this.isUploading = true;
+				this.downloadAble = false;
 			},
 
 			// progress
@@ -160,9 +167,40 @@
 					return;
 				}
 				if (task && task.task_id) {
-					// 
+					// 开始轮询预测状态
 					this.tips = '文件处理中...';
+					this.poll(task.task_id, 500);
 				}
+			},
+
+			poll (taskId, interval) {
+				const timer = setInterval(() => {
+					pollTaskStatus(taskId).then(data => {
+						const { error, task } = data;
+						if (error) {
+							this.$message.error(error.desc);
+							return;
+						}
+						const { next_task } = task;
+						if (next_task) {
+							const { stages, status, predict_info } = next_task;
+							console.log(stages);
+							if (stages.length) {
+								this.tips = stages[stages.length - 1].stage_name;
+								this.percent = (stages.length + 2) * 10;
+							}
+							if (status == 4) {
+								this.percent = 100;
+								// 可下载
+								this.downloadAble = true;
+								if (predict_info && predict_info.prediction_id) {
+									this.predictionId = predict_info.prediction_id;
+								}
+								clearInterval(timer);
+							}
+						}
+					})
+				}, interval);
 			},
 
 			// @TODO error
@@ -170,12 +208,29 @@
 
 			},
 			download () {
-				alert('download');
+				downloadPredictReport(this.predictionId).then(data => {
+					let url = window.URL.createObjectURL(new Blob([data]))
+					let link = document.createElement('a')
+			        link.style.display = 'none'
+			        link.href = url
+			        link.setAttribute('download', `预测报告-${this.predictionId}`)
+			        
+			        document.body.appendChild(link)
+			        link.click()
+				});
+				
+				// alert('download');
 			},
 			deleteFile () {
 				this.$refs.upload.clearFiles();
 				this.filename = '';
 				this.isUploading = false;
+				this.downloadAble = false;
+				if (this.predictionId) {
+					deletePreditiction(this.predictionId).then(data => {
+						console.log(data);
+					})
+				}
 			}
 		},
 		mounted () {

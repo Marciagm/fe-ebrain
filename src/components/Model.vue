@@ -170,9 +170,18 @@
 	import significanceChart from '@/components/SignificanceChart'
 	import predictsChart from '@/components/PredictsChart'
 	
-	import { getModelList } from '../api/api'
+	import { getModelList, poll } from '../api/api'
 
 	const chartHeights = ['555px', '858px', '554px', '554px', '554px', '318px'];
+	function getDate (dateStr) {
+		console.log(dateStr);
+		const date = new Date(dateStr - 0);
+		console.log(date);
+		const year = date.getFullYear();
+		const month = ('0' + (date.getMonth() - 0 + 1)).slice(-2);
+		const day = ('0' + date.getDate()).slice(-2);
+		return year + '.' + month + '.' + day;
+	}
 
 	export default {
 		components: {
@@ -306,14 +315,17 @@
 			}
 		},
 		mounted () {
+			this.$store.state.progressItems.length = 0;
 			this.showList = this.modelList;
 			this.modelList.length = 0;
+			this.$store.commit('SET_TRAIN_STATUS', false);
 			const timer = setInterval(() => {
 				getModelList({project_id: this.projectId}).then(data => {
 					console.log(data);
 					const { error, models } = data;
 					if (error) {
 						this.$message.error(error.desc);
+						clearInterval(timer);
 						return;
 					}
 					this.modelList.length = 0;
@@ -322,9 +334,9 @@
 						const model = models[i];
 						const item = {
 							name: model.algorithm_name,
-							listName: model.feature_list_name,
-							createTime: '',
-							duration: '',
+							listName: model.feature_list_name || '全部特征',
+							createTime: getDate(model.created_at),
+							duration: model.duration,
 
 							validationSet: model.valid_status == 4 ? model.valid_indicator_value : '训练中',
 							crossValidation: model.cv_status == 4 ? model.cv_indicator_value : '训练中',
@@ -346,10 +358,15 @@
 					}
 	 				if (!goOn) {
 	 					clearInterval(timer);
+	 					// 训练完成
+	 					this.$store.commit('SET_TRAIN_STATUS', true);
 	 				}
 				})
 			}, 500);
-			
+
+			/*poll(this.projectId).then(data => {
+				console.log(data);
+			})*/
 		},
 		methods: {
 			chooseEigenList (command) {
@@ -374,24 +391,6 @@
 				const id = nav.id;
 				item.curId = id;
 				this.charHeight = chartHeights[id];
-
-				switch (id) {
-					// 训练足迹
-					case 0: 
-						
-						break;
-					// ROC曲线
-					case 1: 
-						break;
-					case 2: 
-						break;
-					case 3: 
-						break;
-					case 4: 
-						break;
-					case 5: 
-						break;
-				}
 			}
 		}
 	}
