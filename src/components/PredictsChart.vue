@@ -17,21 +17,20 @@
 			>
 			  	<div class="upload-predict-block">
 			  		<el-col :span="10" v-if="!isUploading" class="upload-text">拖拽文件至虚线部分或点击右侧按钮上传并预测</el-col>
-			  		<el-col :span="6" v-else class="predict-upload-progress">
-			  			<el-col :span="7" style="font-size: 12px; color: #666;">{{ filename }}</el-col>
-			  			<el-col :span="15">
+			  		<el-col :span="10" v-else class="predict-upload-progress">
+			  			<el-col :span="8" style="font-size: 12px; color: #666;">{{ filename }}</el-col>
+			  			<el-col :span="16">
 			  				<el-progress :percentage="percent" style="height: 70px; line-height: 70px;"></el-progress>
 			  			</el-col>
 			  			<div  class="upload-predict-tip">{{ tips }}</div>
 			  		</el-col>
 			  		<div style="float: right; line-height: 70px; padding-right: 20px;">
 			  			<button class="upload-and-predict">上传并预测</button>
-			  			<button class="upload-predict-download" v-if="!downloadAble" >下载预测报告</button>
+			  			<button class="upload-predict-download" v-if="!downloadAble" disabled>下载预测报告</button>
 			  			<button class="upload-and-predict" v-else @click.stop="download">下载预测报告</button>
 			  			<div style="width: 30px;vertical-align: middle; height: 70px; display: inline-block;" @click.stop="deleteFile">
 			  				<img src="../images/model-rubbish.png">
 			  			</div>
-			  			
 			  		</div>
 			  	</div>
 			</el-upload>
@@ -75,8 +74,8 @@
 			.upload-and-predict {
 				cursor: pointer;
 				outline: none;
-				padding-left: 15px;
-				padding-right: 15px;
+				padding-left: 10px;
+				padding-right: 10px;
 				height: 33px;
 				background: #ccc;
 				background-image: linear-gradient(90deg, 
@@ -102,9 +101,8 @@
 				margin-right: 22px;
 			}
 			.predict-upload-progress {
-				margin-left: 5%;
+				margin-left: 2%;
 				display: inline-block; 
-				width: 55%; 
 				line-height: 70px; 
 				height: 70px;
 			}
@@ -112,7 +110,7 @@
 		.upload-predict-tip {
 			position: absolute; 
 			top: 15px; 
-			left: 180px; 
+			left: 150px; 
 			font-size: 10px;
 			height: 14px;
 			line-height: 14px;
@@ -228,8 +226,14 @@
 				this.downloadAble = false;
 				if (this.predictionId) {
 					deletePreditiction(this.predictionId).then(data => {
-						console.log(data);
-					})
+						const { error } = data;
+						if (error) {
+							this.$message.error(error.desc);
+						}
+						else {
+							this.predictionId = '';
+						}
+ 					})
 				}
 			}
 		},

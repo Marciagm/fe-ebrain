@@ -134,12 +134,15 @@
 				this.$store.state.uploadProgress.status = -1;
 				this.$store.state.uploadProgress.failReason = '上传失败';
 				this.$store.commit('SET_PROGRESS_OK', false);
+			},
+			init () {
+				this.$store.commit('SET_PROJECT_STATUS', false);
+				this.$store.commit('SET_PROJECT_NAME', '未命名任务');
 			}
 		},
 		mounted () {
 			// init
-			this.$store.commit('SET_PROJECT_STATUS', false);
-			this.$store.commit('SET_PROJECT_NAME', '未命名任务');
+			this.init();
 			/*if (this.$store.state.projectId) {
 				this.$router.push('/main/data/info/' + this.$store.state.projectId);
 			}*/

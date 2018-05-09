@@ -72,6 +72,10 @@
 							<ks-chart :id="item.id" v-if="item.curId == 3"></ks-chart>
 							<significance-chart :id="item.id" v-if="item.curId == 4"></significance-chart>
 							<predicts-chart :id="item.id" v-if="item.curId == 5"></predicts-chart>
+
+							<div v-if="!item.finished">
+								再等等啦
+							</div>
 						</div>
 					</div>
 				</div>
@@ -319,6 +323,7 @@
 			this.showList = this.modelList;
 			this.modelList.length = 0;
 			this.$store.commit('SET_TRAIN_STATUS', false);
+
 			const timer = setInterval(() => {
 				getModelList({project_id: this.projectId}).then(data => {
 					console.log(data);
@@ -328,7 +333,6 @@
 						clearInterval(timer);
 						return;
 					}
-					this.modelList.length = 0;
 					let goOn = 0;
 					for (let i = 0, len = models.length; i < len; i++) {
 						const model = models[i];
@@ -354,7 +358,21 @@
 						else {
 							item.finished = 1;
 						}
-						this.modelList.push(item);
+
+						// 如果已经存在就直接更新
+						let exists = false;
+						for (let k = 0, len = this.modelList.length; k < len; k++) {
+							let oldModel = this.modelList[k];
+							if (oldModel.id == item.id) {
+								oldModel = item;
+								exists = true;
+								break;
+							}
+						}
+						if (!exists) {
+							// 如果已经有了就更新
+							this.modelList.push(item);
+						}
 					}
 	 				if (!goOn) {
 	 					clearInterval(timer);
@@ -370,7 +388,6 @@
 		},
 		methods: {
 			chooseEigenList (command) {
-				console.log(command);
 				if (!command.id) {
 					this.showList = this.modelList;
 					return;
@@ -383,7 +400,7 @@
 			},
 			showDetail (item) {
 				if (!item.finished) {
-					return;
+					// return;
 				}
 				item.show = !item.show;
 			},

@@ -6,7 +6,7 @@
 
 		<div class="nav">
 			<ul>
-				<li v-for="(item, index) in nav" @click="tab(item, index)">
+				<li v-for="(item, index) in nav" @click="tab(item, index)" disabled>
 					<a v-if="index == curIndex" style="color: #1b7bdd;">{{ item.name }}</a>
 					<a v-else>{{ item.name }}</a>
 				</li>
@@ -243,10 +243,6 @@
 		name: 'top',
 		data () {
 			return {
-				projectId: this.$route.params.projectId,
-				taskId: this.$route.params.taskId,
-				fLId: this.$route.query.fLId,
-				targetId: this.$route.query.targetId,
 				currentRoute: this.$router.currentRoute,
 				sysUserName: 'User',
 				curIndex: 0,
@@ -276,27 +272,58 @@
 			taskClick (event) {
 				alert('hio');
 			},
-			tab (item, index) {
-				const { path, query, params } = this.currentRoute;
-				this.curIndex = index;
-				console.log(item.path);
+			tab (item, index) {		
+				//const { path, query, params } = this.currentRoute;
+				const path = location.hash;
+				console.log(this.currentRoute);
 				// 模型
 				if (item.path == '/main/model/') {
-					const url = `/main/model/${this.projectId}/${this.taskId}?fLId=${this.fLId}&targetId=${this.targetId}`;
-					console.log('url: ' + url);
-					this.$router.push(url);
-				}
-				if(item.path == '/main/data/') {
-					// 当前为数据
-					if (!this.currentRoute.path.indexOf('/main/data/') > -1) {
-						const url = `/main/data/train/${this.projectId}/${this.taskId}?fLId=${this.fLId}&&targetId=${this.targetId}`;
-						this.$router.push(url);
+					if (!this.modelStatus) {
+						alert('不能点');
+						return;
+					}
+
+					// 从模型到模型
+					if (path.indexOf('/main/model') > -1) {
 						return;
 					}
 					else {
-						this.$router.push(item.path);
+						const taskId = this.taskId || this.$route.query.lastTaskId;		
+						const urlObj = {
+							path: `/main/model/${this.projectId}/${taskId}`,
+							query: {
+								fLId: this.fLId,
+								targetId: this.targetId,
+								targetName: this.targetName
+							}
+						}
+						console.log(urlObj);
+						this.curIndex = index;
+						this.$router.push(urlObj);
 					}
-					
+				}
+				// 当前为数据
+				else if(item.path == '/main/data/') {
+					// 从数据到数据
+					console.log(path);
+					if (path.indexOf('/main/data') > -1) {
+						return;
+					}
+					else {
+						this.curIndex = index;
+						this.$router.push({
+							path: `/main/data/train/${this.projectId}/${this.taskId}`,
+							query: {
+								fLId: this.fLId,
+								targetId: this.targetId,
+								targetName: this.targetName
+							}
+						})
+					}
+				}
+				else {
+					this.curIndex = index;
+					this.$router.push(item.path);
 				}
 			},
 			logout () {
@@ -378,8 +405,36 @@
         		get (value) {
         			return this.$store.state.projectName;
         		}
+        	},
+        	projectId () {
+        		return this.$route.params.projectId || this.$store.state.projectId;
+        	},
+        	fLId () {
+        		return this.$route.query.fLId || this.$store.state.fLId;
+        	},
+        	targetId () {
+        		return this.$route.query.targetId || this.$store.state.targetId;
+        	},
+        	targetName () {
+        		return this.$route.query.targetName || this.$store.state.targetName;	
+        	},
+        	taskId () {
+        		return this.$route.params.taskId || this.$store.state.taskId;
+        	},
+        	modelStatus () {
+        		return this.$store.state.modelStatus;
         	}
         },
+        watch: {
+		    '$route' (to, from) {
+		    	for (let i = 0, len = this.nav.length; i < len; i++) {
+		    		const item = this.nav[i];
+		    		if (to.path.indexOf(item.path) > -1) {
+		    			this.curIndex = i;
+		    		}
+		    	}
+		    }
+		},
 		mounted () {
 			// 开始
 			this.init();

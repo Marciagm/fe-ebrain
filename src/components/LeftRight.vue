@@ -1,7 +1,7 @@
 <template>
 	<div class="left-right">
 		<div class="left" :style="{minHeight: minHeight}">
-			<slot name="left" :style="{minHeight: minHeight - 20}"></slot>
+			<slot name="left" :style="{minHeight: minHeight - 40}"></slot>
 			<div class="data-foot">
 				{{ filename }}
 				<div style="float: right; margin-right: 5%;">
@@ -13,55 +13,56 @@
 		</div>
 
 		<div class="right" :style="{minHeight: minHeight}">
-			<div class="progress" v-for="item in progressItems">
-				<!-- 尚未开始 -->
-				<div v-if="item.status==0">
-					<div class="progress-border"></div>
-					<!-- 正在进行时 -->
-					<div class="progress-con offset">
-						<div>{{ item.name }}</div>
+			<div v-if="!allTrainFinished">
+				<div class="progress" v-for="item in progressItems">
+					<!-- 尚未开始 -->
+					<div v-if="item.status==0">
+						<div class="progress-border"></div>
+						<!-- 正在进行时 -->
+						<div class="progress-con offset">
+							<div>{{ item.name }}</div>
+						</div>
+						<div class="progress-border"></div>
 					</div>
-					<div class="progress-border"></div>
-				</div>
-				<!-- 已结束 -->
-				<div v-else-if="item.status==2">
-					<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
-					<div class="progress-con progress-bg"></div>
-					<div class="progress-con offset">
-						<div>{{ item.name }}</div>
-						<span class="progress-status duration" >({{ item.duration }})</span>
+					<!-- 已结束 -->
+					<div v-else-if="item.status==2">
+						<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
+						<div class="progress-con progress-bg"></div>
+						<div class="progress-con offset">
+							<div>{{ item.name }}</div>
+							<span class="progress-status duration" >({{ item.duration }})</span>
+						</div>
+						<img src="../images/finish.png" class="load-effect">
+						<div class="progress-border"></div>
 					</div>
-					<img src="../images/finish.png" class="load-effect">
-					<div class="progress-border"></div>
-				</div>
-				<!-- 正在进行时或出错 -->
-				<div v-else>
-					<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
-					<!-- 正在进行时 -->
-					<div v-if="item.status==1" class="progress-bar" style="width: 100%; background: #eee;">
-						<div class="progress-bar" :style="{width: item.percent}"></div>
-					</div>
-					
-					<div class="progress-con progress-bg" :style="{width: item.status==2 ?'' : item.percent}"></div>
-					
-					<div class="progress-con offset">
-						<div>{{ item.name }}</div>
-						<span v-if="item.status==2" class="progress-status duration" >({{ item.duration }})</span>
-						<span v-if="item.status==1" class="progress-status">已完成{{ item.percent }}</span>
-						<span v-if="item.status==-1" class="load-fail-tip">
-							{{ item.failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
-						</span>
-					</div>
+					<!-- 正在进行时或出错 -->
+					<div v-else>
+						<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
+						<!-- 正在进行时 -->
+						<div v-if="item.status==1" class="progress-bar" style="width: 100%; background: #eee;">
+							<div class="progress-bar" :style="{width: item.percent}"></div>
+						</div>
+						
+						<div class="progress-con progress-bg" :style="{width: item.status==2 ?'' : item.percent}"></div>
+						
+						<div class="progress-con offset">
+							<div>{{ item.name }}</div>
+							<span v-if="item.status==2" class="progress-status duration" >({{ item.duration }})</span>
+							<span v-if="item.status==1" class="progress-status">已完成{{ item.percent }}</span>
+							<span v-if="item.status==-1" class="load-fail-tip">
+								{{ item.failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
+							</span>
+						</div>
 
-					<img v-if="item.status==-1" src="../images/cuowu.png" class="load-effect">
-					<img v-if="item.status==1" src="../images/loading.gif" class="load-effect">
-					<div v-if="item.status!=1" class="load-progress-border"></div>
+						<img v-if="item.status==-1" src="../images/cuowu.png" class="load-effect">
+						<img v-if="item.status==1" src="../images/loading.gif" class="load-effect">
+						<div v-if="item.status!=1" class="load-progress-border"></div>
+					</div>
 				</div>
+				<div v-if="showTargetTips" class="tips offset">*请选择目标继续</div>
 			</div>
-			<div v-if="showTargetTips" class="tips offset">*请选择目标继续</div>
-			
 			<!-- 算法 -->
-			<div style="margin-top: 23px;" v-if="allTrainFinished">
+			<div style="margin-top: 23px;" v-else>
 				<div style="font-size: 12px; color: #999; margin-left: 30px;">
 					训练结束
 				</div>
@@ -89,12 +90,13 @@
 				z-index: 1000;
 				letter-spacing: 1px; 
 				color: #999; 
-				position: absolute; 
+				//position: absolute; 
+				position: fixed;
 				bottom: 0; 
 				height: 28px; 
 				line-height: 28px; 
 				box-shadow: 0px -1px 2px 0px rgba(5, 0, 50, 0.1); 
-				width: 100%;
+				width: calc(80% - 20px);
 				box-sizing: border-box;
 				padding-left: 39px;
 				text-align: left;
@@ -185,10 +187,7 @@
 		data () {
 			return {
 				minHeight: '',
-				taskId: this.$route.params.taskId || 0,
-				projectId: this.$route.params.projectId,
-				fLId: this.$route.query.fLId,
-				targetId: this.$route.query.targetId
+				projectId: this.$route.params.projectId
 			}
 		},
 		mounted () {
@@ -198,9 +197,15 @@
 		},
 		methods: {
 			goToTrain () {
-				console.log('in goToTrain');
-				console.log(this.$route);
-				this.$router.push(`/main/data/info/${this.projectId}?fLId=${this.fLId}&targetId=${this.targetId}`);
+				this.$router.push({
+					path: `/main/data/info/${this.projectId}`,
+					query: {
+						fLId: this.fLId,
+						targetId: this.targetId,
+						targetName: this.targetName,
+						lastTaskId: this.taskId
+					}
+				})
 			}
 		},
 		computed: {
@@ -232,6 +237,18 @@
 			},
 			allTrainFinished () {
 				return this.$store.state.allTrainFinished;
+			},
+			fLId () {
+				return this.$route.query.fLId || this.$store.state.fLId;
+			},
+			taskId () {
+				return this.$route.params.taskId || this.$store.state.taskId;
+			},
+			targetId () {
+				return this.$route.query.targetId || this.$store.state.targetId;
+			},
+			targetName () {
+				return this.$route.query.targetName || this.$store.state.targetName;
 			}
 		}
 	}

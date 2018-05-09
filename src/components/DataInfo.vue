@@ -13,7 +13,7 @@
 				      @focus="focusOnTarget"
 				      @blur="blurTarget"
 				      class="target-input"
-				      :disabled="!!fLId"
+				      :disabled="!!targetName || !dataPicFinished"
 				    ></el-autocomplete>	
 				</div>
 
@@ -319,6 +319,7 @@
 			return {
 				fLId: this.$route.query.fLId,
 				targetId: this.$route.query.targetId,
+				targetName: this.$route.query.targetName,
 				inTrain: false,
 				projectId: this.$route.params.projectId,
 				featureList: [],
@@ -326,8 +327,6 @@
 				testPercent: 0,
 				showAdvancedOption: false,
 				maxHeight: '374px',
-				targetFixed: true,
-				targetId: '',
 				targetInfo: {
 					value: '',
 					id: ''
@@ -355,7 +354,7 @@
 			 * toggle高级选项
 			 */
 			advancedOption () {
-				if (!this.dataPicFinished || this.fLId) {
+				if (!this.dataPicFinished || this.taskId) {
 					return;
 				}
             	this.showAdvancedOption = !this.showAdvancedOption;
@@ -367,11 +366,11 @@
 			 * @param {string} target 特征目标
 			 */
 			showBar (target) {
+				console.log('in showBar');
 				console.log(target);
 				//this.targetInfo = target;
 				this.targetInfo.value = target.value;
 				this.targetInfo.id = target.id;
-
 				this.targetId = target.id;
 				getFeatureDistr(target.id).then (data => {
 					console.log(data);
@@ -411,6 +410,10 @@
 					}
 				}
 				this.$store.state.trainObj.targetFeatureId = target.feature_id;
+				this.$store.state.trainObj.targetId = target.feature_id;
+				this.$store.state.trainObj.targetName = this.targetInfo.value;
+				
+				
 				this.dataPicFinished = true;
 			},
 
@@ -422,7 +425,7 @@
 			startRun () {
 				const trainObj = this.$store.state.trainObj;
 				const featureListId = trainObj.featureListId || -1;
-				const targetId = trainObj.targetFeatureId || this.targetId;
+				const targetId = trainObj.targetId || this.targetId;
 				const params = {
 					project_id: this.projectId,
                 	feature_list_id: featureListId,
@@ -451,8 +454,19 @@
 						this.inTrain = true;
 						this.maxHeight = '1000px';
 						// this.$router.push(`/main/data/train/${this.projectId}/${task_id}/${featureListId}/${targetId}`);
-						this.$router.push(`/main/data/train/${this.projectId}/${task_id}?fLId=${featureListId}&targetId=${targetId}`);
-						
+						//this.$router.push(`/main/data/train/${this.projectId}/${task_id}?fLId=${featureListId}&targetId=${targetId}&targetName=${this.targetInfo.value}`);
+						this.$router.push({
+							path: `/main/data/train/${this.projectId}/${task_id}`,
+							query: {
+								fLId: featureListId,
+								targetId: targetId,
+								targetName: this.targetInfo.value
+							}
+						})
+						this.$store.commit('SET_FL_ID', featureListId);
+						this.$store.commit('SET_TASK_ID', task_id);
+						this.$store.commit('SET_TARGET_ID', targetId);
+						this.$store.commit('SET_TARGET_NAME', this.targetInfo.value);
 						// this.$store.state.progressItems.length = 0;
 
 						//this.pollTrainTask(this.projectId, 500);
@@ -528,7 +542,6 @@
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
 										portraitProgress.duration = portrait_task.duration + 's';
-										this.targetFixed = false;
 										this.dataPicFinished = true;
 										this.$refs.coreData.init(-1, {project_id: this.projectId});
 										break;
@@ -570,25 +583,14 @@
             this.maxHeight = (h - 100) + 'px';
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.$store.commit('SET_PROJECT_ID', this.projectId);
+            
+			if (this.targetId && this.fLId && this.targetName) {
 
-           	const query = this.$route.query;
-
-			if (query && query.targetId && query.fLId) {
-				for (let i = 0, len = this.queryList.length; i < len; i++) {
-					if (this.queryList[i].id == query.targetId) {
-						this.targetInfo.id = this.queryList[i].id;
-						this.targetInfo.value =  this.queryList[i].value;
-						break;
-					}
-				}
-				
-				this.targetId = query.targetId;
-				console.log(this.targetInfo);
+				this.targetInfo.value = this.targetName;
+				this.targetInfo.id = this.targetId;
 				if (this.targetInfo.value) {
 					this.showBar(this.targetInfo);
-					this.targetFixed = true;
 				}
-				
 			}
 
            	// 状态栏初始化

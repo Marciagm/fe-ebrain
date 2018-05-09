@@ -77,7 +77,7 @@
 			    		<div class="nav-sep"></div>
 			    		<button class="nav-item" :style="{color: topn}" @click="showData('topn', props.row)">TopN</button>
 			    	</div>
-			    	<div id="dataShow"></div>
+			    	<div class="dataShow" :id='"dataShow" + props.row.feature_id'></div>
 
 			      </template>
 			    </el-table-column>
@@ -359,9 +359,10 @@
 				}
 				
 			}
-			#dataShow {
-				width: 450px;
-				height: 316px;
+			.dataShow {
+				width: 40%;
+				max-width: 100%;
+				height: 400px;
 				padding-left: 30px;
 				padding-bottom: 20px;
 			}
@@ -394,8 +395,13 @@
      */
     function drawChart (id, data) {
     	const type = data.type == 1 ? 'line' : 'bar';
-    	console.log(data);
-    	const chart = echarts.init(document.getElementById(id));
+    	const chartCon = document.getElementById(id);
+    	
+    	const len = data.value.length;
+    	chartCon.style.width = Math.min(40 + len / 2 * 1, 80) + '%';
+    	// chartCon.style.height = '316px';
+    	const chart = echarts.init(chartCon);
+    	chart.clear();
     	const option = {
 			color: '#71b2f3',
             title: {
@@ -496,7 +502,11 @@
     	const type = data.type == 1 ? 'line' : 'bar';
     	console.log(data);
     	const barWidth = data.barWidth;
-    	const chart = echarts.init(document.getElementById(id));
+    	const chartCon = document.getElementById(id);
+    	const len = data.value.length;
+    	//chartCon.style.height = (316 + len * 10) + 'px';
+    	const chart = echarts.init(chartCon);
+    	chart.clear();
     	const option = {
 		    title: {
 		        text: '特征名',
@@ -979,9 +989,8 @@
 			 * @param {Object} row 行信息
 			 */
 			showData (tag, row) {
+				const id = `dataShow${row.feature_id}`;
 				if (tag !== 'topn') {
-					var dataShow = document.getElementById('dataShow');
-					let chart = echarts.init(dataShow);
 					this.topn = '#666';
 					this.dataDistr = '#0d68c4';
 					// @TODO task_id
@@ -995,7 +1004,6 @@
 							this.$message.error(error.desc);
 							return;
 						}
-						console.log(data);
 						const xData = {
 							type: row.type,
 							value: [],
@@ -1007,12 +1015,10 @@
 							xData.value.push(item.value);
 							xData.freq.push(item.freq);
 						}
-						drawChart('dataShow', xData);
+						drawChart(id, xData);
 					})
 				}
 				else {
-					var dataShow = document.getElementById('dataShow');
-					let chart = echarts.init(dataShow);
 					this.dataDistr = '#666';
 					this.topn = '#0d68c4';
 					const params = {};
@@ -1034,120 +1040,17 @@
 						};
 						const len = histogram.length;
 						xData.barWidth = (40 - (len - 2) * 2) + '%';
+						const histogramSort = histogram.sort((a, b) => {
+							return a.freq - b.freq;
+						})
+
 						for (let i = 0; i < len; i++) {
-							const item = histogram[i];
+							const item = histogramSort[i];
 							xData.value.push(item.value);
 							xData.freq.push(item.freq);
 						}
-						drawDistr('dataShow', xData);
+						drawDistr(id, xData);
 					})
-					return;
-					let option = {
-					    title: {
-					        text: '特征名',
-					        textStyle: {
-					        	color: '#999',
-					        	fontSize: '12px'
-					        }
-					    },
-					    tooltip: {
-					        trigger: 'axis',
-					        axisPointer: {
-					            type: 'shadow'
-					        }
-					    },
-					    legend: {
-					        //data: ['2011年', '2012年']
-					    },
-					    grid: {
-					        left: '3%',
-					        right: '4%',
-					        bottom: '3%',
-					        containLabel: true
-					    },
-					    xAxis: {
-					    	splitLine: {
-					    		// false 时没有网格线
-					    		//show: true
-					    		show: false
-					    	},
-					        type: 'value',
-					        boundaryGap: [0, 0.01],
-					        axisLabel: {
-					        	color: '#ccc',
-					        	textStyle: {
-					        		color: '#fff'
-					        	}
-					        },
-					        axisLine: {
-					        	lineStyle: {
-					        		color: '#ccc',
-					        		width: 2
-					        	}
-					        }
-					    },
-					    yAxis: {
-					        type: 'category',
-					        data: ['巴西','印尼','美国','印度','中国','世界人口(万)'],
-					        axisLabel: {
-					        	rotate: -45,
-					        	textStyle: {
-					        		color: '#999'
-					        	}
-					        },
-					        axisLine: {
-					        	lineStyle: {
-					        		color: '#ccc',
-					        		width: 2
-					        	}
-					        }
-					    },
-					    series: [
-					        {
-					            name: '2011年',
-					            type: 'bar',
-					            color: '#000',
-					            data: [18203, 23489, 29034, 104970, 131744, 630230],
-					            itemStyle: {
-					                normal: {
-					                    color: new echarts.graphic.LinearGradient(
-					                        0, 0, 0, 1,
-					                        [
-					                            {offset: 0, color: '#4f9eef'},
-					                            {offset: 0.5, color: '#62a9f1'},
-					                            {offset: 1, color: '#71b2f3'}
-					                        ]
-					                    )
-					                },
-					                emphasis: {
-					                    color: new echarts.graphic.LinearGradient(
-					                        0, 0, 0, 1,
-					                        [
-					                            {offset: 0, color: '#2378f7'},
-					                            {offset: 0.7, color: '#2378f7'},
-					                            {offset: 1, color: '#83bff6'}
-					                        ]
-					                    )
-					                }
-					            },
-					            // 展示数据
-					            label: {
-					            	normal: {
-					            		show: true,
-					            		position: 'right'
-					            	}
-					            },
-					            barWidth: 10,
-					            barMaxWidth: 60
-					        }/*,
-					        {
-					            name: '2012年',
-					            type: 'bar',
-					            data: [19325, 23438, 31000, 121594, 134141, 681807]
-					        }*/
-					    ]
-					};
-					chart.setOption(option);
 				}
 			}
 		},
@@ -1160,7 +1063,6 @@
 			const params = {
 				project_id: this.projectId
 			};
-			console.log('in mounted');
 			this.$store.commit('SET_TRAIN_STATUS', false);
 			if (this.fLId && this.targetId) {
 				this.isEigenActive = true;

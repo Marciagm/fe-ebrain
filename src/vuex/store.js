@@ -64,12 +64,19 @@ const state = {
         featureNum: 0,
         featureListId: -1,
         targetFeatureId: '',
+        targetId: '',
+        targetName: '',
         timeSerialFeatureId: '',
         varifyNum: 0,
         splitMethod: 1
     },
     timeTypeList: [],
     allTrainFinished: false,
+    fLId: '',
+    targetId: '',
+    taskId: '',
+    targetName: '',
+    modelStatus: false
 }
 
 // 定义所需的 mutations
@@ -125,6 +132,23 @@ const mutations = {
     },
     SET_TRAIN_STATUS (state, status) {
         state.allTrainFinished = status;
+    },
+
+    // ids
+    SET_FL_ID (state, id) {
+        state.fLId = id;
+    },
+    SET_TARGET_ID (state, id) {
+        state.targetId = id;
+    },
+    SET_TARGET_NAME (state, name) {
+        state.targetName = name;
+    },
+    SET_TASK_ID (state, id) {
+        state.taskId = id;
+    },
+    SET_MODEL_STATUS (state, status) {
+        state.modelStatus = status;
     }
 }
 

@@ -62,6 +62,7 @@
 								};
 								console.log(this.$refs.coreData.init);
 								dataLoaded = true;
+
 								this.$refs.coreData.init(train_info.feature_list_id, params);
 								this.$refs.coreData.showImportance();
 								//this.init(train_info.feature_list_id, params);
@@ -100,6 +101,9 @@
 							// 训练任务结束
 							case 4: 
 								progressItems.pop();
+								// 模型也可以点击了
+								this.$store.commit('SET_MODEL_STATUS', true);
+								alert('模型能点啦！！并会添加浮夸的样式！');
 								clearInterval(timer);
 								break;
 							case 5: 
