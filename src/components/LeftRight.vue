@@ -63,6 +63,10 @@
 			</div>
 			<!-- 算法 -->
 			<div style="margin-top: 23px;" v-else>
+				<div style="display: none;">
+					<div>算法名字</div>
+					<div>完成</div>
+				</div>
 				<div style="font-size: 12px; color: #999; margin-left: 30px;">
 					训练结束
 				</div>

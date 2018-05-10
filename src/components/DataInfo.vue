@@ -17,7 +17,7 @@
 				    ></el-autocomplete>	
 				</div>
 
-				<div class="chart-con">	
+				<div class="chart-con">
 					<div id="bar-chart" v-show="targetId"></div>
 				</div>
 
@@ -36,11 +36,11 @@
 			<div class="data-info-avo" v-if="!inTrain">
 				<div @click="advancedOption" class="info-avo-option">
 					<span class="info-avo-label">显示高级选项</span>
-					<img v-if="!showAdvancedOption" src="../images/Down-arrow-small.png">
+					<img v-if="!showOption" src="../images/Down-arrow-small.png">
 					<img v-else src="../images/Down-arrow-small.png" style="transform:rotate(180deg);">
 				</div>
-				<div v-show="showAdvancedOption" class="info-avo-con">
-					<advanced-option></advanced-option>			
+				<div v-if="showAdvancedOption" v-show="showOption" class="info-avo-con">
+					<advanced-option ref="option"></advanced-option>			
 				</div>
 			</div> 
 
@@ -207,10 +207,12 @@
 	 * @param {Object} data 绘制图表的数据 
 	 */
 	function drawChart(id, data) {
+		console.log(data.freq);
 		console.log('in drawChart');
+		console.log(data.type);
 		// @TODO 时间类型
 		const type = data.type == 1 ? 'line' : 'bar';
-
+		console.log('type: ' + type);
 		//const titleText = '共150个特征，显示前10个特征';
 		const titleText = data.titleText;
 		const chart = echarts.init(document.getElementById(id));
@@ -231,7 +233,7 @@
             	{
                     splitLine:{show: false},//去除网格线
                     type : 'category',
-                	data: data.value,
+                	data: data.freq,
                 	show: true,
                 	color: '#fff',
 	                axisLabel: {
@@ -302,7 +304,8 @@
 		            },
 		            barWidth: '30%',
 		            //data: [5, 20, 36, Math.random() * 20 + 10, 10]
-		            data: data.freq
+		            // data: data.freq
+		            data: data.value
 		        }
             ]
         };
@@ -317,6 +320,7 @@
 		},
 		data () {
 			return {
+				showOption: false,
 				fLId: this.$route.query.fLId,
 				targetId: this.$route.query.targetId,
 				targetName: this.$route.query.targetName,
@@ -357,7 +361,8 @@
 				if (!this.dataPicFinished || this.taskId) {
 					return;
 				}
-            	this.showAdvancedOption = !this.showAdvancedOption;
+            	this.showAdvancedOption = true;
+            	this.showOption = !this.showOption;
 			},
 
 			/**
@@ -366,7 +371,6 @@
 			 * @param {string} target 特征目标
 			 */
 			showBar (target) {
-				console.log('in showBar');
 				console.log(target);
 				//this.targetInfo = target;
 				this.targetInfo.value = target.value;
@@ -388,11 +392,14 @@
 						};
 						const len = histogram.length;
 						// @TODO length不同margin不同
-						xData.margin = (25 - (len - 2) * 2) + '%';
+						xData.margin = Math.max((25 - (len - 2) * 2), 5) + '%';
 						xData.titleText = len > 10 ? `共${len}个特征，显示前10个特征` : '';
+						const sortHistogram = histogram.sort((a, b) => {
+							return b.value - a.value;
+						});
 
 						for (let i = 0; i < Math.min(len, 10); i++) {
-							const item = histogram[i];
+							const item = sortHistogram[i];
 							xData.freq.push(item.freq);
 							xData.value.push(item.value);	 
 						}
@@ -453,8 +460,6 @@
 						console.log(`task_id: ${task_id}`);
 						this.inTrain = true;
 						this.maxHeight = '1000px';
-						// this.$router.push(`/main/data/train/${this.projectId}/${task_id}/${featureListId}/${targetId}`);
-						//this.$router.push(`/main/data/train/${this.projectId}/${task_id}?fLId=${featureListId}&targetId=${targetId}&targetName=${this.targetInfo.value}`);
 						this.$router.push({
 							path: `/main/data/train/${this.projectId}/${task_id}`,
 							query: {
@@ -504,6 +509,7 @@
 						let { error, dataset_task, portrait_task } = data;
 						if (error) {
 							this.$message.error('');
+							clearInterval(timer);
 							return;
 						}
 						const datasetStatus = dataset_task.status;

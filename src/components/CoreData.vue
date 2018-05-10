@@ -104,6 +104,7 @@
 			    </el-table-column>
 			     <el-table-column
 			      prop="importance"
+			      sortable
 			      label="特征重要性"
 			      width="120"
 			      v-if="importanceShow"
@@ -187,7 +188,7 @@
 			    </el-table-column>
 			</el-table>
 			<!-- 表格部分 -->
-			<div style="" v-if="!isEigenActive">
+			<div style="" v-show="!isEigenActive">
 				<original-data :max-height="maxHeight"></original-data>
 			</div>
 		</div>
@@ -255,7 +256,6 @@
 		}
 		.original-active {
 			border-bottom: 1px solid #eee;
-			border-left: 1px solid #eee;
 			.original-label {
 				cursor: pointer;
 				border: 1px solid #eee; 
@@ -834,6 +834,7 @@
 						this.queryList.push({value: item.name, id: item.feature_id})
 					}
 					this.$store.commit('SET_TYPE_LIST', timeTypeList);
+					console.log(this.$store.state.timeTypeList);
 					this.$store.commit('SET_QUERY_LIST', this.queryList);
 					this.eigenData = features;
 					// 固定第一行
@@ -933,7 +934,7 @@
 			 * @param {Object} row 行信息
 			 */
 			chooseTarget (row) {
-				this.$emit('setTarget', {value: row.name, id: row.feature_id});
+				this.$emit('setTarget', {value: row.name, id: row.feature_id, type: row.type });
 			},
 
 			/**

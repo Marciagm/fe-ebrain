@@ -17,7 +17,7 @@
 					<div style="width: 580px;" v-if="random">
 						<button class="option-button-hl">随机</button>
 						<div class="option-sep"></div>
-						<button class="option-button-default" @click="chooseDis(0, false)">随时间划分</button>
+						<button :class="!noTimeType?'option-button-default' : 'option-button-dark'" @click="chooseDis(0, false)" :disabled="noTimeType">随时间划分</button>
 					</div>
 
 					<div style="width: 580px;" v-else>
@@ -86,6 +86,7 @@
 	export default {
 		data () {
 			return {
+				noTimeType: false,
 				featureName: '',
 				testPercent: 0,
 				random: true,
@@ -132,11 +133,26 @@
 			}
 		},
 		mounted () {
-			console.log('in advanced-option');
-			console.log(this.$store.state.timeTypeList);
+			setTimeout(() => {
+				if (!this.$store.state.timeTypeList.length) {
+					this.noTimeType = true;
+				}
+				else {
+					this.noTimeType = false;
+				}
+				console.log(`this.noTimeType: ${this.noTimeType}`);
+			}, 0)
+			
 		},
 		computed: {
 			timeTypeList () {
+				console.log(this.$store.state.timeTypeList);
+				if (!this.$store.state.timeTypeList.length) {
+					this.noTimeType = true;
+				}
+				else {
+					this.noTimeType = false;
+				}
 				return this.$store.state.timeTypeList;
 			},
 			varifyNum: {

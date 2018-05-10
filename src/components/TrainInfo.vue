@@ -83,9 +83,10 @@
 								name: '准备中...',
 								status: 0
 							})
+							const status = trainingTask.status;
+							const uploadProgress = this.$store.state.uploadProgress;
 						}
-						const status = trainingTask.status;
-						const uploadProgress = this.$store.state.uploadProgress;
+					
 						
 						// 上传数据
 						switch (status) {

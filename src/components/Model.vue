@@ -229,18 +229,10 @@
 				],
 				eigenList: [
 					{
-						name: '全部',
+						name: '全部特征',
 						id: 0
-					}, {
-						name: 'top10',
-						id: 1
-					}, {
-						name: 'top20',
-						id: 2
-					}, {
-						name: 'new',
-						id: 3
-					}],
+					}
+				],
 				modelList: [
 					{
 						name: '算法1',
@@ -376,6 +368,22 @@
 					}
 	 				if (!goOn) {
 	 					clearInterval(timer);
+	 					this.eigenList.length = 0;
+	 					let name = [];
+	 					let id = [];
+	 					for (let i = 0, len = this.modelList.length; i < len; i++) {
+	 						const item = this.modelList[i];
+	 						name.push(item.listName);
+	 						id.push(item.id);
+	 					}
+	 					name = [...new Set(name)];
+	 					id = [...new Set(id)];
+	 					for (let i = 0, len = name.length; i < len; i++) {
+	 						this.eigenList.push({
+	 							name: name[i],
+	 							id: id[i]
+	 						})
+	 					}
 	 					// 训练完成
 	 					this.$store.commit('SET_TRAIN_STATUS', true);
 	 				}
