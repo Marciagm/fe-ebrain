@@ -142,7 +142,6 @@
 				}
 				console.log(`this.noTimeType: ${this.noTimeType}`);
 			}, 0)
-			
 		},
 		computed: {
 			timeTypeList () {
