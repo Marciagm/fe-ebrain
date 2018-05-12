@@ -27,7 +27,7 @@
 					</div>
 				</div>
 
-				<div style="display: inline-block; width: 302px;" v-if="!random">
+				<div style="display: inline-block; width: 302px;" v-if="!random && !noTimeType">
 					<div class="option-value">选择特征例</div>
 					<div style="width: 580px;">
 						<el-dropdown trigger="click" placement="bottom-start" @command="select">
@@ -71,13 +71,12 @@
 					<div style="display: inline-block; width: 302px; vertical-align: top;">
 					    <span class="option-value">测试集百分比</span>
 					    <div>
-					    	<button style="background-color: #fff; height: 24px; border-radius: 4px;border: solid 1px #ccc; margin-right: 16px; width: 54px;">{{ testPercent/5 }}%</button>
-					        <el-slider v-model="testPercent" style="width: 145px; display: inline-block;vertical-align: middle;" :format-tooltip="formatTestPercent"></el-slider>
+					    	<button style="background-color: #fff; height: 24px; border-radius: 4px;border: solid 1px #ccc; margin-right: 16px; width: 54px;">{{ Math.floor(testPercent/5) }}%</button>
+					        <el-slider :min=25 v-model="testPercent" style="width: 145px; display: inline-block;vertical-align: middle;" :format-tooltip="formatTestPercent"></el-slider>
 						</div>
-					    <div class="state-label">（测试集的数据占总数据百分比必须介于0%-20%）</div>
+					    <div class="state-label">（测试集的数据占总数据百分比必须介于5%-20%）</div>
 					</div>
 				</div>
-				
 			</el-col>
 		</el-row>
 	</div>
@@ -88,17 +87,29 @@
 			return {
 				noTimeType: false,
 				featureName: '',
-				testPercent: 0,
+				testPercent: 100,
 				random: true,
 				crossVadify: true
 			}
 		},
 		methods: {
+			updateTimeTypeList () {
+				console.log('in updateTimeTypeList');
+				if (!this.$store.state.timeTypeList.length) {
+					this.noTimeType = true;
+					this.chooseDis(0, true)
+				}
+				else {
+					this.noTimeType = false;
+				}
+			},
 			formatVarifyNum (val) {
 				return val  / 10;
 			},
 			formatTestPercent (val) {
-				return val / 5 + '%';
+				this.$store.state.trainObj.testRatio = Math.floor(val / 5);
+				return Math.floor(val / 5) + '%';
+				// return val / 5 + '%';
 			},
 			chooseDis (row, val) {
 				const trainObj = this.$store.state.trainObj;

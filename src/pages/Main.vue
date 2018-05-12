@@ -1,9 +1,8 @@
 <template>
     <div>
-        <top-part></top-part>
+       <!--  <top-part></top-part> -->
         <el-row id="mainView" class="container">
             <el-col class="main">
-                <div style="height: 20px; background: #f4f4f6;"></div>
                 <transition name="fade" mode="out-in">
                     <router-view></router-view>
                 </transition>
@@ -18,7 +17,6 @@
     import topPart from '@/components/Top.vue'
 
     export default {
-
         components: {
             topPart
         },

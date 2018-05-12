@@ -1,53 +1,54 @@
 <template>
-	<left-right>
-		<div slot="left" ref="info-left">
-			<div class="target" v-if="!inTrain">
-				<div style="display: inline-block; width: 210px; margin-right: 1%; flex: 2">
-					<div v-if="!dataPicFinished || fLId" class="target-label" style="color: #ccc;">输入预测目标</div>
-					<div v-else class="target-label" for="target">输入预测目标</div>
-					<el-autocomplete
-				      v-model="targetInfo.value"
-				      :fetch-suggestions="querySearch"
-				      placeholder="输入预测目标"
-				      @select="showBar"
-				      @focus="focusOnTarget"
-				      @blur="blurTarget"
-				      class="target-input"
-				      :disabled="!!targetName || !dataPicFinished"
-				    ></el-autocomplete>	
+	<div>
+		<top-part :navIndex=0></top-part>
+		<left-right>
+			<div slot="left" ref="info-left">
+				<div class="target" v-if="!inTrain">
+					<div style="display: inline-block; width: 210px; margin-right: 1%; flex: 2">
+						<div v-if="!dataPicFinished || fLId" class="target-label" style="color: #ccc;">输入预测目标</div>
+						<div v-else class="target-label" for="target">输入预测目标</div>
+						<el-autocomplete
+					      v-model="targetInfo.value"
+					      :fetch-suggestions="querySearch"
+					      placeholder="输入预测目标"
+					      @select="showBar"
+					      @focus="focusOnTarget"
+					      @blur="blurTarget"
+					      class="target-input"
+					      :disabled="targetDisabled"
+					    ></el-autocomplete>	
+					</div>
+
+					<div class="chart-con">
+						<div id="bar-chart" v-show="targetId"></div>
+					</div>
+
+					<div style="display: inline-block; flex: 2;">
+						<el-button v-if="!targetId" type="info" class="start-run run-default" disabled>启动训练</el-button>
+						<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
+					</div>
+					<div class="tips" v-if="tipsStatus">
+						{{ tips }}
+					</div>
 				</div>
 
-				<div class="chart-con">
-					<div id="bar-chart" v-show="targetId"></div>
-				</div>
+				<!-- 显示高级选项 -->
+				<div class="data-info-avo" v-if="!inTrain">
+					<div @click="advancedOption" class="info-avo-option">
+						<span class="info-avo-label">显示高级选项</span>
+						<img v-if="!showOption" src="../images/Down-arrow-small.png">
+						<img v-else src="../images/Down-arrow-small.png" style="transform:rotate(180deg);">
+					</div>
+					<div v-show="showOption" class="info-avo-con">
+						<advanced-option ref="option"></advanced-option>			
+					</div>
+				</div> 
 
-				<div style="display: inline-block; flex: 2;">
-					<!-- <el-button v-if="!dataPicFinished" type="info" class="start-run run-default" disabled>启动训练</el-button> -->
-					<el-button v-if="!targetId" type="info" class="start-run run-default" disabled>启动训练</el-button>
-					
-					<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
-				</div>
-				<div class="tips" v-if="tipsStatus">
-					{{ tips }}
-				</div>
+				<!-- 表格 -->
+				<core-data style="margin-top: 20px;" :inTrainStep="inTrain" :maxHeight="maxHeight" v-on:setTarget="showBar" ref="coreData"></core-data>
 			</div>
-
-			<!-- 显示高级选项 -->
-			<div class="data-info-avo" v-if="!inTrain">
-				<div @click="advancedOption" class="info-avo-option">
-					<span class="info-avo-label">显示高级选项</span>
-					<img v-if="!showOption" src="../images/Down-arrow-small.png">
-					<img v-else src="../images/Down-arrow-small.png" style="transform:rotate(180deg);">
-				</div>
-				<div v-if="showAdvancedOption" v-show="showOption" class="info-avo-con">
-					<advanced-option ref="option"></advanced-option>			
-				</div>
-			</div> 
-
-			<!-- 表格 -->
-			<core-data style="margin-top: 20px;" :inTrainStep="inTrain" :maxHeight="maxHeight" v-on:setTarget="showBar" ref="coreData"></core-data>
-		</div>
-	</left-right>
+		</left-right>
+	</div>
 </template>
 <style lang="scss">
 	table {
@@ -124,10 +125,6 @@
 			linear-gradient(
 				#cccccc, 
 				#cccccc);
-			background-blend-mode: normal, 
-				normal;
-			box-shadow: 0px 4px 6px 0px 
-				rgba(5, 0, 50, 0.2);
 			&:hover {
 				opacity: 0.7;
 			}
@@ -194,6 +191,7 @@
 	}
 </style>
 <script>
+	import topPart from '@/components/Top.vue'
 	import echarts from 'echarts'
 	import advancedOption from '@/components/AdvancedOption'
 	import leftRight from '@/components/LeftRight.vue'
@@ -233,7 +231,8 @@
             	{
                     splitLine:{show: false},//去除网格线
                     type : 'category',
-                	data: data.freq,
+                	data: data.value,
+                	//data: data.freq,
                 	show: true,
                 	color: '#fff',
 	                axisLabel: {
@@ -304,8 +303,8 @@
 		            },
 		            barWidth: '30%',
 		            //data: [5, 20, 36, Math.random() * 20 + 10, 10]
-		            // data: data.freq
-		            data: data.value
+		            data: data.freq
+		            //data: data.value
 		        }
             ]
         };
@@ -314,12 +313,15 @@
   
 	export default {
 		components: {
+			topPart,
 			advancedOption,
 			leftRight,
 			coreData
 		},
 		data () {
 			return {
+				targetDisabled: false,
+				isEigenActive: false,
 				showOption: false,
 				fLId: this.$route.query.fLId,
 				targetId: this.$route.query.targetId,
@@ -329,7 +331,6 @@
 				featureList: [],
 				dataPicFinished: false,
 				testPercent: 0,
-				showAdvancedOption: false,
 				maxHeight: '374px',
 				targetInfo: {
 					value: '',
@@ -339,10 +340,8 @@
 		},
 		methods: {
 			blurTarget () {
-				console.log(this.targetInfo);
 				for (let i = 0, len = this.queryList.length; i < len; i++ ) {
 					const item = this.queryList[i];
-					console.log(item);
 					if (this.targetInfo.id == item.id && this.targetInfo.value == item.value) {
 						//this.targetId = this.targetInfo.id;
 						break;
@@ -358,10 +357,10 @@
 			 * toggle高级选项
 			 */
 			advancedOption () {
-				if (!this.dataPicFinished || this.taskId) {
+				if (!this.dataPicFinished) {
 					return;
 				}
-            	this.showAdvancedOption = true;
+            	this.$refs.option.updateTimeTypeList();
             	this.showOption = !this.showOption;
 			},
 
@@ -419,8 +418,6 @@
 				this.$store.state.trainObj.targetFeatureId = target.feature_id;
 				this.$store.state.trainObj.targetId = target.feature_id;
 				this.$store.state.trainObj.targetName = this.targetInfo.value;
-				
-				
 				this.dataPicFinished = true;
 			},
 
@@ -438,11 +435,13 @@
                 	feature_list_id: featureListId,
                 	target_feature_id: targetId,
                 	config: {
+                		// split_method: 0-unknown 1-交叉验证 2-训练测试验证   
                 		split_method: trainObj.splitMethod,
                 		cross_valid_fold: trainObj.varifyNum / 10,
         				// 当选择“随时间划分”时出现 @TODO 标示区分方法
         				//time_serial_feature_id: trainObj.timeSerialFeatureId,
-        				test_ratio:  2,// 百分位
+        				// 测试百分比
+        				test_ratio: trainObj.testRatio,// 百分位
         				//max_run_time: 2,
                 	},
 				};
@@ -461,19 +460,13 @@
 						this.inTrain = true;
 						this.maxHeight = '1000px';
 						this.$router.push({
-							path: `/main/data/train/${this.projectId}/${task_id}`,
-							query: {
-								fLId: featureListId,
-								targetId: targetId,
-								targetName: this.targetInfo.value
-							}
+							path: `/main/data/train/${this.projectId}`
 						})
 						this.$store.commit('SET_FL_ID', featureListId);
 						this.$store.commit('SET_TASK_ID', task_id);
 						this.$store.commit('SET_TARGET_ID', targetId);
 						this.$store.commit('SET_TARGET_NAME', this.targetInfo.value);
 						// this.$store.state.progressItems.length = 0;
-
 						//this.pollTrainTask(this.projectId, 500);
 						console.log(data);
 					}
@@ -503,17 +496,32 @@
 			 * @param {number} interval 间隔
 			 */
 			pollTask (projectId,  interval) {
+				let initCoreData = false;
 				const timer = setInterval ( () => {
 					poll(projectId).then(data => {
 						console.log(data);
-						let { error, dataset_task, portrait_task } = data;
+						let { error,target_feature_id, target_feature_name, dataset_task, portrait_task, preprocessing_task, training_task } = data;
 						if (error) {
 							this.$message.error('');
 							clearInterval(timer);
 							return;
 						}
+						this.targetId = target_feature_id;
 						const datasetStatus = dataset_task.status;
 						const uploadProgress = this.$store.state.uploadProgress;
+
+						const preProcessingTask = preprocessing_task;
+						if (preProcessingTask) {
+							this.$refs.coreData.setEigenActive(true);
+							this.targetInfo.id = target_feature_id;
+							this.targetInfo.value = target_feature_name || 'nnn';
+							this.targetDisabled = true;
+							this.showBar(this.targetInfo);
+							const { stages, preprocess_info } = preProcessingTask;
+							this.taskId = preProcessingTask.task_id;
+							this.fLId = preprocess_info.feature_list_id;
+
+						}
 
 						// 上传数据
 						switch (datasetStatus) {
@@ -529,7 +537,8 @@
 							// 上传成功后再判断数据画像
 							case 4: 
 								this.$store.state.uploadProgress.percent = '100%';
-								this.$store.state.uploadProgress.duration = '10s';
+								// this.$store.state.uploadProgress.duration = '10s';
+								this.$store.state.uploadProgress.duration = Math.max(dataset_task.duration, 1) + 's';
 								this.$store.state.uploadProgress.status = 2;
 								if (!portrait_task) {
 									return;
@@ -545,11 +554,19 @@
 										break;
 									case 4: 
 										clearInterval(timer);
+										this.$store.commit('SET_CUR_STATUS', 1);
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
 										portraitProgress.duration = portrait_task.duration + 's';
 										this.dataPicFinished = true;
-										this.$refs.coreData.init(-1, {project_id: this.projectId});
+										this.$refs.coreData.init(this.fLId, {project_id: this.projectId});
+
+										this.$refs.coreData.initCoreData({
+											taskId: this.taskId,
+											targetId: this.targetId,
+											fLId: this.fLId,
+											isEigenActive: true
+										});
 										break;
 									case 5: 
 										clearInterval(timer);
@@ -582,16 +599,20 @@
             	portraitProgress.status = 1;
             	portraitProgress.percent = '0%';
 				this.$store.state.progressItems.push(uploadProgress, portraitProgress);
+			},
+			styleInit () {
+				let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            	this.maxHeight = (h - 100) + 'px';
 			}
-		},
+ 		},
 		mounted () {
-			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-            this.maxHeight = (h - 100) + 'px';
+			this.styleInit();
+
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.$store.commit('SET_PROJECT_ID', this.projectId);
-            
+          
 			if (this.targetId && this.fLId && this.targetName) {
-
+				
 				this.targetInfo.value = this.targetName;
 				this.targetInfo.id = this.targetId;
 				if (this.targetInfo.value) {

@@ -29,28 +29,28 @@
 						<tr>
 							<td class="td bb" style="font-size: 18px;">+</td>
 							<td>
-								<div style="margin-right: 3px;" class="cross">123(TP)</div>
+								<div style="margin-right: 3px;" class="cross">{{ predictValues.tp }}(TP)</div>
 							</td>
 							<td class="hilight">
-								<div class="cross">123(FN)</div>
+								<div class="cross">{{ predictValues.fn }}(FN))</div>
 							</td>
-							<td class="bb">num5</td>
+							<td class="bb">{{ predictValues.num5 }}</td>
 						</tr>
 						<tr>
 							<td class="td bb" style="font-size: 18px;">-</td>
 							<td class="hilight">
-								<div style="margin-right: 3px;" class="crossN">123(TN)</div>
+								<div style="margin-right: 3px;" class="crossN">{{predictValues.fp}}(FP))</div>
 							</td>
 							<td class="hilight">
-								<div class="crossN">123(FP)</div>
+								<div class="crossN">{{predictValues.tn}}(TN)</div>
 							</td>
-							<td class="bb">num4</td>
+							<td class="bb">{{predictValues.num4}}</td>
 						</tr>
 						<tr>
 							<td class="td br"></td>
-							<td class="br">num1</td>
-							<td class="br">num2</td>
-							<td class="td">num3</td>
+							<td class="br">{{ predictValues.num1 }}</td>
+							<td class="br">{{ predictValues.num2 }}</td>
+							<td class="td">{{ predictValues.num3 }}</td>
 						</tr>
 					</table>
 				</div>
@@ -58,12 +58,12 @@
 		</el-row>
 		<div style="margin-top: 75px;">
 			<el-col :span="11">
-				<div :id="'roc' + id" style="background: red; height: 350px;">
+				<div :id="'roc' + id" style="height: 350px;">
 					
 				</div>
 			</el-col>
 			<el-col :span="13">
-				<div :id="'distribution' + id" style="background: green; height: 350px;">
+				<div :id="'distribution' + id" style="height: 350px;">
 				</div>
 			</el-col>
 		</div>
@@ -107,6 +107,7 @@
 	.table {
 		border-spacing: 0;
 		color: #666666;
+		background: '#fff';
 		td {
 			padding: 0;
 			margin: 0;
@@ -211,6 +212,23 @@
 		        	obj.basicIndex[5].value = item.npv;
 		        	// 准确率
 		        	obj.basicIndex[6].value = item.ppv;
+		        	let tn = parseInt(item.tn);
+		        	let tp = parseInt(item.tp);
+		        	let fn = parseInt(item.fn);
+		        	let fp = parseInt(item.fp);
+
+		        	obj.predictValues.tn = tn;
+		        	obj.predictValues.fp = fp;
+					obj.predictValues.fn = fn;
+		        	obj.predictValues.tp = tp;
+
+		        	obj.predictValues.num1 = tp + fp;
+					obj.predictValues.num2 = fn + tn;
+					
+					obj.predictValues.num4 = tn + fp;
+					obj.predictValues.num5 = fn + tp;
+					obj.predictValues.num3 = tn + tp + fn + fp;
+
 		        	const vv = [0.6, 0.8, 0.6, 0.8];
 		        	const index = Math.floor(Math.random() * 4);
 		        	console.log('index: ' + index + '  ' + vv[index]);
@@ -501,7 +519,7 @@
 
 					    rich: {
 					        a: {
-					            color: 'red',
+					            //color: 'red',
 					            lineHeight: 10
 					        },
 					        b: {
@@ -594,6 +612,17 @@
 		props: ['id'],
 		data () {
 			return {
+				predictValues: {
+					fn: '',
+					fp: '',
+					tn: '',
+					tp: '',
+					num1: '1',
+					num2: '2',
+					num3: '3',
+					num4: '4',
+					num5: '5'
+				},
 				auc: '',
 				maxFscoreIndex: '',
 				basicIndex: [

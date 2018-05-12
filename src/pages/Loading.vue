@@ -1,9 +1,12 @@
 <template>
-	<left-right>
-		<div slot="left" class="uploading-left">
-			<img class="uploadig-img" src="../images/Upload-data2.png">
-		</div>
-	</left-right>
+	<div>
+		<top-part></top-part>
+		<left-right>
+			<div slot="left" class="uploading-left">
+				<img class="uploadig-img" src="../images/Upload-data2.png">
+			</div>
+		</left-right>
+	</div>
 </template>
 <style lang="scss" scoped>
 	.uploading-left {
@@ -20,6 +23,7 @@
 	}
 </style>
 <script>
+	import topPart from '@/components/Top.vue'
 	import leftRight from '@/components/LeftRight.vue'
 	// @TODO 需要优化
 	function initUploadProgress (progress) {
@@ -31,6 +35,7 @@
 	
 	export default {
 		components: {
+			topPart,
 			leftRight
 		},
 		methods: {

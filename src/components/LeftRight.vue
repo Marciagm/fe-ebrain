@@ -63,15 +63,60 @@
 			</div>
 			<!-- 算法 -->
 			<div style="margin-top: 23px;" v-else>
-				<div style="display: none;">
-					<div>算法名字</div>
-					<div>完成</div>
+				<div v-if="allModelFinished">
+					<div style="font-size: 12px; color: #999; margin-left: 30px;">
+						训练结束
+					</div>
+					<div style="height: 29px; line-height:29px; font-size: 12px;  background: #eee; width: 99px; text-align: center; border: solid 1px #e6e6e6; margin-left: 20px; margin-top: 20px;letter-spacing: 1px; cursor: pointer;" @click="goToTrain">
+						重新训练模型
+					</div>
 				</div>
-				<div style="font-size: 12px; color: #999; margin-left: 30px;">
-					训练结束
-				</div>
-				<div style="height: 29px; line-height:29px; font-size: 12px;  background: #eee; width: 99px; text-align: center; border: solid 1px #e6e6e6; margin-left: 20px; margin-top: 20px;letter-spacing: 1px; cursor: pointer;" @click="goToTrain">
-					重新训练模型
+				<div v-else>
+					<div class="progress" v-for="item in modelProgressItems">
+						<!-- 尚未开始 -->
+						<div v-if="item.status==0">
+							<div class="progress-border"></div>
+							<!-- 正在进行时 -->
+							<div class="progress-con offset">
+								<div>{{ item.name }}</div>
+							</div>
+							<div class="progress-border"></div>
+						</div>
+						<!-- 已结束 -->
+						<div v-else-if="item.status==2">
+							<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
+							<div class="progress-con progress-bg"></div>
+							<div class="progress-con offset">
+								<div>{{ item.name }}</div>
+								<span class="progress-status duration" >({{ item.duration }})</span>
+							</div>
+							<img src="../images/finish.png" class="load-effect">
+							<div class="progress-border"></div>
+						</div>
+						<!-- 正在进行时或出错 -->
+						<div v-else>
+							<div class="progress-border" :style="{top: item.status==1 ? '' : 0}"></div>
+							<!-- 正在进行时 -->
+							<div v-if="item.status==1" class="progress-bar" style="width: 100%; background: #eee;">
+								<div class="progress-bar" :style="{width: item.percent}"></div>
+							</div>
+							
+							<div class="progress-con progress-bg" :style="{width: item.status==2 ?'' : item.percent}"></div>
+							
+							<div class="progress-con offset">
+								<div>{{ item.name }}</div>
+								<span v-if="item.status==2" class="progress-status duration" >({{ item.duration }})</span>
+								<span v-if="item.status==1" class="progress-status">已完成{{ item.percent }}</span>
+								<span v-if="item.status==-1" class="load-fail-tip">
+									{{ item.failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
+								</span>
+							</div>
+
+							<img v-if="item.status==-1" src="../images/cuowu.png" class="load-effect">
+							<img v-if="item.status==1" src="../images/loading.gif" class="load-effect">
+							<div v-if="item.status!=1" class="load-progress-border"></div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -202,13 +247,7 @@
 		methods: {
 			goToTrain () {
 				this.$router.push({
-					path: `/main/data/info/${this.projectId}`,
-					query: {
-						fLId: this.fLId,
-						targetId: this.targetId,
-						targetName: this.targetName,
-						lastTaskId: this.taskId
-					}
+					path: `/main/data/info/${this.projectId}`
 				})
 			}
 		},
@@ -220,7 +259,9 @@
 			progressItems () {
 				return this.$store.state.progressItems;
 			},
-
+			modelProgressItems () {
+				return this.$store.state.modelProgressItems;
+			},
 			showTargetTips () {
 
 				return this.$store.state.uploadProgress.status === 2 
@@ -241,6 +282,9 @@
 			},
 			allTrainFinished () {
 				return this.$store.state.allTrainFinished;
+			},
+			allModelFinished () {
+				return this.$store.state.allModelFinished;	
 			},
 			fLId () {
 				return this.$route.query.fLId || this.$store.state.fLId;

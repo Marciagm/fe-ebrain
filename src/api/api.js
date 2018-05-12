@@ -19,12 +19,19 @@ export const regist = params => {
 export const login = params => { 
 	return axios.post(`${base}/account/login`, params).then(res => res.data); 
 };
+// get user's profile
+export const getProfile = (userId, params) => {
+	return axios.get(`${base}/users/profile/${userId}`, {params: params}).then(res => res.data);
+};
 
 // create project
 export const createProject = params => { 
 	return axios.post(`${base}/projects/create`, params).then(res => res.data); 
 }
-
+// get recent projects
+export const getRecentProjects = params => {
+	return axios.get(`${base}/projects/list`, {params: params}).then(res => res.data);
+}
 // update project
 export const updateProject = (projectId, params) => {
 	return axios.post(`${base}/projects/update/${projectId}`, params).then(res => res.data); 
@@ -93,7 +100,7 @@ export const getProjectList = (params) => {
 
 // start to train
 export const train = (params) => {
-	return axios.post(`${base}/tasks/train`, params).then(res => res.data); 
+	return axios.post(`${base}/tasks/auto_train`, params).then(res => res.data); 
 }
 
 // models list

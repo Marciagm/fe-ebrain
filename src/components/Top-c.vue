@@ -5,11 +5,14 @@
 			<img src="../images/logo.png">
 		</div>
 		<div class="nav">
-			<ul>
+			<ul v-if="curStatus==0">
 				<li v-for="(item, index) in nav" @click="tab(item, index)">
-					<a v-if="navIndex==index" style="color: #1b7bdd"> {{ item.name }} </a>
-					<a v-else-if="index==1 && hilightModelColor" :style="{color: hilightModelColor }"> {{ item.name }}</a>
-					<a v-else :style="{color: item.color}"> {{ item.name }}</a>
+					<a :style="{color: item.color}"> {{ item.name }}</a>
+				</li>
+			</ul>
+			<ul v-else>
+				<li v-for="(item, index) in nav" @click="tab(item, index)">
+					<a :style="{color: item.color}"> {{ item.name }}</a>
 				</li>
 			</ul>
 		</div>
@@ -237,11 +240,9 @@
     import { getProjectInfo, updateProject, getRecentProjects, getProfile } from '../api/api';
 
 	export default {
-		props: ['navIndex'],
 		name: 'top',
 		data () {
 			return {
-				hilightModelColor: '',
 				recentProjects: [],
 				currentRoute: this.$router.currentRoute,
 				sysUserName: 'User',
@@ -264,14 +265,15 @@
 						name: '算法库',
 						path: '/main/algorithm-lib',
 						color: '#666'
-					}
+					},
+					/*{
+						name: '图表库',
+						path: '/main/chart'
+					}*/
 				]
 			}
 		},
 		methods: {
-			hilightModel () {
-				this.hilightModelColor = '#666';
-			},
 			taskClick (event) {
 				alert('hio');
 			},

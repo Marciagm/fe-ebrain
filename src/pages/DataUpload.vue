@@ -1,33 +1,36 @@
 <template>
-	<div class="data-upload">
-		<el-upload
-		  ref="upload"
-		  class="data-con"
-		  drag
-		  :data="formData"
-		  :show-file-list=false
-		  :headers="apiHeader"
-		  :before-upload="beforeUpload"
-		  :on-progress="onUploadProgress"
-		  :on-success="handleUploadSuccess"
-		  :on-error="handleUploadError"
-		  :action="uploadApi"
-		>
-		  <img src="../images/Upload-data1.png">
-		  <el-row>
-				<el-col :span="20" :offset="2">
-					<div>
-						<button>本地数据</button>
-						<button @click.stop="goHDFS">HDFS</button>
-						<button @click.stop="goODBC" style="margin-right: 0;">ODBC</button>
-					</div>
-				</el-col>
-			</el-row>
-			<div class="data-upload-tips">
-				可直接拖拽文件至主界面,支持逗号分隔的文本文件，建议UTF-8格式编码
-			</div>
-		</el-upload>
-	</div>	
+	<div>
+		<top-part></top-part>
+		<div class="data-upload">
+			<el-upload
+			  ref="upload"
+			  class="data-con"
+			  drag
+			  :data="formData"
+			  :show-file-list=false
+			  :headers="apiHeader"
+			  :before-upload="beforeUpload"
+			  :on-progress="onUploadProgress"
+			  :on-success="handleUploadSuccess"
+			  :on-error="handleUploadError"
+			  :action="uploadApi"
+			>
+			  <img src="../images/Upload-data1.png">
+			  <el-row>
+					<el-col :span="20" :offset="2">
+						<div>
+							<button>本地数据</button>
+							<!-- <button @click.stop="goHDFS">HDFS</button>
+							<button @click.stop="goODBC" style="margin-right: 0;">ODBC</button> -->
+						</div>
+					</el-col>
+				</el-row>
+				<div class="data-upload-tips">
+					可直接拖拽文件至主界面,支持逗号分隔的文本文件，建议UTF-8格式编码
+				</div>
+			</el-upload>
+		</div>	
+	</div>
 </template>
 <style lang="scss">
 	.data-upload {
@@ -61,7 +64,7 @@
 				border-radius: 4px;
 				color: #ffffff;
 				font-size: 16px;
-				margin-right: 109px;
+				/* margin-right: 109px; */
 				&:hover {
 					opacity: 0.7;
 				}
@@ -87,8 +90,12 @@
 	}
 </style>
 <script>
+	import topPart from '@/components/Top.vue'
     import { createProject, uploadFile } from '../api/api';
 	export default {
+		components: {
+			topPart
+		},
 		data () {
 			var token = localStorage.getItem('token');
 			return {
@@ -138,6 +145,7 @@
 			init () {
 				this.$store.commit('SET_PROJECT_STATUS', false);
 				this.$store.commit('SET_PROJECT_NAME', '未命名任务');
+				this.$store.commit('SET_CUR_STATUS', 0);
 			}
 		},
 		mounted () {

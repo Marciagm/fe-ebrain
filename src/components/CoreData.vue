@@ -612,12 +612,7 @@
 		            },
 		            barWidth: barWidth,
 		            barMaxWidth: 60
-		        }/*,
-		        {
-		            name: '2012年',
-		            type: 'bar',
-		            data: [19325, 23438, 31000, 121594, 134141, 681807]
-		        }*/
+		        }
 		    ]
 		};
     	chart.setOption(option);
@@ -630,16 +625,16 @@
 		},
 		data () {
 			return {
+				isEigenActive: false,
 				importanceShow: false,
-				taskId: this.$route.params.taskId || 0,
-				fLId: this.$route.query.fLId,
-				targetId: this.$route.query.targetId,
+				taskId: '',
+				fLId: '',
+				targetId: '',
 				curFeatureObj: {
 					name: '全部特征',
 					id: ''
 				},
 				projectId: this.$route.params.projectId,
-				isEigenActive: false,
 
 				// 样式
 				active: 'active',
@@ -665,6 +660,17 @@
 			}
 		},
 		methods: {
+			setEigenActive (status) {
+				this.isEigenActive = status;
+			},
+			initCoreData (data) {
+				this.taskId = data.taskId;
+				this.fLId = data.fLId;
+				this.targetId = data.targetId;
+				if (data.isEigenActive === false || data.isEigenActive === true) {
+					this.isEigenActive = data.isEigenActive;
+				}
+			},
 			showImportance () {
 				this.importanceShow = true;
 			},
@@ -713,6 +719,7 @@
 				}
 				else {
 					this.isEigenActive = false;
+					//this.isOriActive = true;
 					//this.isListNameShow = false;
 				}
 			},
@@ -749,8 +756,9 @@
 				}
 			},
 			init (featureListId, params) {
+				console.log('featureListId: ' + featureListId);
 				this.getFeatureData(featureListId, params);
-				console.log(params);
+
 				getFeatureList({ project_id: params.project_id }).then(data => {
 					let { feature_lists } = data;
 					this.featureList.length = 0;
@@ -768,10 +776,9 @@
 				this.isListNameShow = false;
 				this.curFeatureObj.name = item.name;
 				this.curFeatureObj.id = item.id;
-				//this.getFeatureData(item.id, this.projectId);
+
 				const params = {
 					project_id: this.projectId
-					//train_task_id: this.taskId
 				}
 				if (item.id == this.fLId) {
 					params.train_task_id = this.taskId;
@@ -781,7 +788,6 @@
 					this.importanceShow = false;
 				}
 				this.getFeatureData(item.id, params);
-				//this.$emit('setTarget', {name: ''});
 			},
 
 			/**
@@ -1059,27 +1065,8 @@
 			obj = this;
 			this.$store.commit('SET_PROJECT_ID', this.projectId);
 			this.eigenData = this.$store.state.eigenData;
-			const query = this.$route.query;
-			
-			const params = {
-				project_id: this.projectId
-			};
 			this.$store.commit('SET_TRAIN_STATUS', false);
-			if (this.fLId && this.targetId) {
-				this.isEigenActive = true;
-				if (this.taskId) {
-					params.train_task_id = this.taskId;
-				}
-				if (!this.eigenData.length) {
-					this.init(query.fLId || -1, params);
-				}
-			}
 			//this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
-		},
-		computed: {
-			/*eigenData () {
-				return this.$store.state.eigenData;
-			}*/
 		}
 	}
 </script>

@@ -23,11 +23,15 @@
         table tr:nth-child(even) td {
             background: #fafafa;
             text-align: center;
+            padding-left: 10px;
+            padding-right: 10px;
             min-width: 50px;
         }
         table tr:nth-child(odd) td {
             background: #f5f5f5;
             text-align: center;
+            padding-left: 10px;
+            padding-right: 10px;
             min-width: 50px;
         }
     }
@@ -59,9 +63,13 @@
                         const sampledData = JSON.parse(sampled_data);
                         this.originalData = sampledData;
                     }
-                    this.$store.commit('SET_TIPS_STATUS', true);
+                    
                     let { lines } = dataset;
-                    this.$store.commit('SET_TIPS', `原始数据共${lines}行，仅显示100行`);
+                    if (lines > 100) {
+                        this.$store.commit('SET_TIPS_STATUS', true);
+                        this.$store.commit('SET_TIPS', `原始数据共${lines}行，仅显示100行`);
+                    }
+                    
                     // @TODO 添加消失逻辑
                     setTimeout(() => {
                         this.$store.commit('SET_TIPS_STATUS', false);

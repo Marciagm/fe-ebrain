@@ -10,3 +10,11 @@
 		background: #fff;
 	}
 </style>
+<script>
+	import topPart from '@/components/Top.vue'
+	export default {
+		components: {
+			topPart
+		}
+	}
+</script>

@@ -1,90 +1,94 @@
 <template>
-	<left-right>
-		<div slot="left">
-			<div class="model-list">
-				<el-row>
-					<el-col :span="3" :offset="12">
-						<div style="border-left: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px; margin-left: 50%;"> </div>
-					</el-col>
-					<el-col :span="3" style="height: 35px; color: #ccc; letter-spacing: 1px; font-size: 14px;">AUC</el-col>
-					<el-col :span="3">
-						<div style="border-right: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px;"> </div>
-					</el-col>
-				</el-row>
-				<el-row class="model-list-head">
-					<el-col :span="3">模型&算法描述</el-col>
-					<el-col :span="3">
-						<el-dropdown trigger="click" style="cursor: pointer;" @command="chooseEigenList">
-							<span class="el-dropdown-link">
-						    	特征列表<i class="el-icon-arrow-down el-icon--right"></i>
-							</span>
-							<el-dropdown-menu slot="dropdown">
-							    <el-dropdown-item v-for="eigenItem in eigenList" :command="eigenItem">
-							    	{{ eigenItem.name }}
-							    </el-dropdown-item>
-							</el-dropdown-menu>
-						</el-dropdown>
-					</el-col>
-					<el-col :span="3">创建时间</el-col>
-					<el-col :span="3">训练时长</el-col>
-					<el-col :span="3">验证集</el-col>
-					<el-col :span="3">交叉验证</el-col>
-					<el-col :span="3" style="color: #0d68c4;">测试集</el-col>
-				</el-row>
-				<div v-for="item in showList" style="padding-bottom: 50px;">
-					<div class="model-item" @click="showDetail(item)" v-if="!item.show">
-						<el-col :span="3" >
-							<div class="algorithm-name">{{ item.name }}</div>
-							<span class="algorithm-desc">{{ item.desc }}</span>
+	<div>
+		<top-part ></top-part>
+		<left-right>
+			<div slot="left">
+				<div class="model-list">
+					<el-row>
+						<el-col :span="3" :offset="12">
+							<div style="border-left: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px; margin-left: 50%;"> </div>
 						</el-col>
-						<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
-						<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
-						<el-col :span="3" class="model-time">{{ item.duration }}</el-col>
-						<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
-						<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
-						<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
-					
-					</div>
-					<div v-else class="model-item" @click="showDetail(item)" style="background: #f3f4f6">
-						<el-col :span="3" >
-							<div class="algorithm-name">{{ item.name }}</div>
-							<span class="algorithm-desc">{{ item.desc }}</span>
+						<el-col :span="3" style="height: 35px; color: #ccc; letter-spacing: 1px; font-size: 14px;">AUC</el-col>
+						<el-col :span="3">
+							<div style="border-right: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px;"> </div>
 						</el-col>
-						<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
-						<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
-						<el-col :span="3" class="model-time">{{ item.duration }}</el-col>
-						<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
-						<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
-						<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
-					</div>
+					</el-row>
+					<el-row class="model-list-head">
+						<el-col :span="3">模型&算法描述</el-col>
+						<el-col :span="3">
+							<el-dropdown trigger="click" style="cursor: pointer;" @command="chooseEigenList">
+								<span class="el-dropdown-link">
+							    	特征列表<i class="el-icon-arrow-down el-icon--right"></i>
+								</span>
+								<el-dropdown-menu slot="dropdown">
+								    <el-dropdown-item v-for="eigenItem in eigenList" :command="eigenItem">
+								    	{{ eigenItem.name }}
+								    </el-dropdown-item>
+								</el-dropdown-menu>
+							</el-dropdown>
+						</el-col>
+						<el-col :span="3">创建时间</el-col>
+						<el-col :span="3">训练时长</el-col>
+						<el-col :span="3">验证集</el-col>
+						<el-col :span="3">交叉验证</el-col>
+						<el-col :span="3" style="color: #0d68c4;">测试集</el-col>
+					</el-row>
+					<div v-for="item in showList" style="padding-bottom: 50px;">
+						<div class="model-item" @click="showDetail(item)" v-if="!item.show">
+							<el-col :span="3" >
+								<div class="algorithm-name">{{ item.name }}</div>
+								<span class="algorithm-desc">{{ item.desc }}</span>
+							</el-col>
+							<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
+							<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
+							<el-col :span="3" class="model-time">{{ item.duration }}</el-col>
+							<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
+							<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
+							<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
+						
+						</div>
+						<div v-else class="model-item" @click="showDetail(item)" style="background: #f3f4f6">
+							<el-col :span="3" >
+								<div class="algorithm-name">{{ item.name }}</div>
+								<span class="algorithm-desc">{{ item.desc }}</span>
+							</el-col>
+							<el-col :span="3" class="list-name">{{ item.listName }}</el-col>
+							<el-col :span="3" class="model-time">{{ item.createTime}}</el-col>
+							<el-col :span="3" class="model-time">{{ item.duration }}</el-col>
+							<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
+							<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
+							<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
+						</div>
 
-					<div v-if="item.show" class="model-item-chart" :style="{height: charHeight}">
-						<div class="model-item-nav">
-							<div v-for="(nav, index) in itemNav" class="item-nav-con" @click="showChart(nav, item)">
-								<span class="model-nav-sep" v-if="index != 0"></span>
-								<span v-if="nav.id != item.curId">{{ nav.name }}</span>
-								<span v-else style="color: #0d68c4" >{{ nav.name }}</span>
-							</div>
-							<!-- show chart part -->
-							<track-chart :id="item.id" v-if="item.curId == 0"></track-chart>
-							<roc-chart :id="item.id" v-if="item.curId == 1"></roc-chart>
-							<recall-chart :id="item.id" v-if="item.curId == 2"></recall-chart>
-							<ks-chart :id="item.id" v-if="item.curId == 3"></ks-chart>
-							<significance-chart :id="item.id" v-if="item.curId == 4"></significance-chart>
-							<predicts-chart :id="item.id" v-if="item.curId == 5"></predicts-chart>
-
-							<div v-if="!item.finished">
-								再等等啦
+						<div v-if="item.show" class="model-item-chart" :style="{height: charHeight}">
+							<div class="model-item-nav">
+								<div v-for="(nav, index) in itemNav" class="item-nav-con" @click="showChart(nav, item)">
+									<span class="model-nav-sep" v-if="index != 0"></span>
+									<span v-if="nav.id != item.curId">{{ nav.name }}</span>
+									<span v-else style="color: #0d68c4" >{{ nav.name }}</span>
+								</div>
+								<div v-if=item.finished>
+									<!-- show chart part -->
+									<track-chart :id="item.id" v-if="item.curId == 0"></track-chart>
+									<roc-chart :id="item.id" v-if="item.curId == 1"></roc-chart>
+									<recall-chart :id="item.id" v-if="item.curId == 2"></recall-chart>
+									<ks-chart :id="item.id" v-if="item.curId == 3"></ks-chart>
+									<significance-chart :id="item.id" v-if="item.curId == 4"></significance-chart>
+									<predicts-chart :id="item.id" v-if="item.curId == 5"></predicts-chart>
+								</div>
+								<div v-else>
+									再等等啦
+								</div>
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div slot="right">
-			right
-		</div>
-	</left-right>
+			<div slot="right">
+				right
+			</div>
+		</left-right>
+	</div>
 </template>
 <style lang="scss" scoped>
 	.model-list {
@@ -166,6 +170,7 @@
 </style>
 <script>
 	import echarts from 'echarts'
+	import topPart from '@/components/Top.vue'
 	import leftRight from '@/components/LeftRight'
 	import trackChart from '@/components/TrackChart'
 	import rocChart from "@/components/RocChart"
@@ -179,7 +184,7 @@
 	const chartHeights = ['555px', '858px', '554px', '554px', '554px', '318px'];
 	function getDate (dateStr) {
 		console.log(dateStr);
-		const date = new Date(dateStr - 0);
+		const date = new Date(dateStr * 1000);
 		console.log(date);
 		const year = date.getFullYear();
 		const month = ('0' + (date.getMonth() - 0 + 1)).slice(-2);
@@ -189,6 +194,7 @@
 
 	export default {
 		components: {
+			topPart,
 			leftRight,
 			trackChart,
 			recallChart,
@@ -245,78 +251,18 @@
 						show: false,
 						curId: 0,
 						id: 0
-					},
-					{
-						name: '算法2',
-						listName: 'top20',
-						createTime: '2018.04.03 10:50',
-						duration: '12s',
-						validationSet: 0.456,
-						crossValidation: 0.45,
-						testSet: 0.5677,
-						show: false,
-						curId: 0,
-						id: 1
-					},
-					{
-						name: '算法3',
-						listName: 'top20',
-						createTime: '2018.04.03 10:50',
-						duration: '12s',
-						validationSet: 0.456,
-						crossValidation: 0.45,
-						testSet: 0.5677,
-						show: false,
-						curId: 0,
-						id: 2
-					},
-					{
-						name: '算法1',
-						listName: 'top10',
-						createTime: '2018.04.03 10:50',
-						duration: '12s',
-						validationSet: 0.456,
-						crossValidation: 0.45,
-						testSet: 0.5677,
-						show: false,
-						curId: 0,
-						id: 3
-					},
-					{
-						name: '算法2',
-						listName: 'top10',
-						createTime: '2018.04.03 10:50',
-						duration: '12s',
-						validationSet: 0.456,
-						crossValidation: 0.45,
-						testSet: 0.5677,
-						show: false,
-						curId: 0,
-						id: 4
-					},
-					{
-						name: '算法3',
-						listName: 'top10',
-						createTime: '2018.04.03 10:50',
-						duration: '12s',
-						validationSet: 0.456,
-						crossValidation: 0.45,
-						testSet: 0.5677,
-						show: false,
-						curId: 0,
-						id: 5
 					}
 				],
 				showList: []
 			}
 		},
 		mounted () {
-			this.$store.state.progressItems.length = 0;
 			this.showList = this.modelList;
 			this.modelList.length = 0;
-			this.$store.commit('SET_TRAIN_STATUS', false);
-
+			this.$store.commit('SET_TRAIN_STATUS', true);
+			this.$store.commit('SET_ALLMODEL_STATUS', false);
 			const timer = setInterval(() => {
+				this.$store.state.modelProgressItems.length = 0;
 				getModelList({project_id: this.projectId}).then(data => {
 					console.log(data);
 					const { error, models } = data;
@@ -332,13 +278,11 @@
 							name: model.algorithm_name,
 							listName: model.feature_list_name || '全部特征',
 							createTime: getDate(model.created_at),
-							duration: model.duration,
-
+							duration: model.duration + 's',
 							validationSet: model.valid_status == 4 ? model.valid_indicator_value : '训练中',
 							crossValidation: model.cv_status == 4 ? model.cv_indicator_value : '训练中',
 							testSet: model.test_status == 4 ? model.test_indicator_value : '训练中',
-							
-							desc: '',
+							desc: model.algorithm_desc,
 							show: false,
 							curId: 0,
 							id: model.model_id
@@ -346,6 +290,12 @@
 						if (model.status !== 4) {
 							goOn = 1;
 							item.finished = 0;
+							this.$store.state.modelProgressItems.push({
+								name: item.name,
+								status: 1,
+								duration: item.duration,
+								percent: item.percent || 0,
+							})
 						}
 						else {
 							item.finished = 1;
@@ -356,7 +306,9 @@
 						for (let k = 0, len = this.modelList.length; k < len; k++) {
 							let oldModel = this.modelList[k];
 							if (oldModel.id == item.id) {
-								oldModel = item;
+								for (let key in item) {
+									oldModel[key] = item[key];	
+								}
 								exists = true;
 								break;
 							}
@@ -386,6 +338,8 @@
 	 					}
 	 					// 训练完成
 	 					this.$store.commit('SET_TRAIN_STATUS', true);
+	 					this.$store.commit('SET_ALLMODEL_STATUS', true);
+	 						
 	 				}
 				})
 			}, 500);
@@ -413,9 +367,17 @@
 				item.show = !item.show;
 			},
 			showChart (nav, item) {
+				if (!item.finished) {
+					return;
+				}
 				const id = nav.id;
 				item.curId = id;
 				this.charHeight = chartHeights[id];
+			}
+		},
+		computed: {
+			curStatus () {
+				return this.$store.state.curStatus;
 			}
 		}
 	}

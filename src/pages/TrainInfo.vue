@@ -1,19 +1,20 @@
 <template>
-	<left-right>
-		<div slot="left">
-			<core-data ref="coreData" :isEigenActive="true"></core-data>
-		</div>
-	</left-right>
+	<div>
+		<top-part ref="top"></top-part>
+		<left-right>
+			<div slot="left">
+				<core-data ref="coreData" :isEigenActive="true"></core-data>
+			</div>
+		</left-right>
+	</div>
 </template>
 <style lang="scss">
-	tr {
-		background: red;
-	}
 	input[type="checkbox"] {
 		disabled: true;
 	}
 </style>
 <script>
+	import topPart from '@/components/Top.vue'
 	import leftRight from '@/components/LeftRight.vue'
 	import { poll, getFeatureData, getFeatureList } from '@/api/api'
 	import coreData from '@/components/CoreData'
@@ -21,6 +22,7 @@
 
 	export default {
 		components: {
+			topPart,
 			leftRight,
 			coreData
 		},
@@ -57,7 +59,7 @@
 							this.$router.push(`/main/data/info/${this.projectId}`);
 							return;
 						}
-						this.$store.dispatch('SET_CUR_STATUS', 2);
+
 						const preProcessingTask = preprocessing_task;
 						const { stages, preprocess_info } = preProcessingTask;
 						
@@ -68,8 +70,7 @@
 							this.$refs.coreData.initCoreData({
 								taskId: this.taskId,
 								targetId: this.targetId,
-								fLId: this.fLId,
-								isEigenActive: true
+								fLId: this.fLId
 							});
 							initCoreData = true;
 						}
@@ -106,6 +107,7 @@
 							// 训练任务结束
 							case 4: 
 								progressItems.pop();
+								this.$refs.top.hilightModel();
 								// 模型也可以点击了
 								if (this.$store.state.curStatus == 2) {
 									this.$store.commit('SET_CUR_STATUS', 3);
@@ -145,6 +147,7 @@
 			this.pollTrainTask(this.projectId, 500);
 			this.$store.state.progressItems.length = 0;
 			this.$store.commit('SET_TRAIN_STATUS', false);
+			this.$refs.coreData.setEigenActive(true);
 		}
 	}
 </script>

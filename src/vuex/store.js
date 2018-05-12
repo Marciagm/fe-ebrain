@@ -13,6 +13,10 @@ const actions = {
             state.eigenData[i] = eigenData[i];   
         }
         //state.eigenData = eigenData;
+    },
+    SET_CUR_STATUS ({commit}, status) {
+        commit('SET_CUR_STATUS', status);
+        // state.curStatus = status;
     }
 };
 
@@ -29,7 +33,7 @@ const state = {
     projectStatus: true,
     originalData: {},
 
-    tips: '1234',
+    tips: '',
     tipsStatus: false,
     // 特征详情
     selection: '',
@@ -57,6 +61,7 @@ const state = {
 
     },
     progressItems: [],
+    modelProgressItems: [],
     eigenData: [],
     queryList: [],
     trainObj: {
@@ -68,15 +73,21 @@ const state = {
         targetName: '',
         timeSerialFeatureId: '',
         varifyNum: 0,
-        splitMethod: 1
+        splitMethod: 1,
+        // 默认20% 最小5%
+        testRatio: 20
     },
     timeTypeList: [],
     allTrainFinished: false,
+    allModelFinished: false,
     fLId: '',
     targetId: '',
     taskId: '',
     targetName: '',
-    modelStatus: false
+    modelStatus: false,
+
+    // 0:初始化状态 1:数据操作过程中 2: 模型可点击时 3:重新训练状态
+    curStatus: 0
 }
 
 // 定义所需的 mutations
@@ -149,6 +160,12 @@ const mutations = {
     },
     SET_MODEL_STATUS (state, status) {
         state.modelStatus = status;
+    },
+    SET_CUR_STATUS (state, status) {
+        state.curStatus = status;
+    },
+    SET_ALLMODEL_STATUS (state, status) {
+        state.allModelFinished = status;
     }
 }
 
