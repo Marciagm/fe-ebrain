@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<top-part :navIndex=0></top-part>
+		<top-part ref="top"></top-part>
 		<left-right>
 			<div slot="left" ref="info-left">
 				<div class="target" v-if="!inTrain">
@@ -509,8 +509,9 @@
 						this.targetId = target_feature_id;
 						const datasetStatus = dataset_task.status;
 						const uploadProgress = this.$store.state.uploadProgress;
-
+						
 						const preProcessingTask = preprocessing_task;
+
 						if (preProcessingTask) {
 							this.$refs.coreData.setEigenActive(true);
 							this.targetInfo.id = target_feature_id;
@@ -521,6 +522,9 @@
 							this.taskId = preProcessingTask.task_id;
 							this.fLId = preprocess_info.feature_list_id;
 
+							// @TODO curstatus
+							this.$store.commit('SET_CUR_STATUS', 3);
+							this.$refs.top.hilightModel();
 						}
 
 						// 上传数据
@@ -554,12 +558,15 @@
 										break;
 									case 4: 
 										clearInterval(timer);
-										this.$store.commit('SET_CUR_STATUS', 1);
+										if (this.$store.state.curstatus == 0) {
+											this.$store.commit('SET_CUR_STATUS', 1);
+										}
+										
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
 										portraitProgress.duration = portrait_task.duration + 's';
 										this.dataPicFinished = true;
-										this.$refs.coreData.init(this.fLId, {project_id: this.projectId});
+										this.$refs.coreData.init(this.fLId || -1, {project_id: this.projectId});
 
 										this.$refs.coreData.initCoreData({
 											taskId: this.taskId,

@@ -319,7 +319,7 @@
 						}
 					}
 	 				if (!goOn) {
-	 					clearInterval(timer);
+	 					
 	 					this.eigenList.length = 0;
 	 					let name = [];
 	 					let id = [];
@@ -339,7 +339,7 @@
 	 					// 训练完成
 	 					this.$store.commit('SET_TRAIN_STATUS', true);
 	 					this.$store.commit('SET_ALLMODEL_STATUS', true);
-	 						
+	 					clearInterval(timer);
 	 				}
 				})
 			}, 500);
