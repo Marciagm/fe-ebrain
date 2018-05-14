@@ -2,13 +2,13 @@
     <entry-part>
         <el-row slot="frame">
             <el-col :xl="{span: 8, offset: 16}" :lg="{span: 7, offset: 17}" :md="{span: 9, offset: 13}" :sm="{span: 10, offset: 12}" :xs="{span: 11, offset: 11}">
-                <el-form :model="loginForm" :rules="loginFormRules" class="login-form-con" ref="loginForm">
+                <el-form :model="loginForm" :rules="loginFormRules" class="login-form-con" ref="loginForm" id="form">
                     <div class="login-form-con-head">密码登录</div>
                     <el-form-item prop="username">
-                        <el-input name="username" placeholder="邮箱／手机号登录" v-model="loginForm.username" @focus="inputFocus"></el-input>
+                        <el-input name="username" placeholder="邮箱／手机号登录" v-model="loginForm.username" @focus="inputFocus" @keyup.media-play-pause="method" id="loginInput"></el-input>
                     </el-form-item>
                     <el-form-item prop="password">
-                        <el-input type="password" name="password" placeholder="请输入密码" v-model="loginForm.password" @focus="inputFocus"></el-input>
+                        <el-input type="password" name="password" placeholder="请输入密码" v-model="loginForm.password" @focus="inputFocus" id="passwordInput"></el-input>
                         <div style="font-size: 12px; color: #ff0000;height: 14px;">{{ errorTips }}</div>
                     </el-form-item>
                     
@@ -93,6 +93,24 @@
             }
         },
         mounted() {
+            const form = document.getElementById('form');
+            const loginInput = document.getElementById('loginInput');
+            const passwordInput = document.getElementById('passwordInput');
+
+            form.onkeypress = (event) => {
+                if (event.charCode != 13) {
+                    return;
+                }
+                if (loginInput.value && passwordInput.value) {
+                    this.handleSubmit();
+                }
+                else if (loginInput.value) {
+                    passwordInput.focus();
+                }
+                else {
+                    loginInput.focus();
+                }
+            }
         }
     }
 
@@ -118,13 +136,25 @@
         button {
             width: 250px;
             height: 40px;
-            background: #ccc;
+            //background: #ccc;
+            background-image: linear-gradient(90deg, 
+                #0d65be 0%, 
+                #1978d9 45%, 
+                #248bf4 100%), 
+            linear-gradient(
+                #cccccc, 
+                #cccccc);
             border-radius: 4px;
             font-size: 16px;
             color: #fff;
             margin-bottom: 10px;
         }
         button:hover {
+            color: #fff;
+        }
+        .submitable {
+            width: 250px;
+            height: 40px;
             color: #ffffff;
             background-image: linear-gradient(90deg, 
                 #0d65be 0%, 

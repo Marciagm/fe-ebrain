@@ -3,7 +3,7 @@
        <!--  <top-part></top-part> -->
         <el-row id="mainView" class="container">
             <el-col class="main">
-                <transition name="fade" mode="out-in">
+                <transition name="fade" mode="out-in">   
                     <router-view></router-view>
                 </transition>
             </el-col>

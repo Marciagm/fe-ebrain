@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<top-part ref="top"></top-part>
-		<left-right>
+		<left-right ref="leftRight">
 			<div slot="left">
 				<core-data ref="coreData" :isEigenActive="true"></core-data>
 			</div>
@@ -48,7 +48,7 @@
 				const timer = setInterval ( () => {
 					progressItems.length = 0;
 					poll(projectId).then(data => {
-						let { error, preprocessing_task, target_feature_id } = data;
+						let { error, preprocessing_task, target_feature_id, target_feature_name } = data;
 						if (error) {
 							this.$message.error(error.desc);
 							clearInterval(timer);
@@ -56,7 +56,9 @@
 						}
 						// 请去info页面
 						if (!preprocessing_task) {
+
 							this.$router.push(`/main/data/info/${this.projectId}`);
+							clearInterval(timer);
 							return;
 						}
 
@@ -66,6 +68,7 @@
 						this.fLId = preprocess_info.feature_list_id;
 						this.targetId = target_feature_id;
 						this.taskId = preProcessingTask.task_id;
+						
 						if (!initCoreData) {
 							this.$refs.coreData.initCoreData({
 								taskId: this.taskId,
@@ -107,7 +110,7 @@
 							// 训练任务结束
 							case 4: 
 								progressItems.pop();
-								this.$refs.top.hilightModel();
+								this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
 								// 模型也可以点击了
 								if (this.$store.state.curStatus == 2) {
 									this.$store.commit('SET_CUR_STATUS', 3);
@@ -144,7 +147,14 @@
 			}
 		},
 		mounted () {
+			this.$refs.leftRight.setStyles({
+				showTarget: true,
+				showFeatureNum: true,
+				showFeatureList: true
+			});
+			this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
 			this.pollTrainTask(this.projectId, 500);
+			this.$store.commit('SET_TARGET_TIPS', false);
 			this.$store.state.progressItems.length = 0;
 			this.$store.commit('SET_TRAIN_STATUS', false);
 			this.$refs.coreData.setEigenActive(true);

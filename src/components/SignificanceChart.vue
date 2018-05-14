@@ -265,8 +265,11 @@
 			})
 		},
 		methods: {
+
 			/**
 			 * 选择排序情况
+			 *
+			 * @param {Object} command command对象
 			 */
 			chooseSorttype (command) {
 				if (command == 'desc') {

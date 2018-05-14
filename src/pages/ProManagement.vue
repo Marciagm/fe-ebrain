@@ -1,48 +1,64 @@
 <template>
-	<left-right>
-		<div class="pro-management" slot="left">
-			<div>
-				<div class="pro-management-top">
-					<div class="management-top-search">
-						<img src="../images/other-search.png">
-						<el-autocomplete
-					      v-model="searchCon"
-					      :fetch-suggestions="querySearch"
-					      placeholder="搜索"
-					      @select="search"
-					    ></el-autocomplete>	
+	<div>
+		<top-part ref="top"></top-part>
+		<left-right>
+			<div class="pro-management" slot="left">
+				<div>
+					<div class="pro-management-top">
+						<div class="management-top-search">
+							<img src="../images/other-search.png">
+							<el-autocomplete
+						      v-model="searchCon"
+						      :fetch-suggestions="querySearch"
+						      placeholder="搜索"
+						      @select="search"
+						    ></el-autocomplete>	
+						</div>
+						<div class="management-top-task" @click="goCreateProject">
+							<img src="../images/new-task.png"> 创建新任务
+						</div>
 					</div>
-					<div class="management-top-task" @click="goCreateProject">
-						<img src="../images/new-task.png"> 创建新任务
-					</div>
-				</div>
-				<div class="project-list">
-					<el-row class="project-list-head">
-						<el-col :span="6">任务名称</el-col>
-						<el-col :span="6">文件名</el-col>
-						<el-col :span="6">创建时间</el-col>
-						<el-col :span="6">删除</el-col>
-					</el-row>
-					<div class="project-list-item"  v-for="project in projects" :id="project.project_id">
-						<el-col :span="6">{{ project.name || '未命名任务'}}</el-col>
-						<el-col :span="6">dd.svg</el-col>
-						<el-col :span="6">2018.04.22 10:30</el-col>
-						<el-col :span="6" >
-							<img src="../images/model-rubbish.png"  @click="deleteProject(project.project_id)"/>
-						</el-col>
+					<div class="project-list">
+						<el-row class="project-list-head">
+							<el-col :span="6">任务名称</el-col>
+							<el-col :span="6">文件名</el-col>
+							<el-col :span="6">创建时间</el-col>
+							<el-col :span="6">删除</el-col>
+						</el-row>
+						<div class="project-list-item"  v-for="project in projects" :id="project.project_id" @click="openProject(project)">
+							<el-col :span="6">{{ project.name || '未命名任务'}}</el-col>
+							<el-col :span="6">dd.svg</el-col>
+							<el-col :span="6">{{ project.createTime }}</el-col>
+							<el-col :span="6" >
+								<img src="../images/model-rubbish.png"  @click="deleteProject(project.project_id)"/>
+							</el-col>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<div slot="right">
-			
-		</div>
-	</left-right>
-	
+			<div slot="right">
+				
+			</div>
+		</left-right>
+	</div>
 </template>
 <script>
 	import { getProjectInfo, deleteProject, getProjectList } from '../api/api';
 	import leftRight from '@/components/LeftRight.vue'
+	import topPart from '@/components/Top.vue'
+	
+	function getDate (dateStr) {
+		console.log(dateStr);
+		const date = new Date(dateStr * 1000);
+		console.log(date);
+		const year = date.getFullYear();
+		const month = ('0' + (date.getMonth() - 0 + 1)).slice(-2);
+		const day = ('0' + date.getDate()).slice(-2);
+		const hour = ('0' + date.getHours()).slice(-2);
+		const minute = ('0' + date.getMinutes()).slice(-2);
+		
+		return `${year}.${month}.${day} ${hour}:${minute}`;
+	}
 
 	function requestProjectList (obj) {
 		let user = localStorage.getItem('user');
@@ -61,9 +77,13 @@
 						obj.projects = projects;
 						obj.names.length = 0;
 
-				        for (let project of projects) {
+				        for (let project of obj.projects) {
 				        	let { name, project_id } = project;
-				        	obj.names.push({value: name, id: project_id});
+				        	obj.names.push({
+				        		value: name, 
+				        		id: project_id
+				        	});
+				        	project.createTime = getDate(project.created_at);
 				        }
 					}
 					console.log(data);
@@ -79,6 +99,7 @@
 
 	export default {
 		components: {
+			topPart,
 			leftRight
 		},
 		data () {
@@ -94,9 +115,24 @@
 			console.log('in parent: ' + this.height);
 			//const userId = this.$store.state.userId;
 			requestProjectList(this);
-			
+			if (this.curStatus > 1) {
+				this.$refs.top.setColors(['#666', '#666', '#666']);		
+			}
+			else {
+				this.$refs.top.setColors(['#666', '#ccc', '#666']);		
+			}
 		},
 		methods: {
+			openProject (project) {
+				// 跳转到哪儿
+				console.log(project);
+				this.$router.push({
+					path: `/main/model/${project.project_id}`,
+					query: {
+						from: 1
+					}
+				});
+			},
 			createFilter(queryString) {
 		        return (restaurant) => {
 		          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
@@ -188,6 +224,7 @@
 				line-height: 52px;
 			}
 			.project-list-item {
+				cursor: pointer;
 				padding-left: 30px;
 				height: 65px;
 				line-height: 65px;

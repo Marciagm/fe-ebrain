@@ -8,7 +8,7 @@ import DataUpload from '@/pages/DataUpload'
 import Loading from '@/pages/Loading'
 import DataInfo from '@/pages/DataInfo'
 import TrainInfo from '@/pages/TrainInfo'
-import ProManagement from '@/components/ProManagement'
+import ProManagement from '@/pages/ProManagement'
 
 import NotFound from '@/components/404.vue'
 
@@ -56,7 +56,7 @@ let routes = [
                     //{ path: 'train/:projectId/:taskId/:featureListId/:targetId', component: TrainInfo, name: '训练任务'}
                 ]
             },
-            { path: 'project/:projectId', component: ProManagement, name: '任务管理'},
+            { path: 'project', component: ProManagement, name: '任务管理'},
             //{ path: 'chart', component: Chart, name: '图表'},
             //{ path: '/main/model/:projectId', component: Model, name: '模型' },
             { path: '/main/model/:projectId', component: Model, name: '模型' },

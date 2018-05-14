@@ -2,7 +2,7 @@
     <entry-part>
         <el-row slot="frame">
             <el-col :xl="{span: 7, offset: 16}" :lg="{span: 7, offset: 17}" :md="{span: 9, offset: 13}" :sm="{span: 10, offset: 12}" :xs="{span: 11, offset: 11}">
-                <el-form :model="registForm" :rules="registFormRules" class="regist-form-con" ref="registForm">
+                <el-form :model="registForm" :rules="registFormRules" class="regist-form-con" ref="registForm" id="registerForm">
                     <div class="regist-form-con-head">账号注册</div>
                     <el-form-item prop="nickname">
                         <el-input name="nickname" placeholder="*昵称" v-model="registForm.nickname"></el-input>
@@ -122,16 +122,23 @@
                             password: this.registForm.password
                         };
                         regist(param).then(data => {
-                            if (!data) {
+                            const { error } = data;
+                            if (error) {
+                                this.errorTips = '！' + data.error.desc;
                                 return;
                             }
-                            if (data.error && data.error.desc) {
-                                that.errorTips = '！' + data.error.desc;
-                            }
                             else {
+                                this.$message({
+                                    type: 'success',
+                                    message: '注册成功！',
+                                    duration: 2000
+                                });
                                 localStorage.setItem('user', JSON.stringify({nickname: this.registForm.nickname}));
                                 //this.$router.push({path: '/main'});
-                                this.$router.push('/login');
+                                setTimeout(() => {
+                                    this.$router.push('/login');
+                                }, 2100)
+                                
                             }
                             /*var data = res.data;
                             console.log(res.status);
@@ -157,6 +164,14 @@
             }
         },
         mounted(){
+            const registerForm = document.getElementById('registerForm');
+
+            registerForm.onkeypress = (event) => {
+                if (event.charCode != 13) {
+                    return;
+                }
+                this.handleSubmit();
+            }
         }
     }
 
@@ -181,7 +196,14 @@
         button {
             width: 250px;
             height: 40px;
-            background: #ccc;
+            //background: #ccc;
+            background-image: linear-gradient(90deg, 
+                #0d65be 0%, 
+                #1978d9 45%, 
+                #248bf4 100%), 
+            linear-gradient(
+                #cccccc, 
+                #cccccc);
             border-radius: 4px;
             font-size: 16px;
             color: #fff;

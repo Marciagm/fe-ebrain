@@ -5,9 +5,17 @@
 			<div class="data-foot">
 				{{ filename }}
 				<div style="float: right; margin-right: 5%;">
-					当前特征列表：<span style="color: #e0952a;">{{ featureListName }}</span> 
+					<div style="display: inline-block;" v-show="showFeatureList">
+						当前特征列表：<span style="color: #e0952a;">{{ featureListName }}</span> 
+					</div>
 					&nbsp;&nbsp;
-					特征总数：<span style="color: #e0952a;">{{ featureNum }}</span>
+					<div style="display: inline-block;" v-show="showFeatureNum">
+						特征总数：<span style="color: #e0952a;">{{ featureNum }}</span>
+					</div>
+					&nbsp;&nbsp;
+					<div style="display: inline-block;" v-show="showTarget">
+						预测目标：<span style="color: #e0952a;">{{ trainObj.targetName }}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -235,6 +243,9 @@
 	export default {
 		data () {
 			return {
+				showTarget: false,
+				showFeatureNum: true,
+				showFeatureList: true,
 				minHeight: '',
 				projectId: this.$route.params.projectId
 			}
@@ -245,6 +256,11 @@
 			this.minHeight = (h - 88) + 'px';
 		},
 		methods: {
+			setStyles (styles) {
+				this.showTarget = styles.showTarget;
+				this.showFeatureList = styles.showFeatureList;
+				this.showFeatureNum = styles.showFeatureNum;
+			},
 			goToTrain () {
 				this.$router.push({
 					path: `/main/data/info/${this.projectId}`
@@ -255,7 +271,6 @@
 			filename () {
 				return this.$store.state.filename;
 			},
-
 			progressItems () {
 				return this.$store.state.progressItems;
 			},
@@ -263,9 +278,10 @@
 				return this.$store.state.modelProgressItems;
 			},
 			showTargetTips () {
+				return this.$store.state.showTargetTips;
 
-				return this.$store.state.uploadProgress.status === 2 
-					&& this.$store.state.portraitProgress.status === 2 && !this.taskId;
+				/*return this.$store.state.uploadProgress.status === 2 
+					&& this.$store.state.portraitProgress.status === 2 && !this.taskId;*/
 			},
 			/**
 			 * 特征名称
@@ -287,16 +303,19 @@
 				return this.$store.state.allModelFinished;	
 			},
 			fLId () {
-				return this.$route.query.fLId || this.$store.state.fLId;
+				return this.$store.state.fLId;
 			},
 			taskId () {
-				return this.$route.params.taskId || this.$store.state.taskId;
+				return this.$store.state.taskId;
 			},
 			targetId () {
-				return this.$route.query.targetId || this.$store.state.targetId;
+				return this.$store.state.targetId;
+			},
+			trainObj () {
+				return this.$store.state.trainObj;
 			},
 			targetName () {
-				return this.$route.query.targetName || this.$store.state.targetName;
+				return this.$store.state.trainObj.targetName;
 			}
 		}
 	}

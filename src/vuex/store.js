@@ -65,12 +65,12 @@ const state = {
     eigenData: [],
     queryList: [],
     trainObj: {
-        featureName: '全部特征',
-        featureNum: 0,
+        featureName: '--',
+        featureNum: '--',
         featureListId: -1,
         targetFeatureId: '',
         targetId: '',
-        targetName: '',
+        targetName: '--',
         timeSerialFeatureId: '',
         varifyNum: 0,
         splitMethod: 1,
@@ -87,7 +87,25 @@ const state = {
     modelStatus: false,
 
     // 0:初始化状态 1:数据操作过程中 2: 模型可点击时 3:重新训练状态
-    curStatus: 0
+    curStatus: 0,
+    initTrainObj () {
+        return {
+            featureName: '全部特征',
+            featureNum: 0,
+            featureListId: -1,
+            targetFeatureId: '',
+            targetId: '',
+            targetName: '',
+            timeSerialFeatureId: '',
+            varifyNum: 0,
+            crossValidFold: 0,
+            // 
+            splitMethod: 1,
+            // 默认20% 最小5%
+            testRatio: 20
+        }
+    },
+    showTargetTips: false,
 }
 
 // 定义所需的 mutations
@@ -166,6 +184,12 @@ const mutations = {
     },
     SET_ALLMODEL_STATUS (state, status) {
         state.allModelFinished = status;
+    },
+    SET_TRAIN_OBJ (state, obj) {
+        state.trainObj = obj;
+    },
+    SET_TARGET_TIPS (state, status) {
+        state.showTargetTips = status;
     }
 }
 

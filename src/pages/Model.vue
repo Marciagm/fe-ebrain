@@ -1,7 +1,7 @@
 <template>
 	<div>
-		<top-part ></top-part>
-		<left-right>
+		<top-part ref="top"></top-part>
+		<left-right ref="leftRight">
 			<div slot="left">
 				<div class="model-list">
 					<el-row>
@@ -77,7 +77,10 @@
 									<predicts-chart :id="item.id" v-if="item.curId == 5"></predicts-chart>
 								</div>
 								<div v-else>
-									再等等啦
+									<div style="height: 400px; line-height: 400px; text-align: center; font-size: 20px;">
+										正在运行中...
+									</div>
+									
 								</div>
 							</div>
 						</div>
@@ -183,9 +186,7 @@
 
 	const chartHeights = ['555px', '858px', '554px', '554px', '554px', '318px'];
 	function getDate (dateStr) {
-		console.log(dateStr);
 		const date = new Date(dateStr * 1000);
-		console.log(date);
 		const year = date.getFullYear();
 		const month = ('0' + (date.getMonth() - 0 + 1)).slice(-2);
 		const day = ('0' + date.getDate()).slice(-2);
@@ -257,14 +258,19 @@
 			}
 		},
 		mounted () {
+			this.$refs.top.setColors(['#666', '#1b7bdd', '#666']);
+			this.$refs.leftRight.setStyles({
+				showTarget: true,
+				showFeatureNum: true,
+				showFeatureList: false
+			});
 			this.showList = this.modelList;
 			this.modelList.length = 0;
 			this.$store.commit('SET_TRAIN_STATUS', true);
 			this.$store.commit('SET_ALLMODEL_STATUS', false);
 			const timer = setInterval(() => {
-				this.$store.state.modelProgressItems.length = 0;
 				getModelList({project_id: this.projectId}).then(data => {
-					console.log(data);
+					this.$store.state.modelProgressItems.length = 0;
 					const { error, models } = data;
 					if (error) {
 						this.$message.error(error.desc);
@@ -285,7 +291,8 @@
 							desc: model.algorithm_desc,
 							show: false,
 							curId: 0,
-							id: model.model_id
+							id: model.model_id,
+							percentage: model.percentage
 						};
 						if (model.status !== 4) {
 							goOn = 1;
@@ -294,7 +301,7 @@
 								name: item.name,
 								status: 1,
 								duration: item.duration,
-								percent: item.percent || 0,
+								percent: item.percentage || 0,
 							})
 						}
 						else {
@@ -305,21 +312,25 @@
 						let exists = false;
 						for (let k = 0, len = this.modelList.length; k < len; k++) {
 							let oldModel = this.modelList[k];
-							if (oldModel.id == item.id) {
-								for (let key in item) {
-									oldModel[key] = item[key];	
-								}
+							if (oldModel.id == item.id && !oldModel.finished) {
+								//oldModel.validationSet = item.validationSet;
+								oldModel.duration = item.duration;
+								oldModel.validationSet = item.validationSet;
+								oldModel.crossValidation = item.crossValidation;
+								oldModel.testSet = item.testSet;
+								oldModel.finished = item.finished;
 								exists = true;
 								break;
 							}
 						}
+						// 没有就直接塞进来
 						if (!exists) {
 							// 如果已经有了就更新
 							this.modelList.push(item);
 						}
 					}
+
 	 				if (!goOn) {
-	 					
 	 					this.eigenList.length = 0;
 	 					let name = [];
 	 					let id = [];
@@ -343,10 +354,45 @@
 	 				}
 				})
 			}, 500);
-
-			/*poll(this.projectId).then(data => {
-				console.log(data);
-			})*/
+			/*if (this.$route.query.from) {
+				poll(this.projectId).then(data => {
+					const { error, dataset_task, portrait_task, preprocessing_task, training_task, target_feature_id} = data;
+					console.log(data);
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					// 
+					if (training_task) {
+						if (training_task.status == 4) {
+							this.$store.commit('SET_CUR_STATUS', 4);
+						}
+						else {
+							this.$store.commit('SET_CUR_STATUS', 3);
+						}
+					}
+					else if (preprocessing_task ) {
+						if (preprocessing_task.status == 4) {
+							this.$store.commit('SET_CUR_STATUS', 3)
+						}
+						else {
+							this.$store.commit('SET_CUR_STATUS', 2)
+						}
+					}
+					else if (portrait_task) {
+						if (portrait_task.status == 4) {
+							this.$store.commit('SET_CUR_STATUS', 2);
+						}
+						else {
+							this.$store.commit('SET_CUR_STATUS', 1);
+						}
+					}
+					else {
+						this.$store.commit('SET_CUR_STATUS', 0);
+					}
+				})	
+			}*/
+			
 		},
 		methods: {
 			chooseEigenList (command) {
@@ -356,7 +402,6 @@
 				}
 				const option = command.name;
 				this.showList = this.modelList.filter((value, index) => {
-					console.log(value);
 					return value.listName === command.name;
 				})
 			},

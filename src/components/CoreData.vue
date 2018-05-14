@@ -25,8 +25,8 @@
 					    </el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
-				<div class="eigen-list" v-if="isListNameShow"> 
-					<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" />
+				<div class="eigen-list" v-show="isListNameShow"> 
+					<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" id="setListInput" />
 					<button class="eigen-list-button" @click="setList">确定</button>
 				</div>
 			</div>
@@ -1067,6 +1067,13 @@
 			this.eigenData = this.$store.state.eigenData;
 			this.$store.commit('SET_TRAIN_STATUS', false);
 			//this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
+			const setListInput = document.getElementById('setListInput');
+			setListInput.onkeypress = (event) => {
+				if (event.charCode != 13) {
+					return;
+				}
+				this.setList();
+			}
 		}
 	}
 </script>

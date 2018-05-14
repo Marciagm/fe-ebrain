@@ -7,11 +7,16 @@
 		<div class="nav">
 			<ul>
 				<li v-for="(item, index) in nav" @click="tab(item, index)">
+					<a :style="{color: colors[index]}">{{ item.name }}</a>
+				</li>
+			</ul>
+			<!-- <ul>
+				<li v-for="(item, index) in nav" @click="tab(item, index)">
 					<a v-if="navIndex==index" style="color: #1b7bdd"> {{ item.name }} </a>
 					<a v-else-if="index==1 && hilightModelColor" :style="{color: hilightModelColor }"> {{ item.name }}</a>
 					<a v-else :style="{color: item.color}"> {{ item.name }}</a>
 				</li>
-			</ul>
+			</ul> -->
 		</div>
 		<div class="info">
 			<div class="top-project-name" v-show="projectStatus">
@@ -43,8 +48,8 @@
 			    <el-dropdown-item disabled>
 			    	<span class="special-drop-label">最近的任务</span>
 			    </el-dropdown-item>
-			    <el-dropdown-item v-for="item in recentProjects">
-			    	<div class="nav-project-list">
+			    <el-dropdown-item v-for="item in recentProjects" >
+			    	<div class="nav-project-list" @click="goProject(item)">
 			    		{{ item.name }}
 			    	</div>	
 			    </el-dropdown-item>
@@ -234,13 +239,15 @@
 	}
 </style>
 <script>
-    import { getProjectInfo, updateProject, getRecentProjects, getProfile } from '../api/api';
+    import { getProjectInfo, updateProject, getRecentProjects, getProfile, poll } from '../api/api';
 
 	export default {
 		props: ['navIndex'],
 		name: 'top',
 		data () {
 			return {
+				projectId: this.$route.params.projectId || this.$route.query.projectId,
+				colors: ['#ccc', '#ccc', '#666'],
 				hilightModelColor: '',
 				recentProjects: [],
 				currentRoute: this.$router.currentRoute,
@@ -269,6 +276,18 @@
 			}
 		},
 		methods: {
+			goProject (project) {
+				console.log(project);
+				this.$router.push({
+					path: `/main/model/${project.id}`,
+					query: {
+						from: 2
+					}
+				});
+			},
+			setColors (colors) {
+				this.colors = colors;
+			},
 			hilightModel () {
 				this.hilightModelColor = '#666';
 			},
@@ -276,44 +295,7 @@
 				alert('hio');
 			},
 
-			/**
-			 * 设置导航条样式
-			 *
-			 * @param {number} index 下标
-			 */ 
-			setStyle (index) {
-				if (index == 2) {
-					if (this.curStatus == 0) {
-						this.nav[this.curIndex].color = '#ccc';
-					}
-					else {
-						this.nav[this.curIndex].color = '#666';
-					}
-					this.nav[index].color = '#1b7bdd';
-					this.curIndex = index;
-				}
-				else if (index == 0) {
-					if (this.curStatus === 0) {
-						this.nav[this.curIndex].color = '#666';
-						this.nav[index].color = '#ccc';
-					}
-					else {
-						this.nav[this.curIndex].color = '#666';
-						this.nav[index].color = '#1b7bdd';
-					}
-				}
-				else {
-					if (this.curStatus > 1) {
-						this.nav[this.curIndex].color = '#666';
-						this.nav[index].color = '#1b7bdd';
-					}
-					else {
-						return;
-					}
-				}
-			},
 			tab (item, index) {
-				this.setStyle(index);
 				console.log('curStatus: ' + this.curStatus);
 				if (index == 1) {
 					if (this.curStatus < 2) {
@@ -339,26 +321,14 @@
 						path: item.path
 					};
 					if (this.projectId) {
-						obj.projectId = this.projectId;
+						obj.query = obj.query || {};
+						obj.query.projectId = this.projectId;
 					}
 					this.$router.push(obj);
 				} 
 				return;
 
-				if (index == 0) {
-					if (this.curStatus == 0) {
-						this.$router.push('/main/data/upload');
-					}
-					else if (this.curStatus == 1) {
-						this.$router.push(`/main/data/info/${this.projectId}`);
-					}
-					else {
-						this.$router.push(`/main/data/train/${this.projectId}`)
-					}
-				}
-				if (index == 1) {
-
-				}
+				
 				if (this.curStatus === 0) {
 					if (index == 2) {
 						const obj = {
@@ -462,7 +432,7 @@
            			name: projectName
            		};
 
-           		const projectId = this.$store.state.projectId;
+           		const projectId = this.projectId;
 
            		updateProject(projectId, param).then(data => {
            			if (!data.error) {		
@@ -484,7 +454,17 @@
            			this.$router.push('/main/data/upload');
            		}
            		else if (tag === 1) {
-           			this.$router.push(`/main/project/${this.projectId}`);
+           			if (this.projectId) {
+           				this.$router.push({
+           					path: `/main/project`,
+           					query: {
+           						projectId: this.projectId
+           					}
+           				})
+           			}
+           			else {
+           				this.$router.push('/main/project');
+           			}
            		}
            	},
            	/**
@@ -495,58 +475,89 @@
 
            	},
            	init () {
-				// 模型
-				const curHash = location.hash;
-				console.log(curHash);
-				for (let i = 0, len = this.nav.length; i < len; i++) {
-					const item = this.nav[i];
-					if (curHash.indexOf(item.path) > -1) {
-						this.curIndex = i;
-						console.log(this.curIndex);
-						this.setStyle(i);
-						break;
-					}
-				}
-
-				var user = localStorage.getItem('user');
+				let user = localStorage.getItem('user');
 				// 如果本地有缓存直接取用
-	            if (user) {
+				// console.log(user.userId);
+				if (user) {
 	                user = JSON.parse(user);
 	                this.sysUserName = user.nickname || '';
-	                this.sysUserAvatar = user.avatar || '';
-	                this.userId = user.userId || '';
+	                this.userId = user.userId;
 	            }
-	            else {
-	            	getProjectInfo(this.projectId).then(data => {
-		            	const { error, project } = data;
-		            	if (error) {
-	           				this.$message.error(error.desc);
-	           				return;
-	           			}
-	           			this.projectName = project.name;
-	           			
-	           			this.userId = project.user_id;
 
-	           			getProfile(this.userId).then(data => {
-	           				const { error, user } = data;
-	           				if (error) {
-	           					this.$message.error(error.desc);
-	           					return;
-	           				}
-	           				const { nickname } = user;
-	           				this.sysUserName = nickname;
-	           				console.log(data);
-	           			})
-		            })
-	            }
-	            this.$store.state.progressItems.length = 0;
-	            
+	            // 用户信息
+	            getProfile(this.userId).then(data => {
+       				const { error, user } = data;
+       				if (error) {
+       					this.$message.error(error.desc);
+       					return;
+       				}
+       				const { nickname } = user;
+       				this.sysUserName = nickname;
+       				console.log(data);
+       			})
 	            const params = {
 	            	user_id: this.userId,
 	            	page_size: 5,
 	            	page: 1
 	            };
-	            this.getRecentProjects(params);
+	            // 获取近期任务
+            	this.getRecentProjects(params);
+
+            	// 当前任务
+	            if (this.projectId) {
+	            	getProjectInfo(this.projectId).then(data => {
+		            	const { error, project } = data;
+		            	console.log(data);
+		            	if (error) {
+	           				this.$message.error(error.desc);
+	           				return;
+	           			}
+	           			this.projectName = project.name;
+	           			this.$store.commit('SET_FILE_NAME', project.train_dataset_name);
+	           			this.userId = project.user_id;
+		            })
+	           	 	// 设置状态 curStatus
+	            	this.$store.state.progressItems.length = 0;
+	            	poll(this.projectId).then(data => {
+						const { error, dataset_task, portrait_task, preprocessing_task, training_task, target_feature_id, target_feature_name} = data;
+						
+						if (error) {
+							this.$message.error(error.desc);
+							return;
+						}
+						if (target_feature_name) {
+							this.$store.state.trainObj.targetName = target_feature_name;
+						}
+						// 
+						if (training_task) {
+							if (training_task.status == 4) {
+								this.$store.commit('SET_CUR_STATUS', 4);
+							}
+							else {
+								this.$store.commit('SET_CUR_STATUS', 3);
+							}
+						}
+						else if (preprocessing_task ) {
+							if (preprocessing_task.status == 4) {
+								this.$store.commit('SET_CUR_STATUS', 3)
+							}
+							else {
+								this.$store.commit('SET_CUR_STATUS', 2)
+							}
+						}
+						else if (portrait_task) {
+							if (portrait_task.status == 4) {
+								this.$store.commit('SET_CUR_STATUS', 2);
+							}
+							else {
+								this.$store.commit('SET_CUR_STATUS', 1);
+							}
+						}
+						else {
+							this.$store.commit('SET_CUR_STATUS', 0);
+						}
+					})
+	            }
            	},
 
            	// 获取最近的任务
@@ -588,9 +599,6 @@
         			return this.$store.state.projectName;
         		}
         	},
-        	projectId () {
-        		return this.$route.params.projectId || this.$store.state.projectId;
-        	},
         	fLId () {
         		return this.$route.query.fLId || this.$store.state.fLId;
         	},
@@ -608,17 +616,6 @@
         		//return this.$store.state.modelStatus;
         	}
         },
-        watch: {
-		    '$route' (to, from) {
-		    	for (let i = 0, len = this.nav.length; i < len; i++) {
-		    		const item = this.nav[i];
-		    		if (to.path.indexOf(item.path) > -1) {
-		    			this.curIndex = i;
-		    			this.setStyle(i);
-		    		}
-		    	}
-		    }
-		},
 		mounted () {
 			// 开始
 			this.init();

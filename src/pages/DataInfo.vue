@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<top-part ref="top"></top-part>
-		<left-right>
+		<left-right ref="leftRight">
 			<div slot="left" ref="info-left">
 				<div class="target" v-if="!inTrain">
 					<div style="display: inline-block; width: 210px; margin-right: 1%; flex: 2">
@@ -323,9 +323,9 @@
 				targetDisabled: false,
 				isEigenActive: false,
 				showOption: false,
-				fLId: this.$route.query.fLId,
-				targetId: this.$route.query.targetId,
-				targetName: this.$route.query.targetName,
+				fLId: '',
+				targetId: '',
+				targetName: '',
 				inTrain: false,
 				projectId: this.$route.params.projectId,
 				featureList: [],
@@ -408,16 +408,19 @@
 				})
 				
 				if (target) {
-					this.target = target.name;
+					this.target = target.value;
 					// 置空
 					if (!this.target) {
 						//this.dataPicFinished = false;
 						return;
 					}
 				}
+
 				this.$store.state.trainObj.targetFeatureId = target.feature_id;
 				this.$store.state.trainObj.targetId = target.feature_id;
 				this.$store.state.trainObj.targetName = this.targetInfo.value;
+				this.$store.commit('SET_TRAIN_OBJ', this.$store.state.trainObj);
+				console.log('*****************name: ' + this.$store.state.trainObj.targetName);
 				this.dataPicFinished = true;
 			},
 
@@ -437,7 +440,8 @@
                 	config: {
                 		// split_method: 0-unknown 1-交叉验证 2-训练测试验证   
                 		split_method: trainObj.splitMethod,
-                		cross_valid_fold: trainObj.varifyNum / 10,
+                		// cross_valid_fold: trainObj.varifyNum / 10,
+        				cross_valid_fold: trainObj.crossValidFold,
         				// 当选择“随时间划分”时出现 @TODO 标示区分方法
         				//time_serial_feature_id: trainObj.timeSerialFeatureId,
         				// 测试百分比
@@ -448,6 +452,8 @@
 				if (trainObj.timeSerialFeatureId) {
 					params.config.time_serial_feature_id = trainObj.timeSerialFeatureId;
 				}
+				console.log('params: ');
+				console.log(params);
 				train(params).then(data => {
 					const { error, task } = data;
 					if (error) {
@@ -515,7 +521,12 @@
 						if (preProcessingTask) {
 							this.$refs.coreData.setEigenActive(true);
 							this.targetInfo.id = target_feature_id;
-							this.targetInfo.value = target_feature_name || 'nnn';
+							this.targetInfo.value = target_feature_name;
+							this.$refs.leftRight.setStyles({
+								showTarget: true,
+								showFeatureNum: true,
+								showFeatureList: true
+							});
 							this.targetDisabled = true;
 							this.showBar(this.targetInfo);
 							const { stages, preprocess_info } = preProcessingTask;
@@ -524,7 +535,7 @@
 
 							// @TODO curstatus
 							this.$store.commit('SET_CUR_STATUS', 3);
-							this.$refs.top.hilightModel();
+							this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
 						}
 
 						// 上传数据
@@ -561,13 +572,12 @@
 										if (this.$store.state.curstatus == 0) {
 											this.$store.commit('SET_CUR_STATUS', 1);
 										}
-										
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
 										portraitProgress.duration = portrait_task.duration + 's';
 										this.dataPicFinished = true;
 										this.$refs.coreData.init(this.fLId || -1, {project_id: this.projectId});
-
+										this.$store.commit('SET_TARGET_TIPS', true);
 										this.$refs.coreData.initCoreData({
 											taskId: this.taskId,
 											targetId: this.targetId,
@@ -614,12 +624,11 @@
  		},
 		mounted () {
 			this.styleInit();
-
+			this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.$store.commit('SET_PROJECT_ID', this.projectId);
           
 			if (this.targetId && this.fLId && this.targetName) {
-				
 				this.targetInfo.value = this.targetName;
 				this.targetInfo.id = this.targetId;
 				if (this.targetInfo.value) {

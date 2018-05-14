@@ -104,6 +104,7 @@
 				}
 			},
 			formatVarifyNum (val) {
+				this.$store.state.trainObj.crossValidFold = val / 10;
 				return val  / 10;
 			},
 			formatTestPercent (val) {

@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<top-part></top-part>
+		<top-part ref="top"></top-part>
 		<div style="text-align: center; margin-top: 100px">
 			算法库
 		</div>
@@ -14,6 +14,20 @@
 	export default {
 		components: {
 			topPart
+		},
+		mounted () {
+			console.log(this.curStatus);
+			if (this.curStatus >= 2) {
+				this.$refs.top.setColors(['#666', '#666', '#1b7bdd']);
+			}
+			else {
+				this.$refs.top.setColors(['#666', '#ccc', '#1b7bdd']);
+			}
+		},
+		computed: {
+			curStatus () {
+				return this.$store.state.curStatus;
+			} 
 		}
 	}
 </script>

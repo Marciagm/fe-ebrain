@@ -199,19 +199,22 @@
 		        	console.log(data);
 		        	const dataIndex = data[0].dataIndex;
 		        	const item = matrices[dataIndex];
-
-		        	console.log(data[0]);
+		        	console.log('in formatter');
+		        	console.log(item);
 		        	obj.basicIndex[0].value = item.f1_score;
 		        	obj.basicIndex[1].value = obj.auc;
 		        	obj.basicIndex[2].value = item.f1_score;
 		        	obj.basicIndex[3].value = item.fpr;
 		        	// @TODO 
+		        	// 真负类率
+		        	obj.basicIndex[4].value = item.tnr;
 		        	// 阳性预测值
-		        	obj.basicIndex[4].value = item.fnr;
+		        	obj.basicIndex[5].value = item.fnr;
 		        	// 阴性预测值 @TODO 
-		        	obj.basicIndex[5].value = item.npv;
+		        	obj.basicIndex[6].value = item.npv;
 		        	// 准确率
-		        	obj.basicIndex[6].value = item.ppv;
+		        	obj.basicIndex[7].value = item.acc;
+		        	
 		        	let tn = parseInt(item.tn);
 		        	let tp = parseInt(item.tp);
 		        	let fn = parseInt(item.fn);
@@ -291,7 +294,8 @@
 		    		// false 时没有网格线
 		    		//show: true
 		    		show: false
-		    	},
+		    	}, 
+		    	//data: data.tprs,
 		        name: '真正类率（TPR）',
 		        nameLocation: 'middle',
 		        nameGap: 35,
@@ -309,7 +313,9 @@
 		        {
 		            name:'K值',
 		            type:'line',
+		            smooth: true,
 		            data: data.tprs,
+		            //data: data.fprs,
 		            symbol: 'circle',
 		            symbolSize: 2,
 		            lineStyle: {
@@ -423,6 +429,7 @@
 		        //data: [0, 0.3, 0.8, 0.9],
 		        axisPointer: { 
 		            value: data.poniter,
+		            //value: [(1, 2), (3, 4)],
 		            //value: data.poniter,
 		            snap: true,
 		            //snap: false,
@@ -693,23 +700,31 @@
 				}
 				this.auc = auc;
 				this.maxFscoreIndex = max_fscore_index;
-				const matrices = confusion_matrices.sort((a, b) => {
-					return a.probability - b.probability;
-				});
 
-				for (let i = 0, len = matrices.length; i < len; i++) {
-					const item = matrices[i];
+				const matricesSortByFpr = confusion_matrices.sort((a, b) => {
+					return a.fpr - b.fpr;
+				});
+				
+				for (let i = 0, len = matricesSortByFpr.length; i < len; i++) {
+					const item = matricesSortByFpr[i];
 					//item.auc = 
 					rocData.tprs.push(item.tpr);
 					rocData.fprs.push(item.fpr);
+				}
+				
+				const matricesSortByp = confusion_matrices.sort((a, b) => {
+					return a.probability - b.probability;
+				});
+				for (let i = 0, len = matricesSortByp.length; i < len; i++) {
+					const item = matricesSortByp[i];
 					disData.probabilities.push(item.probability);
 					// @TODO check
 					disData.ratios.push(item.tpr);
-
 				}
 				disData.poniter = '0';
-				drawChart('roc' + this.id, rocData, matrices, disData);
-				drawDistr('distribution' + this.id, disData, matrices);
+
+				drawChart('roc' + this.id, rocData, matricesSortByFpr, disData);
+				drawDistr('distribution' + this.id, disData, matricesSortByp);
 			})
 		},
 		methods: {
