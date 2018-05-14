@@ -180,6 +180,7 @@
 	import { getModelData } from '@/api/api'
 	let obj;
 	function drawChart (id, data, matrices, disData) {
+		console.log(matrices);
 		const chart = echarts.init(document.getElementById(id));
 		const option = {
 			color: ['#589de2', '#deac2c'],
@@ -196,10 +197,11 @@
 		    tooltip: {
 		        trigger: 'axis',
 		        formatter (data) {
-		        	console.log(data);
+		        	console.log('in formatter');
+		        	console.log(matrices);
+		        	console.log(data[0]);
 		        	const dataIndex = data[0].dataIndex;
 		        	const item = matrices[dataIndex];
-		        	console.log('in formatter');
 		        	console.log(item);
 		        	obj.basicIndex[0].value = item.f1_score;
 		        	obj.basicIndex[1].value = obj.auc;
@@ -238,7 +240,7 @@
 		        	console.log(vv[index]);
 		        	disData.poniter = vv[index];
 		        	drawDistr('distribution' + obj.id, disData, matrices);
-		        	return data[0].value;
+		        	return `fpr: ${item.fpr}  tpr: ${item.tpr}`;
 		        },
 		    },
 		    legend: {
@@ -314,8 +316,8 @@
 		            name:'K值',
 		            type:'line',
 		            smooth: true,
-		            data: data.tprs,
-		            //data: data.fprs,
+		            //data: data.tprs,
+		            data: data.fprs,
 		            symbol: 'circle',
 		            symbolSize: 2,
 		            lineStyle: {
@@ -704,7 +706,7 @@
 				const matricesSortByFpr = confusion_matrices.sort((a, b) => {
 					return a.fpr - b.fpr;
 				});
-				
+				console.log(matricesSortByFpr);
 				for (let i = 0, len = matricesSortByFpr.length; i < len; i++) {
 					const item = matricesSortByFpr[i];
 					//item.auc = 
