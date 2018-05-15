@@ -126,13 +126,18 @@
 			handleUploadSuccess (response, file, fileList) {
 				this.$store.state.uploadProgress.percent = Math.floor(Math.random() * 10 + 90) + '%';
 				if (response.error) {
-					console.log(response.error);
+					this.$message.error(response.error);
 					return;
 				}
 				let { task } = response;
 				const projectId = task.project_id;
 				this.$store.commit('SET_PROJECT_ID', projectId);
-				this.$router.push(`/main/data/info/${projectId}`);
+				if (this.isFileAbort) {
+					return;
+				}
+				else {
+					this.$router.push(`/main/data/info/${projectId}`);
+				}
 			},
 			// @TODO 考虑失败的情况
 			handleUploadError (err, file, fileList) {
@@ -146,6 +151,9 @@
 				this.$store.commit('SET_PROJECT_STATUS', false);
 				this.$store.commit('SET_PROJECT_NAME', '未命名任务');
 				this.$store.commit('SET_CUR_STATUS', 0);
+				this.$store.commit('initTrainObj');
+				this.$store.commit('SET_TARGET_TIPS', false);
+				this.$store.state.eigenData.length = 0;
 			}
 		},
 		mounted () {
@@ -154,6 +162,11 @@
 			/*if (this.$store.state.projectId) {
 				this.$router.push('/main/data/info/' + this.$store.state.projectId);
 			}*/
+		},
+		computed: {
+			isFileAbort () {
+				return this.$store.state.isFileAbort;
+			}
 		}
 	}
 </script>

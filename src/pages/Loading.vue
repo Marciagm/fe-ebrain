@@ -27,7 +27,6 @@
 	import leftRight from '@/components/LeftRight.vue'
 	// @TODO 需要优化
 	function initUploadProgress (progress) {
-		console.log(progress);
 		progress.percent = '0%';
 		progress.status = 1;
 		return progress;
@@ -44,15 +43,15 @@
 			// 数据阶段
 			this.$store.commit('SET_CUR_STATUS', 1);
 			// @TODO
-			if (this.$store.state.projectId) {
+			/*if (this.$store.state.projectId) {
 				this.$router.push(`/main/data/info/${this.$store.state.projectId}`);
 			}
 			else {
 				this.$router.push(`/main/data/upload`);
-			}
+			}*/
             
 			const uploadProgress = this.$store.state.uploadProgress;
-			// 
+			
 			uploadProgress.status = 1;
 			uploadProgress.percent = '0%';
 			const portraitProgress = this.$store.state.portraitProgress;

@@ -28,9 +28,9 @@
 			<img class="icon" src="../images/message.png">
 			<img class="icon" src="../images/help.png">
 			
-			<el-dropdown  @command="chooseTask">
+			<el-dropdown  @command="chooseTask" trigger="click">
 			  <span class="el-dropdown-link">
-			    <img class="icon" src="../images/project.png" >
+			    <img class="icon" src="../images/project.png" style="cursor: pointer;">
 			  </span>
 			  <el-dropdown-menu slot="dropdown" class="task-drop">
 			    <el-dropdown-item :command="0">
@@ -53,12 +53,12 @@
 			    		{{ item.name }}
 			    	</div>	
 			    </el-dropdown-item>
-			    <el-dropdown-item>
+			   <!--  <el-dropdown-item>
 			    	<div class="nav-project-list" @click="taskClick">
 				    	<div class="list-project-name">未命名任务1</div>
 				    	<div class="running">正在运行中...</div>
 				   	</div>
-			    </el-dropdown-item>
+			    </el-dropdown-item> -->
 			  </el-dropdown-menu>
 			</el-dropdown>
 			<div class="sep"></div>
@@ -296,9 +296,9 @@
 			},
 
 			tab (item, index) {
-				console.log('curStatus: ' + this.curStatus);
+				console.log(this.curStatus);
 				if (index == 1) {
-					if (this.curStatus < 2) {
+					if (this.curStatus < 4) {
 						return;
 					}
 					else {
@@ -310,6 +310,10 @@
 						this.$router.push('/main/data/upload');
 					}
 					else if (this.curStatus == 1) {
+						this.$store.commit('SET_FILE_ABORT', true);
+						this.$router.push('/main/data/upload');
+					}
+					else if (this.curStatus > 1 &&  this.curStatus <= 3 ) {
 						this.$router.push(`/main/data/info/${this.projectId}`);
 					}
 					else {
@@ -439,7 +443,13 @@
 	           			const { project } = data; 
 	           			this.$store.commit('SET_PROJECT_NAME', project.name);
 	           			// @TODO updateProjectList
-
+	           			const params = {
+			            	user_id: this.userId,
+			            	page_size: 5,
+			            	page: 1
+			            };
+			            // 获取近期任务
+		            	this.getRecentProjects(params);
            			}
            			else {
            				this.$message.error(error.desc);
@@ -520,7 +530,7 @@
 	            	this.$store.state.progressItems.length = 0;
 	            	poll(this.projectId).then(data => {
 						const { error, dataset_task, portrait_task, preprocessing_task, training_task, target_feature_id, target_feature_name} = data;
-						
+						console.log(data);
 						if (error) {
 							this.$message.error(error.desc);
 							return;
@@ -531,22 +541,33 @@
 						// 
 						if (training_task) {
 							if (training_task.status == 4) {
-								this.$store.commit('SET_CUR_STATUS', 4);
+								this.$store.commit('SET_CUR_STATUS', 5);
 							}
 							else {
-								this.$store.commit('SET_CUR_STATUS', 3);
+								this.$store.commit('SET_CUR_STATUS', 4.5);
 							}
 						}
+						// 预处理
 						else if (preprocessing_task ) {
 							if (preprocessing_task.status == 4) {
-								this.$store.commit('SET_CUR_STATUS', 3)
+								this.$store.commit('SET_CUR_STATUS', 4)
 							}
 							else {
-								this.$store.commit('SET_CUR_STATUS', 2)
+								this.$store.commit('SET_CUR_STATUS', 3.5)
 							}
 						}
+						// 画像
 						else if (portrait_task) {
 							if (portrait_task.status == 4) {
+								this.$store.commit('SET_CUR_STATUS', 3);
+							}
+							else {
+								this.$store.commit('SET_CUR_STATUS', 2.5);
+							}
+						}
+						// 上传至服务器+服务器上传hadoop
+						else if (dataset_task) {
+							if (dataset_task.status == 4) {
 								this.$store.commit('SET_CUR_STATUS', 2);
 							}
 							else {
@@ -556,6 +577,7 @@
 						else {
 							this.$store.commit('SET_CUR_STATUS', 0);
 						}
+						console.log('!!!!!!!!!!!status:' + this.$store.state.curStatus);
 					})
 	            }
            	},
@@ -568,10 +590,12 @@
            				this.$message.error(error.desc);
            				return;
            			}
-           			// 排序
+
+           			// 降序
            			let sortProjects = projects.sort((a, b) => {
-           				return a.created_at - b.created_at;
+           				return b.created_at - a.created_at;
            			})
+           			this.recentProjects.length = 0;
            			for (let i = 0, len = Math.min(5, sortProjects.length); i < len; i++) {
            				const item = sortProjects[i];
            				this.recentProjects.push({

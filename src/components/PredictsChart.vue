@@ -17,9 +17,9 @@
 			>
 			  	<div class="upload-predict-block">
 			  		<el-col :span="10" v-if="!isUploading" class="upload-text">拖拽文件至虚线部分或点击右侧按钮上传并预测</el-col>
-			  		<el-col :span="10" v-else class="predict-upload-progress">
+			  		<el-col :span="12" v-else class="predict-upload-progress">
 			  			<el-col :span="8" style="font-size: 12px; color: #666;">{{ filename }}</el-col>
-			  			<el-col :span="16">
+			  			<el-col :span="16" style="text-align: center;">
 			  				<el-progress :percentage="percent" style="height: 70px; line-height: 70px;"></el-progress>
 			  			</el-col>
 			  			<div  class="upload-predict-tip">{{ tips }}</div>
@@ -110,7 +110,7 @@
 		.upload-predict-tip {
 			position: absolute; 
 			top: 15px; 
-			left: 150px; 
+			left: 20%; 
 			font-size: 10px;
 			height: 14px;
 			line-height: 14px;

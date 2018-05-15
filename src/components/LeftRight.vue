@@ -96,9 +96,14 @@
 							<div class="progress-con progress-bg"></div>
 							<div class="progress-con offset">
 								<div>{{ item.name }}</div>
-								<span class="progress-status duration" >({{ item.duration }})</span>
+								<span class="progress-status duration" >
+									完成 &nbsp;&nbsp;
+									耗时({{ item.duration }})
+								</span>
 							</div>
-							<img src="../images/finish.png" class="load-effect">
+
+							<img src="../images/model-close.png" class="load-effect" @click="endTask(item)">
+							<!-- <img src="../images/finish.png" class="load-effect"> -->
 							<div class="progress-border"></div>
 						</div>
 						<!-- 正在进行时或出错 -->
@@ -114,7 +119,9 @@
 							<div class="progress-con offset">
 								<div>{{ item.name }}</div>
 								<span v-if="item.status==2" class="progress-status duration" >({{ item.duration }})</span>
-								<span v-if="item.status==1" class="progress-status">已完成{{ item.percent }}</span>
+								<span v-if="item.status==1" class="progress-status">
+									已完成{{ item.percent }}&nbsp;&nbsp;&nbsp;&nbsp;已耗时 {{ item.duration }}
+								</span>
 								<span v-if="item.status==-1" class="load-fail-tip">
 									{{ item.failReason }}<a href="#/main/data/upload" style="color: #1b7bdd"> 请重试</a>
 								</span>
@@ -122,6 +129,7 @@
 
 							<img v-if="item.status==-1" src="../images/cuowu.png" class="load-effect">
 							<img v-if="item.status==1" src="../images/loading.gif" class="load-effect">
+							<img src="../images/model-close.png" class="end-task" @click="endTask(item)">
 							<div v-if="item.status!=1" class="load-progress-border"></div>
 						</div>
 					</div>
@@ -147,13 +155,13 @@
 				z-index: 1000;
 				letter-spacing: 1px; 
 				color: #999; 
-				//position: absolute; 
 				position: fixed;
 				bottom: 0; 
 				height: 28px; 
-				line-height: 28px; 
-				box-shadow: 0px -1px 2px 0px rgba(5, 0, 50, 0.1); 
-				width: calc(80% - 20px);
+				line-height: 28px;
+				/*border-top: 1px solid #e6e6e6;*/
+				box-shadow: 0px -1px 2px 0px rgba(5, 0, 50, 0.1);
+				width: calc(80% - 17px);
 				box-sizing: border-box;
 				padding-left: 39px;
 				text-align: left;
@@ -167,6 +175,11 @@
 			padding-top: 20px;
 			.load-effect {
 				right: 20%; 
+				top: 24px; 
+				position: absolute;
+			}
+			.end-task {
+				right: 5%; 
 				top: 24px; 
 				position: absolute;
 			}
@@ -244,8 +257,8 @@
 		data () {
 			return {
 				showTarget: false,
-				showFeatureNum: true,
-				showFeatureList: true,
+				showFeatureNum: false,
+				showFeatureList: false,
 				minHeight: '',
 				projectId: this.$route.params.projectId
 			}
@@ -265,6 +278,9 @@
 				this.$router.push({
 					path: `/main/data/info/${this.projectId}`
 				})
+			},
+			endTask (item) {
+				this.$emit('endTask', item);
 			}
 		},
 		computed: {
@@ -279,7 +295,6 @@
 			},
 			showTargetTips () {
 				return this.$store.state.showTargetTips;
-
 				/*return this.$store.state.uploadProgress.status === 2 
 					&& this.$store.state.portraitProgress.status === 2 && !this.taskId;*/
 			},

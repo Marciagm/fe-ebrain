@@ -142,6 +142,10 @@ export const deletePreditiction = (predictionsId, params) => {
 	return axios.post(`${base}/predictions/delete/${predictionsId}`, params).then(res => res.data); 
 }
 
+// 结束任务
+export const killTask = (taskId, params) => {
+	return axios.post(`${base}/tasks/kill/${taskId}`, params).then(res => res.data); 
+}
 
 
 

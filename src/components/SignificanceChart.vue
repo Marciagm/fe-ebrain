@@ -19,7 +19,7 @@
 				用前
 				<input v-model="num" style="width: 40px; text-align: center;">
 				位特征
-				<input v-model="listName" placeholder="创建新的特征列表">
+				<input v-model="listName" placeholder="创建新的特征列表" id="listName">
 				<button class="create-button" @click="createFeatureList">确定</button>
 			</el-col>
 		</div>
@@ -78,7 +78,7 @@
 	}
 	.chart {
 		height: 350px; 
-		width: 70%; 
+		width: 60%; 
 		margin-left: 5%
 	}
 	ul { 
@@ -203,7 +203,7 @@
 		            		borderRadius: '25px',
 		            	}
 		            },
-		            barWidth: 40,
+		            barWidth: 20,
 		            barMaxWidth: 30
 		        }
 		    ]
@@ -228,7 +228,17 @@
 		},
 		mounted () {
 			this.elId = `significance${this.id}`;
-			//drawChart(this.elId, {});
+			const listName = document.getElementById('listName');
+
+			listName.onkeypress = (event) => {
+				if (event.charCode != 13) {
+					return;
+				}
+				else {
+					this.createFeatureList();
+				}
+			}
+
 			getModelFeatureData(this.id).then(data => {
 				const { error, features } = data;
 				this.modelData = features;
@@ -240,7 +250,6 @@
 				const importance = [], name = [];
 				for (let i = 0, len = features.length; i < len; i++) {
 					const item = features[i];
-					console.log(item);
 					importance.push(item.importance);
 					name.push(item.feature.name);
 				} 
@@ -258,7 +267,6 @@
 					descImportance.push(item.importance);
 					descName.push(item.feature.name);
 				}
-
 				this.chartDescData = { importance: descImportance, name: descName };
 
 				drawChart(this.elId, this.chartDescData);
@@ -286,11 +294,18 @@
 			 * 选择topn创建新的特征列表
 			 */
 			createFeatureList () {
+				if (!this.listName) {
+					this.$message({
+						showClose: true,
+          				message: '列表名填了吗？🙄️（白眼）',
+          				type: 'warning'
+					})
+					return;
+				}
 				const features  = this.modelDescData;
 				const ids = [];
+				// @TODO 添加去重和包含操作
 				for (let i = 0; i < this.num; i++) {
-					console.log('innnn');
-					console.log(features[i]);
 					ids.push(features[i].feature.feature_id);
 				}
 				
@@ -309,7 +324,6 @@
 						message: '列表创建成功！',
 						type: 'success'
 					});
-					console.log(data);
 				})
 			}
 		}

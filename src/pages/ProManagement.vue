@@ -19,18 +19,21 @@
 						</div>
 					</div>
 					<div class="project-list">
-						<el-row class="project-list-head">
+						<el-row class="project-list-head" justify="center">
 							<el-col :span="6">任务名称</el-col>
-							<el-col :span="6">文件名</el-col>
+							<el-col :span="8">文件名</el-col>
 							<el-col :span="6">创建时间</el-col>
-							<el-col :span="6">删除</el-col>
+							<el-col :span="4">删除</el-col>
 						</el-row>
 						<div class="project-list-item"  v-for="project in projects" :id="project.project_id" @click="openProject(project)">
 							<el-col :span="6">{{ project.name || '未命名任务'}}</el-col>
-							<el-col :span="6">dd.svg</el-col>
+							<el-col :span="8">{{ project.train_dataset_name || '--' }}</el-col>
 							<el-col :span="6">{{ project.createTime }}</el-col>
-							<el-col :span="6" >
-								<img src="../images/model-rubbish.png"  @click="deleteProject(project.project_id)"/>
+							<el-col :span="4" >
+								<div style="width: 30px;" @click.stop="deleteProject(project.project_id)">
+									<img src="../images/model-rubbish.png"/>
+								</div>
+							
 							</el-col>
 						</div>
 					</div>
@@ -48,9 +51,8 @@
 	import topPart from '@/components/Top.vue'
 	
 	function getDate (dateStr) {
-		console.log(dateStr);
+		// @attention: unix时间戳换算成js的时间戳，要乘以1000
 		const date = new Date(dateStr * 1000);
-		console.log(date);
 		const year = date.getFullYear();
 		const month = ('0' + (date.getMonth() - 0 + 1)).slice(-2);
 		const day = ('0' + date.getDate()).slice(-2);
@@ -66,7 +68,6 @@
 			try {
 				user = JSON.parse(user);
 				const userId = user.userId;
-				console.log('userId: ' + user.userId);
 				const params = {
 					user_id: userId
 				};
@@ -165,7 +166,13 @@
 					          	message: '删除成功！',
 					          	type: 'success'
 					        });
-							requestProjectList(this);
+					        // 删除的是当前的任务时
+							if (this.projectId == projectId) {
+								this.$router.push('/main/project');
+							}
+							else {
+								requestProjectList(this);
+							}
 						}
 					}).catch( error => {
 						console.log(error);

@@ -180,7 +180,6 @@
 	import { getModelData } from '@/api/api'
 	let obj;
 	function drawChart (id, data, matrices, disData) {
-		console.log(matrices);
 		const chart = echarts.init(document.getElementById(id));
 		const option = {
 			color: ['#589de2', '#deac2c'],
@@ -197,26 +196,9 @@
 		    tooltip: {
 		        trigger: 'axis',
 		        formatter (data) {
-		        	console.log('in formatter');
-		        	console.log(matrices);
-		        	console.log(data[0]);
 		        	const dataIndex = data[0].dataIndex;
 		        	const item = matrices[dataIndex];
-		        	console.log(item);
-		        	obj.basicIndex[0].value = item.f1_score;
-		        	obj.basicIndex[1].value = obj.auc;
-		        	obj.basicIndex[2].value = item.f1_score;
-		        	obj.basicIndex[3].value = item.fpr;
-		        	// @TODO 
-		        	// 真负类率
-		        	obj.basicIndex[4].value = item.tnr;
-		        	// 阳性预测值
-		        	obj.basicIndex[5].value = item.fnr;
-		        	// 阴性预测值 @TODO 
-		        	obj.basicIndex[6].value = item.npv;
-		        	// 准确率
-		        	obj.basicIndex[7].value = item.acc;
-		        	
+		        	obj.setBasicIndex(item);		        	
 		        	let tn = parseInt(item.tn);
 		        	let tp = parseInt(item.tp);
 		        	let fn = parseInt(item.fn);
@@ -234,13 +216,10 @@
 					obj.predictValues.num5 = fn + tp;
 					obj.predictValues.num3 = tn + tp + fn + fp;
 
-		        	const vv = [0.6, 0.8, 0.6, 0.8];
-		        	const index = Math.floor(Math.random() * 4);
-		        	console.log('index: ' + index + '  ' + vv[index]);
-		        	console.log(vv[index]);
-		        	disData.poniter = vv[index];
+		        	disData.poniter = dataIndex;
+		        	disData.probability = item.probability;
 		        	drawDistr('distribution' + obj.id, disData, matrices);
-		        	return `fpr: ${item.fpr}  tpr: ${item.tpr}`;
+		        	return `fpr: ${item.fpr} <br> tpr: ${item.tpr}`;
 		        },
 		    },
 		    legend: {
@@ -316,8 +295,8 @@
 		            name:'K值',
 		            type:'line',
 		            smooth: true,
-		            //data: data.tprs,
-		            data: data.fprs,
+		            data: data.tprs,
+		            //data: data.fprs,
 		            symbol: 'circle',
 		            symbolSize: 2,
 		            lineStyle: {
@@ -344,11 +323,11 @@
 		};
 		chart.setOption(option);
 	}
+
 	function drawDistr (id, data, matrices) {
-		console.log('poniter: ' + data.poniter);
 		const chart = echarts.init(document.getElementById(id));
 		var colors = ['#5793f3', '#d14a61', '#675bba'];
-		//chart.clear();
+
 		const option = {
 			color: ['#589de2', '#deac2c'],
 		    title: {
@@ -358,29 +337,22 @@
 		        	fontSize: 14
 		        },
 		        padding: [0, 0, 20, 50],
-		        subtext: '预估概率（0～1): ' + data.poniter,
+		        subtext: '预估概率（0～1): ' + data.probability,
 		    },
 		    tooltip: {
 		        trigger: 'axis',
 		        axisPointer: { 
 		            value: data.poniter,
-		            //value: data.poniter,
 		            snap: true,
-		            //snap: false,
 		            lineStyle: {
 		                color: '#ccc',
 		                opacity: 1,
 		                width: 1
 		            },
 		            label: {
-		                //show: true,
 		                show: false,
 		                formatter: function (params) {
-		                    console.log(params);
-		                    return 0.8;
-		                    //return data.poniter;
-		                    //return params.value;
-		                    //return echarts.format.formatTime('yyyy-MM-dd', params.value);
+		                    return params.value;
 		                },
 		                //backgroundColor: 'red'
 		            },
@@ -431,8 +403,6 @@
 		        //data: [0, 0.3, 0.8, 0.9],
 		        axisPointer: { 
 		            value: data.poniter,
-		            //value: [(1, 2), (3, 4)],
-		            //value: data.poniter,
 		            snap: true,
 		            //snap: false,
 		            lineStyle: {
@@ -441,16 +411,11 @@
 		                width: 1
 		            },
 		            label: {
-		                //show: true,
+		            	fontSize: 8,
 		                show: false,
 		                formatter: function (params) {
-		                    console.log(params);
-		                    return 0.8;
-		                    //return data.poniter;
-		                    //return params.value;
-		                    //return echarts.format.formatTime('yyyy-MM-dd', params.value);
-		                },
-		                //backgroundColor: 'red'
+		                	return params.value;
+		                }
 		            },
 		            handle: {
 		                show: true,
@@ -493,7 +458,7 @@
 		    },
 		    series: [
 		        {
-		            name:'预估概率',
+		            name:'样本比例',
 		            type:'line',
 		            data: data.ratios,
 		            symbol: 'circle',
@@ -515,40 +480,10 @@
 			                    // textStyle: null      // 默认使用全局文本样式，详见TEXTSTYLE
 			                }
 			            }
-		            },
-		            label: {
-					    // 在文本中，可以对部分文本采用 rich 中定义样式。
-					    // 这里需要在文本中使用标记符号：
-					    // `{styleName|text content text content}` 标记样式名。
-					    // 注意，换行仍是使用 '\n'。
-					    formatter: [
-					        '{a|这段文本采用样式a}',
-					        '{b|这段文本采用样式b}这段用默认样式{x|这段用样式x}'
-					    ].join('\n'),
-
-					    rich: {
-					        a: {
-					            //color: 'red',
-					            lineHeight: 10
-					        },
-					        b: {
-					            backgroundColor: {
-					                image: 'xxx/xxx.jpg'
-					            },
-					            height: 40
-					        },
-					        x: {
-					            fontSize: 18,
-					            fontFamily: 'Microsoft YaHei',
-					            borderColor: '#449933',
-					            borderRadius: 4
-					        }
-					    }
-					},
-
+		            }
 		        },
 		        {
-		            name:'样本比例',
+		            name:'预估概率',
 		            type:'line',
 		            data: data.probabilities,
 		            symbol: 'circle',
@@ -580,7 +515,6 @@
 		                itemStyle: {
 		                    normal: {
 		                        borderWidth: 1,
-
 		                        lineStyle: {
 		                            type: 'dash',
 		                            //color: '#333 ',
@@ -599,16 +533,10 @@
 
 		                },
 		                data:  [
-		                    // {type: 'average', name: '平均值'},
 		                    [{
-		                    	coord: [data.poniter, 0]
+		                        coord: [data.index, 0]
 		                    }, {
-		                    	coord: [data.poniter, 1]
-		                    }],
-		                    [{
-		                        coord: ['0.8', 0]
-		                    }, {
-		                        coord: ['0.8', 1]
+		                        coord: [data.index, 1]
 		                    }]
 		                ]
 		            }
@@ -617,6 +545,7 @@
 		};
 		chart.setOption(option);
 	}
+
 	export default {
 		props: ['id'],
 		data () {
@@ -680,11 +609,8 @@
 		},
 		mounted () {
 			obj = this;
-			console.log('in roc');
 			// data
-			
 			getModelData(this.id).then(data => {
-				console.log(data);
 				const { error, confusion_matrices, auc, max_fscore_index } = data;
 
 				const rocData = {
@@ -701,22 +627,23 @@
 					return;
 				}
 				this.auc = auc;
-				this.maxFscoreIndex = max_fscore_index;
 
 				const matricesSortByFpr = confusion_matrices.sort((a, b) => {
 					return a.fpr - b.fpr;
 				});
-				console.log(matricesSortByFpr);
+				let matricesAsc = [];
 				for (let i = 0, len = matricesSortByFpr.length; i < len; i++) {
 					const item = matricesSortByFpr[i];
-					//item.auc = 
 					rocData.tprs.push(item.tpr);
 					rocData.fprs.push(item.fpr);
+					matricesAsc.push(item);
 				}
-				
+				this.setBasicIndex(matricesAsc[0]);
+
 				const matricesSortByp = confusion_matrices.sort((a, b) => {
 					return a.probability - b.probability;
 				});
+
 				for (let i = 0, len = matricesSortByp.length; i < len; i++) {
 					const item = matricesSortByp[i];
 					disData.probabilities.push(item.probability);
@@ -724,13 +651,36 @@
 					disData.ratios.push(item.tpr);
 				}
 				disData.poniter = '0';
-
-				drawChart('roc' + this.id, rocData, matricesSortByFpr, disData);
+				disData.probability = matricesSortByp[0].probability;
+				disData.index = confusion_matrices[max_fscore_index].probability;
+				drawChart('roc' + this.id, rocData, matricesAsc, disData);
 				drawDistr('distribution' + this.id, disData, matricesSortByp);
 			})
 		},
 		methods: {
-
+			/**
+			 * 基本指标
+			 *
+			 * @param {Object} item 数据对象
+			 */
+			setBasicIndex (item) {
+				// F score
+				this.basicIndex[0].value = item.f1_score;
+	        	// auc
+	        	this.basicIndex[1].value = this.auc;
+	        	// tpr
+	        	this.basicIndex[2].value = item.tpr;
+	        	// fpr
+	        	this.basicIndex[3].value = item.fpr;
+	        	// 真负类率
+	        	this.basicIndex[4].value = item.tnr;
+	        	// 阳性预测值
+	        	this.basicIndex[5].value = item.fnr;
+	        	// 阴性预测值 @TODO 
+	        	this.basicIndex[6].value = item.npv;
+	        	// 准确率
+	        	this.basicIndex[7].value = item.acc;
+			}
 		}
 	}
 </script>

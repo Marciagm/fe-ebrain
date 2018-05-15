@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<top-part ref="top"></top-part>
-		<left-right ref="leftRight">
+		<left-right ref="leftRight" v-on:endTask="endTask">
 			<div slot="left">
 				<div class="model-list">
 					<el-row>
@@ -182,7 +182,7 @@
 	import significanceChart from '@/components/SignificanceChart'
 	import predictsChart from '@/components/PredictsChart'
 	
-	import { getModelList, poll } from '../api/api'
+	import { getModelList, poll, killTask } from '../api/api'
 
 	const chartHeights = ['555px', '858px', '554px', '554px', '554px', '318px'];
 	function getDate (dateStr) {
@@ -240,20 +240,7 @@
 						id: 0
 					}
 				],
-				modelList: [
-					{
-						name: '算法1',
-						listName: 'top20',
-						createTime: '2018.04.03 10:50',
-						duration: '12s',
-						validationSet: 0.456,
-						crossValidation: 0.45,
-						testSet: 0.5677,
-						show: false,
-						curId: 0,
-						id: 0
-					}
-				],
+				modelList: [],
 				showList: []
 			}
 		},
@@ -268,9 +255,12 @@
 			this.modelList.length = 0;
 			this.$store.commit('SET_TRAIN_STATUS', true);
 			this.$store.commit('SET_ALLMODEL_STATUS', false);
+
 			const timer = setInterval(() => {
 				getModelList({project_id: this.projectId}).then(data => {
 					this.$store.state.modelProgressItems.length = 0;
+					let progressItems = [];
+
 					const { error, models } = data;
 					if (error) {
 						this.$message.error(error.desc);
@@ -278,6 +268,7 @@
 						return;
 					}
 					let goOn = 0;
+
 					for (let i = 0, len = models.length; i < len; i++) {
 						const model = models[i];
 						const item = {
@@ -292,12 +283,15 @@
 							show: false,
 							curId: 0,
 							id: model.model_id,
-							percentage: model.percentage
+							percentage: model.percentage,
+							taskId: model.task_id
 						};
 						if (model.status !== 4) {
 							goOn = 1;
 							item.finished = 0;
-							this.$store.state.modelProgressItems.push({
+							progressItems.push({
+								taskId: item.taskId,
+								id: item.id,
 								name: item.name,
 								status: 1,
 								duration: item.duration,
@@ -307,13 +301,12 @@
 						else {
 							item.finished = 1;
 						}
-
 						// 如果已经存在就直接更新
 						let exists = false;
+						
 						for (let k = 0, len = this.modelList.length; k < len; k++) {
 							let oldModel = this.modelList[k];
 							if (oldModel.id == item.id && !oldModel.finished) {
-								//oldModel.validationSet = item.validationSet;
 								oldModel.duration = item.duration;
 								oldModel.validationSet = item.validationSet;
 								oldModel.crossValidation = item.crossValidation;
@@ -321,6 +314,9 @@
 								oldModel.finished = item.finished;
 								exists = true;
 								break;
+							}
+							if (oldModel.id == item.id && oldModel.finished) {
+								exists = true;
 							}
 						}
 						// 没有就直接塞进来
@@ -348,53 +344,23 @@
 	 						})
 	 					}
 	 					// 训练完成
-	 					this.$store.commit('SET_TRAIN_STATUS', true);
+	 					//this.$store.commit('SET_TRAIN_STATUS', true);
 	 					this.$store.commit('SET_ALLMODEL_STATUS', true);
 	 					clearInterval(timer);
 	 				}
+	 				else {
+	 					this.$store.state.modelProgressItems = progressItems;
+	 				}
+	 				
 				})
 			}, 500);
-			/*if (this.$route.query.from) {
-				poll(this.projectId).then(data => {
-					const { error, dataset_task, portrait_task, preprocessing_task, training_task, target_feature_id} = data;
-					console.log(data);
-					if (error) {
-						this.$message.error(error.desc);
-						return;
-					}
-					// 
-					if (training_task) {
-						if (training_task.status == 4) {
-							this.$store.commit('SET_CUR_STATUS', 4);
-						}
-						else {
-							this.$store.commit('SET_CUR_STATUS', 3);
-						}
-					}
-					else if (preprocessing_task ) {
-						if (preprocessing_task.status == 4) {
-							this.$store.commit('SET_CUR_STATUS', 3)
-						}
-						else {
-							this.$store.commit('SET_CUR_STATUS', 2)
-						}
-					}
-					else if (portrait_task) {
-						if (portrait_task.status == 4) {
-							this.$store.commit('SET_CUR_STATUS', 2);
-						}
-						else {
-							this.$store.commit('SET_CUR_STATUS', 1);
-						}
-					}
-					else {
-						this.$store.commit('SET_CUR_STATUS', 0);
-					}
-				})	
-			}*/
-			
 		},
 		methods: {
+			/**
+			 * 展示信息
+			 *
+			 * @param { Object } command 操作对象 
+			 */
 			chooseEigenList (command) {
 				if (!command.id) {
 					this.showList = this.modelList;
@@ -405,12 +371,25 @@
 					return value.listName === command.name;
 				})
 			},
+
+			/**
+			 * 显示数据详情
+			 *
+			 * @param {Object} item 数据对象
+			 */
 			showDetail (item) {
 				if (!item.finished) {
 					// return;
 				}
 				item.show = !item.show;
 			},
+
+			/**
+			 * 展示图表详情
+			 *
+			 * @param {Object} nav 具体哪块信息数据
+			 * @param {Object} item 数据信息 
+			 */
 			showChart (nav, item) {
 				if (!item.finished) {
 					return;
@@ -418,9 +397,26 @@
 				const id = nav.id;
 				item.curId = id;
 				this.charHeight = chartHeights[id];
+			},
+
+			/**
+			 * 结束任务
+			 *
+			 * @param {Object} item 
+			 */
+			endTask (item) {
+				killTask(item.taskId).then(data => {
+					const { error } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					this.$router.push(`/main/model/${this.projectId}`);
+				})
 			}
 		},
 		computed: {
+			// 当前进度状态
 			curStatus () {
 				return this.$store.state.curStatus;
 			}

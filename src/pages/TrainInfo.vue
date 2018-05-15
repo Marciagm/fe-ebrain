@@ -68,7 +68,7 @@
 						this.fLId = preprocess_info.feature_list_id;
 						this.targetId = target_feature_id;
 						this.taskId = preProcessingTask.task_id;
-						
+
 						if (!initCoreData) {
 							this.$refs.coreData.initCoreData({
 								taskId: this.taskId,
@@ -112,11 +112,11 @@
 								progressItems.pop();
 								this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
 								// 模型也可以点击了
-								if (this.$store.state.curStatus == 2) {
-									this.$store.commit('SET_CUR_STATUS', 3);
+								if (this.$store.state.curStatus == 4) {
+									this.$store.commit('SET_CUR_STATUS', 5);
 								}
 								else {
-									this.$store.commit('SET_CUR_STATUS', 2);
+									this.$store.commit('SET_CUR_STATUS', 4);
 								}
 								// 特征重要性已经出来了
 								if (preprocess_info && !dataLoaded) {
@@ -152,12 +152,23 @@
 				showFeatureNum: true,
 				showFeatureList: true
 			});
-			this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
+			if (this.curStatus > 3) {
+				this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
+			}
+			else {
+				this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
+			}
+			
 			this.pollTrainTask(this.projectId, 500);
 			this.$store.commit('SET_TARGET_TIPS', false);
 			this.$store.state.progressItems.length = 0;
 			this.$store.commit('SET_TRAIN_STATUS', false);
 			this.$refs.coreData.setEigenActive(true);
+		},
+		computed: {
+			curStatus () {
+				return this.$store.state.curStatus;
+			}
 		}
 	}
 </script>

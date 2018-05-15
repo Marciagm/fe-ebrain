@@ -13,7 +13,7 @@
 			      @select="search"
 			      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
 			    ></el-autocomplete>	
-				<el-dropdown style="cursor: pointer;" @command="getList">
+				<el-dropdown style="cursor: pointer;" @command="getList" trigger="click">
 					<span class="el-dropdown-link">
 					    <span style="display: inline-block; width: 80px; text-align: center;">{{ curFeatureObj.name }}</span>
 					    <span style="color: #666; font-size: 10px;">(特征列表)</span>

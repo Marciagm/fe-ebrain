@@ -16,6 +16,7 @@
 					      @blur="blurTarget"
 					      class="target-input"
 					      :disabled="targetDisabled"
+					      :select-when-unmatched=true
 					    ></el-autocomplete>	
 					</div>
 
@@ -214,6 +215,7 @@
 		//const titleText = '共150个特征，显示前10个特征';
 		const titleText = data.titleText;
 		const chart = echarts.init(document.getElementById(id));
+		chart.clear();
 		var option = {
 			color: '#71b2f3',
             title: {
@@ -340,6 +342,7 @@
 		},
 		methods: {
 			blurTarget () {
+				this.showBar(this.targetInfo);
 				for (let i = 0, len = this.queryList.length; i < len; i++ ) {
 					const item = this.queryList[i];
 					if (this.targetInfo.id == item.id && this.targetInfo.value == item.value) {
@@ -370,11 +373,19 @@
 			 * @param {string} target 特征目标
 			 */
 			showBar (target) {
-				console.log(target);
-				//this.targetInfo = target;
+				if (!target.id) {
+					for (let i = 0, len = this.queryList.length; i < len; i++) {
+						const item = this.queryList[i];
+						if (target.value == item.value) {
+							target.id = item.id;
+							break;
+						}
+					}
+				}
+				this.targetId = target.id;
 				this.targetInfo.value = target.value;
 				this.targetInfo.id = target.id;
-				this.targetId = target.id;
+				
 				getFeatureDistr(target.id).then (data => {
 					console.log(data);
 					const { error, histogram } = data;
@@ -534,7 +545,7 @@
 							this.fLId = preprocess_info.feature_list_id;
 
 							// @TODO curstatus
-							this.$store.commit('SET_CUR_STATUS', 3);
+							// this.$store.commit('SET_CUR_STATUS', 2);
 							this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
 						}
 
@@ -570,7 +581,7 @@
 									case 4: 
 										clearInterval(timer);
 										if (this.$store.state.curstatus == 0) {
-											this.$store.commit('SET_CUR_STATUS', 1);
+											//this.$store.commit('SET_CUR_STATUS', 1);
 										}
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
@@ -624,6 +635,11 @@
  		},
 		mounted () {
 			this.styleInit();
+			this.$refs.leftRight.setStyles({
+				showFeatureList: true,
+				showFeatureNum: true,
+				showTarget: false
+			});
 			this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
             this.$store.commit('SET_PROJECT_STATUS', true);
             this.$store.commit('SET_PROJECT_ID', this.projectId);

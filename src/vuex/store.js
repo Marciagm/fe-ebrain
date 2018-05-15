@@ -85,27 +85,11 @@ const state = {
     taskId: '',
     targetName: '',
     modelStatus: false,
+    isFileAbort: false,
 
-    // 0:初始化状态 1:数据操作过程中 2: 模型可点击时 3:重新训练状态
+    // 0:初始化状态 1: 初始化结束 2:数据上传结束 3: 数据画像结束 4、模型可点击时 5:重新训练状态
     curStatus: 0,
-    initTrainObj () {
-        return {
-            featureName: '全部特征',
-            featureNum: 0,
-            featureListId: -1,
-            targetFeatureId: '',
-            targetId: '',
-            targetName: '',
-            timeSerialFeatureId: '',
-            varifyNum: 0,
-            crossValidFold: 0,
-            // 
-            splitMethod: 1,
-            // 默认20% 最小5%
-            testRatio: 20
-        }
-    },
-    showTargetTips: false,
+    showTargetTips: false
 }
 
 // 定义所需的 mutations
@@ -188,8 +172,31 @@ const mutations = {
     SET_TRAIN_OBJ (state, obj) {
         state.trainObj = obj;
     },
+    
     SET_TARGET_TIPS (state, status) {
         state.showTargetTips = status;
+    },
+
+    SET_FILE_ABORT (state, status) {
+        state.isFileAbort = status;
+    },
+
+    initTrainObj (state) {
+        state.trainObj = {
+            featureName: '全部特征',
+            featureNum: 0,
+            featureListId: -1,
+            targetFeatureId: '',
+            targetId: '',
+            targetName: '',
+            timeSerialFeatureId: '',
+            varifyNum: 0,
+            crossValidFold: 0,
+            // 
+            splitMethod: 1,
+            // 默认20% 最小5%
+            testRatio: 20
+        }
     }
 }
 
