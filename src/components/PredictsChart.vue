@@ -17,12 +17,16 @@
 			>
 			  	<div class="upload-predict-block">
 			  		<el-col :span="10" v-if="!isUploading" class="upload-text">拖拽文件至虚线部分或点击右侧按钮上传并预测</el-col>
-			  		<el-col :span="12" v-else class="predict-upload-progress">
+			  		<el-col v-else :span="12" class="predict-upload-progress">
 			  			<el-col :span="8" style="font-size: 12px; color: #666;">{{ filename }}</el-col>
-			  			<el-col :span="16" style="text-align: center;">
+			  			<el-col :span="16" style="text-align: center;" v-if="isUploading && !finished">
 			  				<el-progress :percentage="percent" style="height: 70px; line-height: 70px;"></el-progress>
 			  			</el-col>
-			  			<div  class="upload-predict-tip">{{ tips }}</div>
+			  			<div class="upload-predict-tip" v-if="isUploading && !finished">{{ tips }}</div>
+			  			<div style="float: right; font-size: 12px; color: #666;">
+			  				完成
+			  				<img src="../images/finish.png">
+			  			</div>
 			  		</el-col>
 			  		<div style="float: right; line-height: 70px; padding-right: 20px;">
 			  			<button class="upload-and-predict">上传并预测</button>
@@ -128,6 +132,7 @@
 		props: ['id'],
 		data () {
 			return {
+				finished: false,
 				downloadAble: false,
 				projectId: this.$route.params.projectId,
 				filename: '',
@@ -147,6 +152,7 @@
 		},
 		methods: {
 			beforeUpload (file) {
+				this.finished = false;
 				this.filename = file.name;
 				this.isUploading = true;
 				this.downloadAble = false;
@@ -194,6 +200,7 @@
 								if (predict_info && predict_info.prediction_id) {
 									this.predictionId = predict_info.prediction_id;
 								}
+								this.finished = true;
 								clearInterval(timer);
 							}
 						}
