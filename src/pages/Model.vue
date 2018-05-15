@@ -31,7 +31,7 @@
 						<el-col :span="3">训练时长</el-col>
 						<el-col :span="3">验证集</el-col>
 						<el-col :span="3">交叉验证</el-col>
-						<el-col :span="3" style="color: #0d68c4;">测试集</el-col>
+						<el-col :span="3" :style="{color: testColor}">测试集</el-col>
 					</el-row>
 					<div v-for="item in showList" style="padding-bottom: 50px;">
 						<div class="model-item" @click="showDetail(item)" v-if="!item.show">
@@ -206,6 +206,7 @@
 		},
 		data () {
 			return {
+				testColor: '#666',
 				projectId: this.$route.params.projectId,
 				charHeight: '555px',
 				itemNav: [
@@ -381,7 +382,9 @@
 				if (!item.finished) {
 					// return;
 				}
+				this.testColor = '#0d68c4';
 				item.show = !item.show;
+				item.show ? (this.testColor = '#0d68c4') : (this.testColor = '#666');
 			},
 
 			/**
