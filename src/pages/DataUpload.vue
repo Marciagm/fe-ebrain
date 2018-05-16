@@ -154,6 +154,7 @@
 				this.$store.commit('initTrainObj');
 				this.$store.commit('SET_TARGET_TIPS', false);
 				this.$store.state.eigenData.length = 0;
+				
 			}
 		},
 		mounted () {

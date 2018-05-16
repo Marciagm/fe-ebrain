@@ -87,7 +87,7 @@ const state = {
     modelStatus: false,
     isFileAbort: false,
 
-    // 0:初始化状态 1: 初始化结束 2:数据上传结束 3: 数据画像结束 4、模型可点击时 5:重新训练状态
+    // 0:初始化状态 1: 初始化结束 1.5:数据上传中 2:数据上传结束 2.5:生成数据画像中 3: 数据画像结束 3.5:训练预处理中 4：模型可点击时 4.5:模型训练中 5:重新训练状态
     curStatus: 0,
     showTargetTips: false
 }

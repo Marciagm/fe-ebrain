@@ -566,6 +566,10 @@
 								// this.$store.state.uploadProgress.duration = '10s';
 								this.$store.state.uploadProgress.duration = Math.max(dataset_task.duration, 1) + 's';
 								this.$store.state.uploadProgress.status = 2;
+								if (this.curStatus < 2) {
+									this.$store.commit('SET_CUR_STATUS', 2);	
+								}
+								
 								if (!portrait_task) {
 									return;
 								}
@@ -580,12 +584,18 @@
 										break;
 									case 4: 
 										clearInterval(timer);
-										if (this.$store.state.curStatus == 0) {
-											this.$store.commit('SET_CUR_STATUS', 1);
+										console.log('curStatus: ' + this.curStatus);
+										if (this.curStatus == 2) {
+											this.$store.commit('SET_CUR_STATUS', 3);
 										}
-										console.log(this.$store.state.curStatus);
-										if (this.$store.state.curStatus > 2) {
+										else {
+											this.$store.commit('SET_CUR_STATUS', 5);
+										}
+										if (this.curStatus >= 3 && this.curStatus <=4) {
 											this.targetDisabled = false;
+										}
+										if (this.curStatus > 4) {
+											this.targetDisabled = true;
 										}
 
 										portraitProgress.percent = '100%';
@@ -674,6 +684,9 @@
 			},
 			queryList () {
 				return this.$store.state.queryList;
+			},
+			curStatus () {
+				return this.$store.state.curStatus;
 			}
 		}
 	}

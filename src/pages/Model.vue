@@ -325,7 +325,7 @@
 								this.$store.commit('SET_ALLMODEL_STATUS', true);
 							}
 							else if (item.status == 4) {
-
+								//item.finished = true;
 							}
 							else {
 								status = 0;
@@ -344,7 +344,7 @@
 								})
 							}
 							else {
-								//item.finished = 1;
+								item.finished = 1;
 							}
 							// 如果已经存在就直接更新
 							let exists = false;

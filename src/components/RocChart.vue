@@ -653,6 +653,7 @@
 				disData.poniter = '0';
 				disData.probability = matricesSortByp[0].probability;
 				disData.index = confusion_matrices[max_fscore_index].probability;
+				
 				drawChart('roc' + this.id, rocData, matricesAsc, disData);
 				drawDistr('distribution' + this.id, disData, matricesSortByp);
 			})
