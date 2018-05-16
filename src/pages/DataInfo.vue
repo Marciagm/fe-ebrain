@@ -322,7 +322,7 @@
 		},
 		data () {
 			return {
-				targetDisabled: false,
+				targetDisabled: true,
 				isEigenActive: false,
 				showOption: false,
 				fLId: '',
@@ -387,7 +387,7 @@
 				this.targetInfo.id = target.id;
 				
 				getFeatureDistr(target.id).then (data => {
-					console.log(data);
+					// console.log(data);
 					const { error, histogram } = data;
 					if (error) {
 						this.$message.error(error.desc);
@@ -431,7 +431,7 @@
 				this.$store.state.trainObj.targetId = target.feature_id;
 				this.$store.state.trainObj.targetName = this.targetInfo.value;
 				this.$store.commit('SET_TRAIN_OBJ', this.$store.state.trainObj);
-				console.log('*****************name: ' + this.$store.state.trainObj.targetName);
+				// console.log('*****************name: ' + this.$store.state.trainObj.targetName);
 				this.dataPicFinished = true;
 			},
 
@@ -516,7 +516,7 @@
 				let initCoreData = false;
 				const timer = setInterval ( () => {
 					poll(projectId).then(data => {
-						console.log(data);
+						
 						let { error,target_feature_id, target_feature_name, dataset_task, portrait_task, preprocessing_task, training_task } = data;
 						if (error) {
 							this.$message.error('');
@@ -544,7 +544,7 @@
 							this.taskId = preProcessingTask.task_id;
 							this.fLId = preprocess_info.feature_list_id;
 
-							// @TODO curstatus
+							// @TODO curStatus
 							// this.$store.commit('SET_CUR_STATUS', 2);
 							this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
 						}
@@ -580,9 +580,14 @@
 										break;
 									case 4: 
 										clearInterval(timer);
-										if (this.$store.state.curstatus == 0) {
-											//this.$store.commit('SET_CUR_STATUS', 1);
+										if (this.$store.state.curStatus == 0) {
+											this.$store.commit('SET_CUR_STATUS', 1);
 										}
+										console.log(this.$store.state.curStatus);
+										if (this.$store.state.curStatus > 2) {
+											this.targetDisabled = false;
+										}
+
 										portraitProgress.percent = '100%';
 										portraitProgress.status = 2;
 										portraitProgress.duration = portrait_task.duration + 's';
@@ -634,6 +639,7 @@
 			}
  		},
 		mounted () {
+			console.log('targetDisabled: ' + this.targetDisabled);
 			this.styleInit();
 			this.$refs.leftRight.setStyles({
 				showFeatureList: true,

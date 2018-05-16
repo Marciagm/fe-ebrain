@@ -124,7 +124,7 @@
 </style>
 <script>
 	import { uploadPredicFile } from '@/api/api'
-	import { pollTaskStatus, downloadPredictReport, deletePreditiction } from '@/api/api'
+	import { pollTaskStatus, downloadPredictReport, deletePreditiction, showPrediction } from '@/api/api'
 
 	var token = localStorage.getItem('token');
 
@@ -245,7 +245,25 @@
 			}
 		},
 		mounted () {
-
+			const params = {
+				model_id: this.id
+			}
+			showPrediction(params).then(data => {
+				const { error } = data;
+				if (error) {
+					this.$message.error(error.desc);
+					return;
+				}
+				console.log(data);
+			})
 		}
 	}
 </script>
+
+
+
+
+
+
+
+

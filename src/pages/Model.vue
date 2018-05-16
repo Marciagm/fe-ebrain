@@ -32,6 +32,8 @@
 						<el-col :span="3">验证集</el-col>
 						<el-col :span="3">交叉验证</el-col>
 						<el-col :span="3" :style="{color: testColor}">测试集</el-col>
+						<el-col :span="3" >状态</el-col>
+						
 					</el-row>
 					<div v-for="item in showList" style="padding-bottom: 50px;">
 						<div class="model-item" @click="showDetail(item)" v-if="!item.show">
@@ -45,7 +47,10 @@
 							<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
 							<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
 							<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
-						
+							<el-col :span="3" class="index-value" style="color: green;" v-if="item.status == 4">成功</el-col>
+							<el-col :span="3" class="index-value" style="color: red;" v-else-if="item.status == 5">失败</el-col>
+							<el-col :span="3" class="index-value" v-else>训练中</el-col>
+							
 						</div>
 						<div v-else class="model-item" @click="showDetail(item)" style="background: #f3f4f6">
 							<el-col :span="3" >
@@ -58,6 +63,9 @@
 							<el-col :span="3" class="index-value">{{ item.validationSet }}</el-col>
 							<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
 							<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
+							<el-col :span="3" class="index-value" style="color: green;" v-if="item.status == 4">成功</el-col>
+							<el-col :span="3" class="index-value" style="color: red;" v-else-if="item.status == 5">失败</el-col>
+							<el-col :span="3" class="index-value" v-else>训练中</el-col>
 						</div>
 
 						<div v-if="item.show" class="model-item-chart" :style="{height: charHeight}">
@@ -78,7 +86,7 @@
 								</div>
 								<div v-else>
 									<div style="height: 400px; line-height: 400px; text-align: center; font-size: 20px;">
-										正在运行中...
+										{{ item.runStatus }}
 									</div>
 									
 								</div>
@@ -182,7 +190,7 @@
 	import significanceChart from '@/components/SignificanceChart'
 	import predictsChart from '@/components/PredictsChart'
 	
-	import { getModelList, poll, killTask } from '../api/api'
+	import { getModelList, poll, deleteModel } from '../api/api'
 
 	const chartHeights = ['555px', '858px', '554px', '554px', '554px', '318px'];
 	function getDate (dateStr) {
@@ -207,7 +215,7 @@
 		data () {
 			return {
 				testColor: '#666',
-				projectId: this.$route.params.projectId,
+				projectId: '',
 				charHeight: '555px',
 				itemNav: [
 					{
@@ -245,118 +253,157 @@
 				showList: []
 			}
 		},
+
 		mounted () {
-			this.$refs.top.setColors(['#666', '#1b7bdd', '#666']);
-			this.$refs.leftRight.setStyles({
-				showTarget: true,
-				showFeatureNum: true,
-				showFeatureList: false
-			});
-			this.showList = this.modelList;
-			this.modelList.length = 0;
-			this.$store.commit('SET_TRAIN_STATUS', true);
-			this.$store.commit('SET_ALLMODEL_STATUS', false);
-
-			const timer = setInterval(() => {
-				getModelList({project_id: this.projectId}).then(data => {
-					this.$store.state.modelProgressItems.length = 0;
-					let progressItems = [];
-
-					const { error, models } = data;
-					if (error) {
-						this.$message.error(error.desc);
-						clearInterval(timer);
-						return;
-					}
-					let goOn = 0;
-
-					for (let i = 0, len = models.length; i < len; i++) {
-						const model = models[i];
-						const item = {
-							name: model.algorithm_name,
-							listName: model.feature_list_name || '全部特征',
-							createTime: getDate(model.created_at),
-							duration: model.duration + 's',
-							validationSet: model.valid_status == 4 ? model.valid_indicator_value : '训练中',
-							crossValidation: model.cv_status == 4 ? model.cv_indicator_value : '训练中',
-							testSet: model.test_status == 4 ? model.test_indicator_value : '训练中',
-							desc: model.algorithm_desc,
-							show: false,
-							curId: 0,
-							id: model.model_id,
-							percentage: model.percentage,
-							taskId: model.task_id
-						};
-						if (model.status !== 4) {
-							goOn = 1;
-							item.finished = 0;
-							progressItems.push({
-								taskId: item.taskId,
-								id: item.id,
-								name: item.name,
-								status: 1,
-								duration: item.duration,
-								percent: item.percentage || 0,
-							})
-						}
-						else {
-							item.finished = 1;
-						}
-						// 如果已经存在就直接更新
-						let exists = false;
-						
-						for (let k = 0, len = this.modelList.length; k < len; k++) {
-							let oldModel = this.modelList[k];
-							if (oldModel.id == item.id && !oldModel.finished) {
-								oldModel.duration = item.duration;
-								oldModel.validationSet = item.validationSet;
-								oldModel.crossValidation = item.crossValidation;
-								oldModel.testSet = item.testSet;
-								oldModel.finished = item.finished;
-								exists = true;
-								break;
-							}
-							if (oldModel.id == item.id && oldModel.finished) {
-								exists = true;
-							}
-						}
-						// 没有就直接塞进来
-						if (!exists) {
-							// 如果已经有了就更新
-							this.modelList.push(item);
-						}
-					}
-
-	 				if (!goOn) {
-	 					this.eigenList.length = 0;
-	 					let name = [];
-	 					let id = [];
-	 					for (let i = 0, len = this.modelList.length; i < len; i++) {
-	 						const item = this.modelList[i];
-	 						name.push(item.listName);
-	 						id.push(item.id);
-	 					}
-	 					name = [...new Set(name)];
-	 					id = [...new Set(id)];
-	 					for (let i = 0, len = name.length; i < len; i++) {
-	 						this.eigenList.push({
-	 							name: name[i],
-	 							id: id[i]
-	 						})
-	 					}
-	 					// 训练完成
-	 					//this.$store.commit('SET_TRAIN_STATUS', true);
-	 					this.$store.commit('SET_ALLMODEL_STATUS', true);
-	 					clearInterval(timer);
-	 				}
-	 				else {
-	 					this.$store.state.modelProgressItems = progressItems;
-	 				}
-	 				
-				})
-			}, 500);
+			this.init();
 		},
 		methods: {
+			// 初始化
+			init () {
+				console.log('in ninit');
+				this.projectId =  this.$route.params.projectId;
+				this.$refs.top.setColors(['#666', '#1b7bdd', '#666']);
+				this.$refs.leftRight.setStyles({
+					showTarget: true,
+					showFeatureNum: true,
+					showFeatureList: false
+				});
+				this.showList = this.modelList;
+				this.modelList.length = 0;
+				this.$store.commit('SET_TRAIN_STATUS', true);
+				this.$store.commit('SET_ALLMODEL_STATUS', false);
+
+				const timer = setInterval(() => {
+					getModelList({project_id: this.projectId}).then(data => {
+						this.$store.state.modelProgressItems.length = 0;
+						let progressItems = [];
+
+						const { error, models } = data;
+						if (error) {
+							this.$message.error(error.desc);
+							clearInterval(timer);
+							return;
+						}
+
+						let goOn = 0;
+						let status = 0;
+						// 判断是否结束
+
+						for (let i = 0, len = models.length; i < len; i++) {
+							const model = models[i];
+							const item = {
+								name: model.algorithm_name,
+								listName: model.feature_list_name || '全部特征',
+								createTime: getDate(model.created_at),
+								duration: model.duration + 's',
+								validationSet: model.valid_status == 4 ? model.valid_indicator_value : '训练中',
+								crossValidation: model.cv_status == 4 ? model.cv_indicator_value : '训练中',
+								testSet: model.test_status == 4 ? model.test_indicator_value : '训练中',
+								desc: model.algorithm_desc,
+								show: false,
+								curId: 0,
+								id: model.model_id,
+								percentage: model.percentage,
+								taskId: model.task_id,
+								status: model.status 
+							};
+
+							if (item.status == 5) {
+								item.runStatus = '很遗憾，训练失败！'
+								goOn = 1;
+								status = 1;
+								item.finished = 1;
+								item.finished = 0;
+								progressItems.push({
+									taskId: item.taskId,
+									id: item.id,
+									name: item.name,
+									status: -1,
+									duration: item.duration,
+									percent: item.percentage || 0,
+								})
+								this.$store.commit('SET_ALLMODEL_STATUS', true);
+							}
+							else if (item.status == 4) {
+
+							}
+							else {
+								status = 0;
+							}
+
+							if (model.status !== 4) {
+								goOn = 1;
+								item.finished = 0;
+								progressItems.push({
+									taskId: item.taskId,
+									id: item.id,
+									name: item.name,
+									status: 1,
+									duration: item.duration,
+									percent: item.percentage || 0,
+								})
+							}
+							else {
+								//item.finished = 1;
+							}
+							// 如果已经存在就直接更新
+							let exists = false;
+							
+							for (let k = 0, len = this.modelList.length; k < len; k++) {
+								let oldModel = this.modelList[k];
+								if (oldModel.id == item.id && !oldModel.finished) {
+									oldModel.duration = item.duration;
+									oldModel.validationSet = item.validationSet;
+									oldModel.crossValidation = item.crossValidation;
+									oldModel.testSet = item.testSet;
+									oldModel.finished = item.finished;
+									exists = true;
+									break;
+								}
+								if (oldModel.id == item.id && oldModel.finished) {
+									exists = true;
+								}
+							}
+							// 没有就直接塞进来
+							if (!exists) {
+								// 如果已经有了就更新
+								this.modelList.push(item);
+							}
+						}
+						if (status == 1) {
+							clearInterval(timer);
+							return;
+						}
+		 				if (!goOn) {
+		 					this.eigenList.length = 0;
+		 					let name = [];
+		 					let id = [];
+		 					for (let i = 0, len = this.modelList.length; i < len; i++) {
+		 						const item = this.modelList[i];
+		 						name.push(item.listName);
+		 						id.push(item.id);
+		 					}
+		 					name = [...new Set(name)];
+		 					id = [...new Set(id)];
+		 					for (let i = 0, len = name.length; i < len; i++) {
+		 						this.eigenList.push({
+		 							name: name[i],
+		 							id: id[i]
+		 						})
+		 					}
+		 					// 训练完成
+		 					//this.$store.commit('SET_TRAIN_STATUS', true);
+		 					this.$store.commit('SET_ALLMODEL_STATUS', true);
+		 					clearInterval(timer);
+		 				}
+		 				else {
+		 					this.$store.state.modelProgressItems = progressItems;
+		 				}
+		 				
+					})
+				}, 1000);
+			},
+
 			/**
 			 * 展示信息
 			 *
@@ -408,13 +455,13 @@
 			 * @param {Object} item 
 			 */
 			endTask (item) {
-				killTask(item.taskId).then(data => {
+				deleteModel(item.id).then(data => {
 					const { error } = data;
 					if (error) {
 						this.$message.error(error.desc);
 						return;
 					}
-					this.$router.push(`/main/model/${this.projectId}`);
+					//this.$router.push(`/main/model/${this.projectId}`);
 				})
 			}
 		},
@@ -422,6 +469,11 @@
 			// 当前进度状态
 			curStatus () {
 				return this.$store.state.curStatus;
+			}
+		},
+		watch: {
+			'$route' (to, from) {
+				this.init();
 			}
 		}
 	}

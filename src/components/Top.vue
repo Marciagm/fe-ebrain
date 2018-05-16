@@ -277,7 +277,19 @@
 		},
 		methods: {
 			goProject (project) {
+				getProjectInfo(project.id).then(data => {
+	            	const { error, project } = data;
+	            	console.log(data);
+	            	if (error) {
+           				this.$message.error(error.desc);
+           				return;
+           			}
+           			this.projectName = project.name;
+           			this.$store.commit('SET_FILE_NAME', project.train_dataset_name);
+           			this.userId = project.user_id;
+	            })
 				console.log(project);
+
 				this.$router.push({
 					path: `/main/model/${project.id}`,
 					query: {
@@ -362,7 +374,6 @@
 				// 模型
 				if (item.path == '/main/model/') {
 					if (!this.modelStatus) {
-						//alert('不能点');
 						return;
 					}
 

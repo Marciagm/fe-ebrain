@@ -70,7 +70,7 @@
 				<div v-if="showTargetTips" class="tips offset">*请选择目标继续</div>
 			</div>
 			<!-- 算法 -->
-			<div style="margin-top: 23px;" v-else>
+			<div style="" v-else>
 				<div v-if="allModelFinished">
 					<div style="font-size: 12px; color: #999; margin-left: 30px;">
 						训练结束

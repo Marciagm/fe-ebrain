@@ -43,7 +43,8 @@
 			// 数据阶段
 			this.$store.commit('SET_CUR_STATUS', 1);
 			// @TODO
-			/*if (this.$store.state.projectId) {
+
+			/*if (this.curStatus > 1) {
 				this.$router.push(`/main/data/info/${this.$store.state.projectId}`);
 			}
 			else {
@@ -64,7 +65,9 @@
 				
 		},
 		computed: {
-			
+			curStatus () {
+				return this.$store.state.curStatus;
+			}
 		} 
 	}
 </script>

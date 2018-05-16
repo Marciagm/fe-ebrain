@@ -141,13 +141,20 @@ export const downloadPredictReport = (predictionsId, params) => {
 export const deletePreditiction = (predictionsId, params) => {
 	return axios.post(`${base}/predictions/delete/${predictionsId}`, params).then(res => res.data); 
 }
+// 查看预测结果
+export const showPrediction = (params) => {
+	return axios.get(`${base}/predictions/show_latest`, params).then(res => res.data);
+}
 
 // 结束任务
 export const killTask = (taskId, params) => {
 	return axios.post(`${base}/tasks/kill/${taskId}`, params).then(res => res.data); 
 }
 
-
+// 删除模型任务
+export const deleteModel = (modelId, params) => {
+	return axios.post(`${base}/models/delete/${modelId}`, params).then(res => res.data); 
+} 
 
 
 
