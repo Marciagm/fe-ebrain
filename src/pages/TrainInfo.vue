@@ -2,7 +2,7 @@
 	<div>
 		<top-part ref="top"></top-part>
 		<left-right ref="leftRight">
-			<div slot="left">
+			<div slot="left" class="train-left">
 				<core-data ref="coreData" :isEigenActive="true"></core-data>
 			</div>
 		</left-right>
@@ -11,6 +11,9 @@
 <style lang="scss">
 	input[type="checkbox"] {
 		disabled: true;
+	}
+	.train-left {
+		margin-top: 20px;
 	}
 </style>
 <script>

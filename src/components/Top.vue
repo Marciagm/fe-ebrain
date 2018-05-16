@@ -461,6 +461,7 @@
 			            };
 			            // 获取近期任务
 		            	this.getRecentProjects(params);
+		            	this.$emit('init');
            			}
            			else {
            				this.$message.error(error.desc);

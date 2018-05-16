@@ -1,7 +1,7 @@
 <template>
 	<div id="tables">
 		<div id="tablePart">
-			<div id="eigenPart" :class="[isEigenActive ? active : notActive]">
+			<div id="eigenPart" :class="[isEigenActive ? active : notActive]" @click="showEigen">
 				<div class="eigen-label" @click="tab('detail')">
 					<img src="../images/All-features.png">
 					<span>特征详情</span>
@@ -13,12 +13,13 @@
 			      @select="search"
 			      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
 			    ></el-autocomplete>	
-				<el-dropdown style="cursor: pointer;" @command="getList" trigger="click">
+
+				<el-dropdown style="cursor: pointer;" @command="getList" trigger="click" :disabled="true"><div id="list">
 					<span class="el-dropdown-link">
 					    <span style="display: inline-block; width: 80px; text-align: center;">{{ curFeatureObj.name }}</span>
 					    <span style="color: #666; font-size: 10px;">(特征列表)</span>
 					    <i class="el-icon-arrow-down el-icon--right"></i>
-					</span>
+					</span></div>
 					<el-dropdown-menu slot="dropdown">
 					    <el-dropdown-item v-for="(item, index) in featureList" :divided="index==1" :command="item">
 					    	{{ item.name }}
@@ -196,6 +197,14 @@
 </template>
 <style lang="scss">
 	#tables {
+		table {
+			background-color: #fafafa;
+			box-shadow: inset 0px 0px 4px 0px rgba(4, 15, 69, 0.2);
+		}
+
+		.el-input.is-disabled .el-input__inner {
+			background: #fff;
+		}
 		margin-left: 5%;
 		width: 90%;
 		overflow: hidden;
@@ -213,6 +222,12 @@
 			}
 		}
 		#eigenPart {
+			button {
+				border: 0;
+			}
+			button:hover {
+				background: #fff;
+			}
 			padding-left: 14px;
 			padding-right: 14px;
 			display: inline-block;
@@ -362,7 +377,7 @@
 			.dataShow {
 				width: 40%;
 				max-width: 100%;
-				height: 400px;
+				height: 600px;
 				padding-left: 30px;
 				padding-bottom: 20px;
 			}
@@ -510,6 +525,7 @@
     	const option = {
 		    title: {
 		        text: '特征名',
+		        show: false,
 		        textStyle: {
 		        	color: '#999',
 		        	fontSize: '12px'
@@ -610,8 +626,8 @@
 		            		position: 'right'
 		            	}
 		            },
-		            barWidth: barWidth,
-		            barMaxWidth: 60
+		            //barWidth: barWidth,
+		            barMaxWidth: 20
 		        }
 		    ]
 		};
@@ -876,6 +892,7 @@
 		     * @param {Object} item 搜索项
 		     */
 			search (item) {
+				this.isEigenActive = true;
 				if (item && item.id) {
 					document.getElementById(item.id).scrollIntoView();
 				}
@@ -1051,7 +1068,7 @@
 							return a.freq - b.freq;
 						})
 
-						for (let i = 0; i < len; i++) {
+						for (let i = 0; i < Math.min(len, 50); i++) {
 							const item = histogramSort[i];
 							xData.value.push(item.value);
 							xData.freq.push(item.freq);
@@ -1059,6 +1076,10 @@
 						drawDistr(id, xData);
 					})
 				}
+			},
+			showEigen (event) {
+				console.log(event.target);
+				this.isEigenActive = true;
 			}
 		},
 		mounted () {

@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<top-part ref="top"></top-part>
+		<top-part ref="top" v-on:init="init"></top-part>
 		<left-right>
 			<div class="pro-management" slot="left">
 				<div>
@@ -110,20 +110,20 @@
 				names: []
 			}
 		},
-		mounted () {
-			let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-			this.height = h - 88;
-			console.log('in parent: ' + this.height);
-			//const userId = this.$store.state.userId;
-			requestProjectList(this);
-			if (this.curStatus > 1) {
-				this.$refs.top.setColors(['#666', '#666', '#666']);		
-			}
-			else {
-				this.$refs.top.setColors(['#666', '#ccc', '#666']);		
-			}
-		},
 		methods: {
+			init () {
+				let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+				this.height = h - 88;
+				console.log('in parent: ' + this.height);
+				//const userId = this.$store.state.userId;
+				requestProjectList(this);
+				if (this.curStatus > 1) {
+					this.$refs.top.setColors(['#666', '#666', '#666']);		
+				}
+				else {
+					this.$refs.top.setColors(['#666', '#ccc', '#666']);		
+				}
+			},
 			openProject (project) {
 				// 跳转到哪儿
 				console.log(project);
@@ -168,6 +168,7 @@
 					        });
 					        // 删除的是当前的任务时
 							if (this.projectId == projectId) {
+								this.init();
 								this.$router.push('/main/project');
 							}
 							else {
@@ -188,6 +189,15 @@
 				console.log(projectId);
 				console.log('projectId: ' + projectId);
 				
+			}
+		},
+		mounted () {
+			this.init();
+		},
+		watch: {
+			'$route' (route) {
+				console.log('ini initttttt');
+				this.init();
 			}
 		}
 	}

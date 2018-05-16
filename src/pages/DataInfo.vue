@@ -68,7 +68,6 @@
 		.target-label {
 			margin-top: 87px;
 			font-size: 20px;
-			font-weight: normal;
 			letter-spacing: 2px;
 			color: #333;
 		}
@@ -119,6 +118,8 @@
 			background-color: #ccc;
 		}
 		.run-hilight {
+			padding: 12px 20px;
+			box-shadow: 2px 3px 6px 0px rgba(5, 0, 50, 0.2);
 			background-image: linear-gradient(90deg, 
 				#0d65be 0%, 
 				#1978d9 45%, 
@@ -516,7 +517,6 @@
 				let initCoreData = false;
 				const timer = setInterval ( () => {
 					poll(projectId).then(data => {
-						
 						let { error,target_feature_id, target_feature_name, dataset_task, portrait_task, preprocessing_task, training_task } = data;
 						if (error) {
 							this.$message.error('');
@@ -575,8 +575,8 @@
 								}
 								const portraitstatus = portrait_task.status;
 								const portraitProgress = this.$store.state.portraitProgress;
-								
 								portraitProgress.percent = portrait_task.percentage + '%';
+
 								
 								// 数据画像
 								switch (portraitstatus) {
@@ -585,14 +585,18 @@
 									case 4: 
 										clearInterval(timer);
 										console.log('curStatus: ' + this.curStatus);
-										if (this.curStatus == 2) {
+										// 第一次训练
+										if (this.curStatus == 2.5) {
 											this.$store.commit('SET_CUR_STATUS', 3);
 										}
 										else {
 											this.$store.commit('SET_CUR_STATUS', 5);
 										}
-										if (this.curStatus >= 3 && this.curStatus <=4) {
+										console.log('this.curStatusddddd' + this.curStatus);
+										console.log((this.curStatus >= 3) && (this.curStatus <=4));
+										if ((this.curStatus >= 3) && (this.curStatus <=4)) {
 											this.targetDisabled = false;
+											console.log(this.targetDisabled);
 										}
 										if (this.curStatus > 4) {
 											this.targetDisabled = true;

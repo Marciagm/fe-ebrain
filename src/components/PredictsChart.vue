@@ -259,10 +259,19 @@
 				// 
 				if (prediction) {
 					this.filename = prediction.dataset_name;
-					this.finished = true;
-					this.isUploading = true;
-					this.predictionId = prediction.prediction_id;
-					this.downloadAble = true;
+					if (prediction.status == 4) {
+						this.finished = true;
+						this.isUploading = true;
+						this.predictionId = prediction.prediction_id;
+						this.downloadAble = true;
+					}
+					else if (prediction.status == 3) {
+						this.isUploading = true;
+						this.finished = false;
+						this.taskId = prediction.task_id;
+						this.poll(this.taskId, 1000);
+					}
+					
 				}
 				console.log(data);
 			})

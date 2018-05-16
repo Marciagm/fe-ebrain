@@ -60,14 +60,7 @@
 					<button class="option-button-hl">训练测试验证</button>
 				</div>
 				<div style="width: 585px; margin-top: 39px;">
-					<div style="display: inline-block; width: 278px; vertical-align: top;">
-					    <span class="option-value">交叉验证折数</span>
-					    <div>
-					    	<button style="background-color: #fff; height: 24px; border-radius: 4px;border: solid 1px #ccc; width: 40px; margin-right: 16px;">{{ varifyNum/10 }}</button>
-					        <el-slider v-model="varifyNum" style="width: 145px; display: inline-block;vertical-align: middle;" :format-tooltip="formatVarifyNum" :min=20 :step="10"></el-slider>
-						</div>
-					    <div class="state-label">（交叉验证折数结余2-10）</div>
-					</div>
+					
 					<div style="display: inline-block; width: 302px; vertical-align: top;">
 					    <span class="option-value">测试集百分比</span>
 					    <div>
@@ -75,6 +68,15 @@
 					        <el-slider :min=25 v-model="testPercent" style="width: 145px; display: inline-block;vertical-align: middle;" :format-tooltip="formatTestPercent"></el-slider>
 						</div>
 					    <div class="state-label">（测试集的数据占总数据百分比必须介于5%-20%）</div>
+					</div>
+
+					<div style="display: inline-block; width: 278px; vertical-align: top;" v-show="isCrossShow">
+					    <span class="option-value">交叉验证折数</span>
+					    <div>
+					    	<button style="background-color: #fff; height: 24px; border-radius: 4px;border: solid 1px #ccc; width: 40px; margin-right: 16px;">{{ varifyNum/10 }}</button>
+					        <el-slider v-model="varifyNum" style="width: 145px; display: inline-block;vertical-align: middle;" :format-tooltip="formatVarifyNum" :min=20 :step="10"></el-slider>
+						</div>
+					    <div class="state-label">（交叉验证折数结余2-10）</div>
 					</div>
 				</div>
 			</el-col>
@@ -85,6 +87,7 @@
 	export default {
 		data () {
 			return {
+				isCrossShow: true,
 				noTimeType: false,
 				featureName: '',
 				testPercent: 100,
@@ -129,10 +132,13 @@
 				if (row === 1) {
 					// 交叉验证
 					if (val) {
+						this.isCrossShow = true;
 						trainObj.splitMethod = 1;
 					}
+					// 训练测试验证
 					else {
 						trainObj.splitMethod = 2;
+						this.isCrossShow = false;
 					}
 					this.crossVadify = val;
 				}
@@ -205,6 +211,9 @@
 			color: #b3b3b3;
 			margin-top: 9px;
 		}
+		button {
+			outline: none;
+		}
 		.option-sep {
 			display: inline-block;
 			vertical-align: middle;
@@ -229,7 +238,7 @@
 			height: 24px;
 			background-color: #eee;
 			border-radius: 4px;
-			color: #cccccc;
+			color: #ccc;
 			letter-spacing: 1px;
 		}
 		.option-button-hl {
@@ -247,9 +256,6 @@
 				#cccccc, 
 				#cccccc);
 			border-radius: 4px;
-		}
-		button {
-			outline: none;
 		}
 	}
 </style>
