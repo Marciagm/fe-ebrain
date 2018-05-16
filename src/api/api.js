@@ -143,7 +143,7 @@ export const deletePreditiction = (predictionsId, params) => {
 }
 // 查看预测结果
 export const showPrediction = (params) => {
-	return axios.get(`${base}/predictions/show_latest`, params).then(res => res.data);
+	return axios.get(`${base}/predictions/show_latest`, { params: params }).then(res => res.data);
 }
 
 // 结束任务

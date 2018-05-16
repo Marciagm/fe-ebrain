@@ -357,6 +357,7 @@
 									oldModel.crossValidation = item.crossValidation;
 									oldModel.testSet = item.testSet;
 									oldModel.finished = item.finished;
+									oldModel.status = item.status;
 									exists = true;
 									break;
 								}

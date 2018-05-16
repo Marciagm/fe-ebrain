@@ -245,14 +245,24 @@
 			}
 		},
 		mounted () {
+
 			const params = {
 				model_id: this.id
 			}
 			showPrediction(params).then(data => {
-				const { error } = data;
+				// @TODO  
+				const { error, prediction } = data;
 				if (error) {
 					this.$message.error(error.desc);
 					return;
+				}
+				// 
+				if (prediction) {
+					this.filename = prediction.dataset_name;
+					this.finished = true;
+					this.isUploading = true;
+					this.predictionId = prediction.prediction_id;
+					this.downloadAble = true;
 				}
 				console.log(data);
 			})
