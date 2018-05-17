@@ -28,7 +28,7 @@
 						<el-button v-if="!targetId" type="info" class="start-run run-default" disabled>启动训练</el-button>
 						<button v-else class="start-run run-hilight" @click="startRun">启动训练</button>
 					</div>
-					<div class="tips" v-if="tipsStatus">
+					<div class="tips" v-if="tipsStatus && tips">
 						{{ tips }}
 					</div>
 				</div>
@@ -36,7 +36,9 @@
 				<!-- 显示高级选项 -->
 				<div class="data-info-avo" v-if="!inTrain">
 					<div @click="advancedOption" class="info-avo-option">
-						<span class="info-avo-label">显示高级选项</span>
+						<span class="info-avo-label">
+							{{ optionStatus }}
+						</span>
 						<img v-if="!showOption" src="../images/Down-arrow-small.png">
 						<img v-else src="../images/Down-arrow-small.png" style="transform:rotate(180deg);">
 					</div>
@@ -323,6 +325,7 @@
 		},
 		data () {
 			return {
+				optionStatus: '显示高级选项',
 				targetDisabled: true,
 				isEigenActive: false,
 				showOption: false,
@@ -366,6 +369,12 @@
 				}
             	this.$refs.option.updateTimeTypeList();
             	this.showOption = !this.showOption;
+            	if (this.showOption) {
+            		this.optionStatus = '隐藏高级选项';
+            	}
+            	else {
+            		this.optionStatus = '显示高级选项';
+            	}
 			},
 
 			/**

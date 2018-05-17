@@ -74,7 +74,7 @@
                     setTimeout(() => {
                         this.$store.commit('SET_TIPS_STATUS', false);
                         this.$store.commit('SET_FILE_NAME', name);
-                    }, 1000)
+                    }, 2000)
                 }
             })
         },

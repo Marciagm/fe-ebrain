@@ -76,7 +76,9 @@
 			    	<div class="eigen-detail-nav">
 			    		<button class="nav-item" :style="{color: dataDistr}" @click="showData('dataDistr', props.row)">数据分布</button>
 			    		<div class="nav-sep"></div>
-			    		<button class="nav-item" :style="{color: topn}" @click="showData('topn', props.row)">TopN</button>
+			    		<button class="nav-item" :style="{color: topn}" @click="showData('topn', props.row)">
+			    			TopN (N<=50)	 
+			    		</button>
 			    	</div>
 			    	<div class="dataShow" :id='"dataShow" + props.row.feature_id'></div>
 
@@ -562,7 +564,8 @@
 		        axisLabel: {
 		        	color: '#ccc',
 		        	textStyle: {
-		        		color: '#fff'
+		        		color: '#fff',
+		        		opacity: 0
 		        	}
 		        },
 		        axisLine: {
@@ -762,6 +765,14 @@
 							this.$message.error('创建失败！' + error.desc);
 							return;
 						}
+						/*else {
+
+							this.$store.commit('SET_TIPS_STATUS', true);
+							this.$store.commit('SET_TIPS', '创建成功');
+							setTimeout(() => {
+		                        this.$store.commit('SET_TIPS_STATUS', false);
+		                    }, 2000)
+						}*/
 						//this.init(feature_list.feature_list_id);
 						this.init(feature_list.feature_list_id, { project_id: this.projectId });
 					})
