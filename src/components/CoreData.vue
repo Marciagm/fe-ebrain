@@ -1094,6 +1094,7 @@
 			}
 		},
 		mounted () {
+			console.log('height: ' + this.maxHeight);
 			obj = this;
 			this.$store.commit('SET_PROJECT_ID', this.projectId);
 			this.eigenData = this.$store.state.eigenData;

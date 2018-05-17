@@ -62,7 +62,7 @@
 			// 上传数据进度开始
 			this.$store.state.progressItems.length = 0;
 			this.$store.state.progressItems.push(uploadProgress, portraitProgress);
-				
+			console.log('in mounted');	
 		},
 		computed: {
 			curStatus () {

@@ -8,7 +8,7 @@
 						<el-col :span="3" :offset="12">
 							<div style="border-left: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px; margin-left: 50%;"> </div>
 						</el-col>
-						<el-col :span="3" style="height: 35px; color: #ccc; letter-spacing: 1px; font-size: 14px;">AUC</el-col>
+						<el-col :span="3" style="height: 35px; color: #ccc; letter-spacing: 1px; font-size: 14px;">Logloss</el-col>
 						<el-col :span="3">
 							<div style="border-right: 1px solid #e6e6e6; border-top: 1px solid #e6e6e6; height: 25px; width: 50%; margin-top: 8px;"> </div>
 						</el-col>
@@ -198,7 +198,9 @@
 		const year = date.getFullYear();
 		const month = ('0' + (date.getMonth() - 0 + 1)).slice(-2);
 		const day = ('0' + date.getDate()).slice(-2);
-		return year + '.' + month + '.' + day;
+		const hour = ('0' + date.getHours()).slice(-2);
+		const minute = ('0' + date.getMinutes()).slice(-2);
+		return `${year}.${month}.${day} ${hour}:${minute}`;
 	}
 
 	export default {

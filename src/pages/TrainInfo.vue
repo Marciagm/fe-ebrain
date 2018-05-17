@@ -133,7 +133,6 @@
 										this.$refs.coreData.showImportance();
 										dataLoaded = true;
 									}
-									
 								}
 								this.$store.commit('SET_MODEL_STATUS', true);
 								clearInterval(trainTimer);
@@ -161,7 +160,6 @@
 				else {
 					this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
 				}
-				
 				this.pollTrainTask(this.projectId, 1000);
 				this.$store.commit('SET_TARGET_TIPS', false);
 				this.$store.state.progressItems.length = 0;

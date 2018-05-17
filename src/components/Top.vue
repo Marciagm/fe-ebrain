@@ -320,12 +320,8 @@
 					}
 				}
 				if (index == 0) {
-					if (this.curStatus == 0) {
-						this.$router.push('/main/data/upload');
-					}
-					else if (this.curStatus == 1) {
-						this.$store.commit('SET_FILE_ABORT', true);
-						this.$router.push('/main/data/upload');
+					if (this.curStatus <= 1) {
+						this.$emit('init');
 					}
 					else if (this.curStatus > 1 &&  this.curStatus <= 3 ) {
 						this.$router.push(`/main/data/info/${this.projectId}`);
@@ -474,6 +470,7 @@
            	chooseTask (tag) {
            		if (tag === 0) {
            			this.$store.commit('SET_CUR_STATUS', 0);
+					this.$emit('init');
            			this.$router.push('/main/data/upload');
            		}
            		else if (tag === 1) {

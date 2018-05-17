@@ -46,6 +46,7 @@
             }
         },
         mounted () {
+            console.log(this.maxHeight);
             this.originalData = this.$store.state.originalData;
             if (this.originalData.length) {
                 return;

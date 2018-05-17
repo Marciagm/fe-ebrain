@@ -337,7 +337,7 @@
 				featureList: [],
 				dataPicFinished: false,
 				testPercent: 0,
-				maxHeight: '374px',
+				maxHeight: '500',
 				targetInfo: {
 					value: '',
 					id: ''
@@ -697,6 +697,7 @@
 			}
  		},
 		mounted () {
+
 		},
 		computed: {
 			tips () {

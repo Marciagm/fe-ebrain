@@ -204,6 +204,16 @@ const mutations = {
         clearInterval(window.trainTimer);
         clearInterval(window.infoTimer);
         clearInterval(window.modelTimer);
+    },
+
+    initProgress (state) {
+        state.progressItems = [];
+        state.modelProgressItems.length = 0;
+    },
+
+    initStatus (state) {
+        state.modelStatus = false;
+        state.curStatus = 0;
     }
 }
 
