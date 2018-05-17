@@ -125,6 +125,7 @@
 				}
 			},
 			openProject (project) {
+				this.$store.commit('initTimer');
 				// 跳转到哪儿
 				console.log(project);
 				this.$router.push({

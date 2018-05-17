@@ -197,6 +197,13 @@ const mutations = {
             // 默认20% 最小5%
             testRatio: 20
         }
+    },
+
+    initTimer () {
+        // 清除timer
+        clearInterval(window.trainTimer);
+        clearInterval(window.infoTimer);
+        clearInterval(window.modelTimer);
     }
 }
 

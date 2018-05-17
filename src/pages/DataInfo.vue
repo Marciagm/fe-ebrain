@@ -516,20 +516,22 @@
 			 * @param {number} interval 间隔
 			 */
 			pollTask (projectId,  interval) {
+				console.log('in pollTask: ' + this.curStatus);
 				let initCoreData = false;
+				
 				clearInterval(window.infoTimer);
+
 				window.infoTimer = setInterval ( () => {
+					
 					poll(projectId).then(data => {
 						let { error,target_feature_id, target_feature_name, dataset_task, portrait_task, preprocessing_task, training_task } = data;
+						
 						if (error) {
 							this.$message.error('');
 							clearInterval(infoTimer);
 							return;
 						}
-						this.targetId = target_feature_id;
-						const datasetStatus = dataset_task.status;
-						const uploadProgress = this.$store.state.uploadProgress;
-						
+
 						const preProcessingTask = preprocessing_task;
 
 						if (preProcessingTask) {
@@ -552,23 +554,23 @@
 							this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
 						}
 
+						const datasetStatus = dataset_task.status;
+						const uploadProgress = this.$store.state.uploadProgress;
+
+
 						// 上传数据
 						switch (datasetStatus) {
 							case 0:
-								break; 
 							case 1:
-								break;
-							case 2:
-								break; 
-							case 3:
-								
-								break;
+							case 2: 
+							case 3:break;
 							// 上传成功后再判断数据画像
 							case 4: 
 								this.$store.state.uploadProgress.percent = '100%';
-								// this.$store.state.uploadProgress.duration = '10s';
 								this.$store.state.uploadProgress.duration = Math.max(dataset_task.duration, 1) + 's';
 								this.$store.state.uploadProgress.status = 2;
+
+								// 第一次执行
 								if (this.curStatus < 2) {
 									this.$store.commit('SET_CUR_STATUS', 2);	
 								}
@@ -576,6 +578,7 @@
 								if (!portrait_task) {
 									return;
 								}
+								// 数据画像阶段判断
 								const portraitstatus = portrait_task.status;
 								const portraitProgress = this.$store.state.portraitProgress;
 								portraitProgress.percent = portrait_task.percentage + '%';
@@ -583,19 +586,23 @@
 								
 								// 数据画像
 								switch (portraitstatus) {
-									case 0: 
+									case 3: 
+										if (this.curStatus <= 2.5) {
+											// 正在生成数据画像
+											this.$store.commit('SET_CUR_STATUS', 2.5);
+										}
 										break;
 									case 4: 
 										clearInterval(infoTimer);
 										console.log('curStatus: ' + this.curStatus);
 										// 第一次训练
-										if (this.curStatus == 2.5) {
+										if (this.curStatus >= 2.5 && this.curStatus <= 3) {
 											this.$store.commit('SET_CUR_STATUS', 3);
 										}
 										else {
 											this.$store.commit('SET_CUR_STATUS', 5);
 										}
-										console.log('this.curStatusddddd' + this.curStatus);
+										console.log('this.curStatus: ' + this.curStatus);
 										console.log((this.curStatus >= 3) && (this.curStatus <=4));
 										if ((this.curStatus >= 3) && (this.curStatus <=4)) {
 											this.targetDisabled = false;

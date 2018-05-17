@@ -10,13 +10,6 @@
 					<a :style="{color: colors[index]}">{{ item.name }}</a>
 				</li>
 			</ul>
-			<!-- <ul>
-				<li v-for="(item, index) in nav" @click="tab(item, index)">
-					<a v-if="navIndex==index" style="color: #1b7bdd"> {{ item.name }} </a>
-					<a v-else-if="index==1 && hilightModelColor" :style="{color: hilightModelColor }"> {{ item.name }}</a>
-					<a v-else :style="{color: item.color}"> {{ item.name }}</a>
-				</li>
-			</ul> -->
 		</div>
 		<div class="info">
 			<div class="top-project-name" v-show="projectStatus">
@@ -277,6 +270,8 @@
 		},
 		methods: {
 			goProject (project) {
+				this.$store.commit('initTimer');
+				this.$store.commit('SET_CUR_STATUS', 0);
 				getProjectInfo(project.id).then(data => {
 	            	const { error, project } = data;
 	            	console.log(data);
@@ -308,7 +303,6 @@
 			},
 
 			tab (item, index) {
-				console.log(this.curStatus);
 				if (index == 1) {
 					if (this.curStatus < 4) {
 						return;
