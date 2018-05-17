@@ -48,7 +48,7 @@
 				const progressItems = this.$store.state.progressItems;
 				let dataLoaded = false;
 				let initCoreData = false;
-				window.trainTimer = null;
+				
 				clearInterval(window.trainTimer);
 				window.trainTimer = setInterval ( () => {
 					progressItems.length = 0;
@@ -170,7 +170,6 @@
 			}
 		},
 		mounted () {
-			console.log('in train: ' + this.curStatus);
 		},
 		computed: {
 			curStatus () {

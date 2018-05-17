@@ -154,7 +154,10 @@
 				this.$store.commit('initTrainObj');
 				this.$store.commit('SET_TARGET_TIPS', false);
 				this.$store.state.eigenData.length = 0;
-				
+				// 清除timer
+				clearInterval(window.trainTimer);
+				clearInterval(window.infoTimer);
+				clearInterval(window.modelTimer);
 			}
 		},
 		mounted () {
@@ -163,6 +166,9 @@
 			/*if (this.$store.state.projectId) {
 				this.$router.push('/main/data/info/' + this.$store.state.projectId);
 			}*/
+		},
+		deactivated () {
+			console.log('deactivated');
 		},
 		computed: {
 			isFileAbort () {

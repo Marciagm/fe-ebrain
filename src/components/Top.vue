@@ -329,7 +329,12 @@
 						this.$router.push(`/main/data/info/${this.projectId}`);
 					}
 					else {
-						this.$router.push(`/main/data/train/${this.projectId}`)
+						this.$router.push({
+							path: `/main/data/train/${this.projectId}`,
+							query: {
+								fLId: this.fLId
+							}
+						})
 					}
 				}
 				if (index == 2) {

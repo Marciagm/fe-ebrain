@@ -272,8 +272,8 @@
 				this.modelList.length = 0;
 				this.$store.commit('SET_TRAIN_STATUS', true);
 				this.$store.commit('SET_ALLMODEL_STATUS', false);
-
-				const timer = setInterval(() => {
+				clearInterval(window.modelTimer);
+				window.modelTimer = setInterval(() => {
 					getModelList({project_id: this.projectId}).then(data => {
 						this.$store.state.modelProgressItems.length = 0;
 						let progressItems = [];
@@ -281,7 +281,7 @@
 						const { error, models } = data;
 						if (error) {
 							this.$message.error(error.desc);
-							clearInterval(timer);
+							clearInterval(modelTimer);
 							return;
 						}
 
@@ -372,7 +372,7 @@
 							}
 						}
 						if (status == 1) {
-							clearInterval(timer);
+							clearInterval(modelTimer);
 							return;
 						}
 		 				if (!goOn) {
@@ -395,7 +395,7 @@
 		 					// 训练完成
 		 					//this.$store.commit('SET_TRAIN_STATUS', true);
 		 					this.$store.commit('SET_ALLMODEL_STATUS', true);
-		 					clearInterval(timer);
+		 					clearInterval(modelTimer);
 		 				}
 		 				else {
 		 					this.$store.state.modelProgressItems = progressItems;

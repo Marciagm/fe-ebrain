@@ -517,12 +517,13 @@
 			 */
 			pollTask (projectId,  interval) {
 				let initCoreData = false;
-				const timer = setInterval ( () => {
+				clearInterval(window.infoTimer);
+				window.infoTimer = setInterval ( () => {
 					poll(projectId).then(data => {
 						let { error,target_feature_id, target_feature_name, dataset_task, portrait_task, preprocessing_task, training_task } = data;
 						if (error) {
 							this.$message.error('');
-							clearInterval(timer);
+							clearInterval(infoTimer);
 							return;
 						}
 						this.targetId = target_feature_id;
@@ -585,7 +586,7 @@
 									case 0: 
 										break;
 									case 4: 
-										clearInterval(timer);
+										clearInterval(infoTimer);
 										console.log('curStatus: ' + this.curStatus);
 										// 第一次训练
 										if (this.curStatus == 2.5) {
@@ -618,12 +619,12 @@
 										});
 										break;
 									case 5: 
-										clearInterval(timer);
+										clearInterval(infoTimer);
 										break;
 								}	
 								break;
 							case 5: 
-								clearInterval(timer);
+								clearInterval(infoTimer);
 								uploadProgress.percent = '0%';
 								uploadProgress.status = -1;
 								uploadProgress.failReason = dataset_task.failed_reason;
@@ -632,8 +633,8 @@
 						}
 					}).catch((error) => {
 						console.log(error);
-						clearInterval(timer);
-						//clientHeight(timer);
+						clearInterval(infoTimer);
+						//clientHeight(infoTimer);
 					})
 				}, interval);
 			},
