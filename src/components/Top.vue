@@ -590,6 +590,7 @@
 							this.$store.commit('SET_CUR_STATUS', 0);
 						}
 						console.log('!!!!!!!!!!!status:' + this.$store.state.curStatus);
+						this.$emit('getStatus');
 					})
 	            }
            	},

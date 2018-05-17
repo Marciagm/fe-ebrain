@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<top-part ref="top"></top-part>
+		<top-part ref="top" v-on:getStatus="init"></top-part>
 		<left-right ref="leftRight">
 			<div slot="left" class="train-left">
 				<core-data ref="coreData" :isEigenActive="true"></core-data>
@@ -48,20 +48,21 @@
 				const progressItems = this.$store.state.progressItems;
 				let dataLoaded = false;
 				let initCoreData = false;
-				const timer = setInterval ( () => {
+				window.trainTimer = null;
+				clearInterval(window.trainTimer);
+				window.trainTimer = setInterval ( () => {
 					progressItems.length = 0;
 					poll(projectId).then(data => {
 						let { error, preprocessing_task, target_feature_id, target_feature_name } = data;
 						if (error) {
 							this.$message.error(error.desc);
-							clearInterval(timer);
+							clearInterval(trainTimer);
 							return;
 						}
 						// 请去info页面
 						if (!preprocessing_task) {
-
 							this.$router.push(`/main/data/info/${this.projectId}`);
-							clearInterval(timer);
+							clearInterval(trainTimer);
 							return;
 						}
 
@@ -135,38 +136,41 @@
 									
 								}
 								this.$store.commit('SET_MODEL_STATUS', true);
-								clearInterval(timer);
+								clearInterval(trainTimer);
 								break;
 							case 5: 
-								clearInterval(timer);
+								clearInterval(trainTimer);
 							break;
 								break;
 						}
 					}).catch((error) => {
 						console.log(error);
-						clearInterval(timer);
+						clearInterval(trainTimer);
 					})
 				}, interval);
+			},
+			init () {
+				this.$refs.leftRight.setStyles({
+					showTarget: true,
+					showFeatureNum: true,
+					showFeatureList: true
+				});
+				if (this.curStatus > 3) {
+					this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
+				}
+				else {
+					this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
+				}
+				
+				this.pollTrainTask(this.projectId, 1000);
+				this.$store.commit('SET_TARGET_TIPS', false);
+				this.$store.state.progressItems.length = 0;
+				this.$store.commit('SET_TRAIN_STATUS', false);
+				this.$refs.coreData.setEigenActive(true);
 			}
 		},
 		mounted () {
-			this.$refs.leftRight.setStyles({
-				showTarget: true,
-				showFeatureNum: true,
-				showFeatureList: true
-			});
-			if (this.curStatus > 3) {
-				this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
-			}
-			else {
-				this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
-			}
-			
-			this.pollTrainTask(this.projectId, 500);
-			this.$store.commit('SET_TARGET_TIPS', false);
-			this.$store.state.progressItems.length = 0;
-			this.$store.commit('SET_TRAIN_STATUS', false);
-			this.$refs.coreData.setEigenActive(true);
+			console.log('in train: ' + this.curStatus);
 		},
 		computed: {
 			curStatus () {

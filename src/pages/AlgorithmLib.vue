@@ -17,7 +17,7 @@
 		},
 		mounted () {
 			console.log(this.curStatus);
-			if (this.curStatus > 3) {
+			if (this.curStatus >= 4) {
 				this.$refs.top.setColors(['#666', '#666', '#1b7bdd']);
 			}
 			else {

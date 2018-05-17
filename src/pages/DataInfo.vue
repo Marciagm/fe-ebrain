@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<top-part ref="top"></top-part>
+		<top-part ref="top" v-on:getStatus="init"></top-part>
 		<left-right ref="leftRight">
 			<div slot="left" ref="info-left">
 				<div class="target" v-if="!inTrain">
@@ -374,6 +374,8 @@
 			 * @param {string} target 特征目标
 			 */
 			showBar (target) {
+				console.log('in showBar000000');
+				console.log(target);
 				if (!target.id) {
 					for (let i = 0, len = this.queryList.length; i < len; i++) {
 						const item = this.queryList[i];
@@ -650,34 +652,34 @@
 			styleInit () {
 				let h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
             	this.maxHeight = (h - 100) + 'px';
+			},
+			init () {
+				console.log('targetDisabled: ' + this.targetDisabled);
+				this.styleInit();
+				this.$refs.leftRight.setStyles({
+					showFeatureList: true,
+					showFeatureNum: true,
+					showTarget: false
+				});
+				this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
+	            this.$store.commit('SET_PROJECT_STATUS', true);
+	            this.$store.commit('SET_PROJECT_ID', this.projectId);
+	          
+				if (this.targetId && this.fLId && this.targetName) {
+					this.targetInfo.value = this.targetName;
+					this.targetInfo.id = this.targetId;
+					if (this.targetInfo.value) {
+						this.showBar(this.targetInfo);
+					}
+				}
+
+	           	// 状态栏初始化
+	            this.progressInit();
+				// 轮询
+				this.pollTask(this.projectId, 500);
 			}
  		},
 		mounted () {
-			console.log('targetDisabled: ' + this.targetDisabled);
-			this.styleInit();
-			this.$refs.leftRight.setStyles({
-				showFeatureList: true,
-				showFeatureNum: true,
-				showTarget: false
-			});
-			this.$refs.top.setColors(['#1b7bdd', '#ccc', '#666']);
-            this.$store.commit('SET_PROJECT_STATUS', true);
-            this.$store.commit('SET_PROJECT_ID', this.projectId);
-          
-			if (this.targetId && this.fLId && this.targetName) {
-				this.targetInfo.value = this.targetName;
-				this.targetInfo.id = this.targetId;
-				if (this.targetInfo.value) {
-					this.showBar(this.targetInfo);
-				}
-			}
-
-           	// 状态栏初始化
-            this.progressInit();
-			// 轮询
-			this.pollTask(this.projectId, 500);
-
-			
 		},
 		computed: {
 			tips () {

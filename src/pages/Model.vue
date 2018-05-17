@@ -48,7 +48,7 @@
 							<el-col :span="3" class="index-value">{{ item.crossValidation }}</el-col>
 							<el-col :span="3" class="index-value">{{ item.testSet }}</el-col>
 							<el-col :span="3" class="index-value" style="color: green;" v-if="item.status == 4">成功</el-col>
-							<el-col :span="3" class="index-value" style="color: red;" v-else-if="item.status == 5">失败</el-col>
+							<el-col :span="3" class="index-value" style="color: red;" v-else-if="item.status == 5">失败<br>projectId: {{projectId}} taskId:{{item.taskId}}</el-col>
 							<el-col :span="3" class="index-value" v-else>训练中</el-col>
 							
 						</div>
