@@ -162,20 +162,29 @@
 					type: 'warning'
 				}).then(() => {
 					deleteProject(projectId).then(data => {
-						if (!data.error) {
-							this.$message({
-					          	message: '删除成功！',
-					          	type: 'success'
-					        });
-					        // 删除的是当前的任务时
-							if (this.projectId == projectId) {
-								this.init();
-								this.$router.push('/main/project');
-							}
-							else {
-								requestProjectList(this);
-							}
+						const { error } = data;
+						if (error) {
+							this.$message.error(error.desc);
+							return;
 						}
+						this.$message({
+				          	message: '删除成功！',
+				          	type: 'success'
+				        });
+	            		// 获取近期任务
+            			this.$refs.top.getRecentProjects();
+				        
+				        // 刷新页面
+				        //location.reload();
+				        // 删除的是当前的任务时
+						if (this.projectId == projectId) {
+							this.init();
+							this.$router.push('/main/project');
+						}
+						else {
+							requestProjectList(this);
+						}
+						
 					}).catch( error => {
 						console.log(error);
 					})

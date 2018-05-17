@@ -14,7 +14,7 @@
 		<div class="info">
 			<div class="top-project-name" v-show="projectStatus">
 				<el-tooltip class="item" effect="light" :hide-after=1000 content="命名该任务" placement="bottom-end">
-			      	<input type="text" placeholder="未命名任务" v-model="projectName" class="project-name" @change="setProjectName">
+			      	<input type="text" :placeholder="namePlaceholder" @focus="clearPlaceHolder" v-model="projectName" class="project-name" @blur="setPlaceHolder" @change="setProjectName">
 			    </el-tooltip>
 				<div class="sep"></div>
 			</div>
@@ -239,6 +239,7 @@
 		name: 'top',
 		data () {
 			return {
+				namePlaceholder: '未命名任务',
 				projectId: this.$route.params.projectId || this.$route.query.projectId,
 				colors: ['#ccc', '#ccc', '#666'],
 				hilightModelColor: '',
@@ -300,6 +301,13 @@
 			},
 			taskClick (event) {
 				alert('hio');
+			},
+
+			clearPlaceHolder () {
+				this.namePlaceholder = '';
+			},
+			setPlaceHolder () {
+				this.namePlaceholder = '未命名任务';
 			},
 
 			tab (item, index) {
@@ -452,14 +460,8 @@
            			if (!data.error) {		
 	           			const { project } = data; 
 	           			this.$store.commit('SET_PROJECT_NAME', project.name);
-	           			// @TODO updateProjectList
-	           			const params = {
-			            	user_id: this.userId,
-			            	page_size: 5,
-			            	page: 1
-			            };
 			            // 获取近期任务
-		            	this.getRecentProjects(params);
+		            	this.getRecentProjects();
 		            	this.$emit('init');
            			}
            			else {
@@ -495,6 +497,7 @@
            	navColorInit () {
 
            	},
+
            	init () {
 				let user = localStorage.getItem('user');
 				// 如果本地有缓存直接取用
@@ -516,13 +519,8 @@
        				this.sysUserName = nickname;
        				console.log(data);
        			})
-	            const params = {
-	            	user_id: this.userId,
-	            	page_size: 5,
-	            	page: 1
-	            };
 	            // 获取近期任务
-            	this.getRecentProjects(params);
+            	this.getRecentProjects();
 
             	// 当前任务
 	            if (this.projectId) {
@@ -595,7 +593,12 @@
            	},
 
            	// 获取最近的任务
-           	getRecentProjects (params) {
+           	getRecentProjects () {
+           		const params = {
+	            	user_id: this.userId,
+	            	page_size: 5,
+	            	page: 1
+	            };
            		getRecentProjects(params).then(data => {
            			const { error, projects } = data;
            			if (error) {

@@ -5,7 +5,7 @@
                 <el-form :model="registForm" :rules="registFormRules" class="regist-form-con" ref="registForm" id="registerForm">
                     <div class="regist-form-con-head">账号注册</div>
                     <el-form-item prop="nickname">
-                        <el-input name="nickname" placeholder="*昵称" v-model="registForm.nickname"></el-input>
+                        <el-input name="nickname" placeholder="*请输入不超过15个字符的昵称" v-model="registForm.nickname"></el-input>
                     </el-form-item>
                     <el-form-item prop="email">
                         <el-input name="email" placeholder="*邮箱" v-model="registForm.email"></el-input>
