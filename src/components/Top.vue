@@ -12,9 +12,9 @@
 			</ul>
 		</div>
 		<div class="info">
-			<div class="top-project-name" v-show="curStatus >= 2">
+			<div class="top-project-name" v-show="projectId">
 				<el-tooltip class="item" effect="light" :hide-after=1000 content="命名该任务" placement="bottom-end">
-			      	<input type="text" :placeholder="namePlaceholder" @focus="clearPlaceHolder" v-model="projectName" class="project-name" @blur="setPlaceHolder" @change="setProjectName">
+			      	<input type="text" :placeholder="namePlaceholder" @focus="clearPlaceHolder" v-model="projectName" class="project-name" @blur="setPlaceHolder" @change="setProjectName" maxlength="30" >
 			    </el-tooltip>
 				<div class="sep"></div>
 			</div>
@@ -42,9 +42,14 @@
 			    	<span class="special-drop-label">最近的任务</span>
 			    </el-dropdown-item>
 			    <el-dropdown-item v-for="item in recentProjects" >
-			    	<div class="nav-project-list" @click="goProject(item)">
+			    	<el-tooltip v-if="item.name.length > 8" effect="light" :content="item.name">
+				    	<div class="nav-project-list" @click="goProject(item)">
+				    		{{ item.name.substring(0, 7) }}...
+				    	</div>
+				    </el-tooltip>
+				    <div v-else class="nav-project-list" @click="goProject(item)">
 			    		{{ item.name }}
-			    	</div>	
+			    	</div>
 			    </el-dropdown-item>
 			   <!--  <el-dropdown-item>
 			    	<div class="nav-project-list" @click="taskClick">
@@ -79,7 +84,6 @@
 		margin-left: 3%;
 		background: #fff;
 		height: 68px;
-
 		.logo {
 			display: inline-block;
 			vertical-align: middle;
@@ -175,9 +179,14 @@
 	}
 	
 	.nav-project-list {
+		width: 180px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: none;
 		padding-left: 60px;
 		font-size: 14px;
 		color: #333;
+		
 		.list-project-name {
 			height: 20px;
 			line-height: 20px;
@@ -240,7 +249,6 @@
 		data () {
 			return {
 				namePlaceholder: '未命名任务',
-				projectId: this.$route.params.projectId || this.$route.query.projectId,
 				colors: ['#ccc', '#ccc', '#666'],
 				hilightModelColor: '',
 				recentProjects: [],
@@ -621,6 +629,9 @@
            	}
         },
         computed: {
+        	projectId () {
+        		return this.$route.params.projectId || this.$route.query.projectId;
+        	},
         	curStatus () {
         		return this.$store.state.curStatus;
         	},

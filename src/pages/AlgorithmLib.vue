@@ -17,7 +17,10 @@
 		},
 		mounted () {
 			console.log(this.curStatus);
-			if (this.curStatus >= 4) {
+			if (this.curStatus < 1) {
+				this.$refs.top.setColors(['#ccc', '#ccc', '#1b7bdd']);
+			}
+			else if (this.curStatus >= 4) {
 				this.$refs.top.setColors(['#666', '#666', '#1b7bdd']);
 			}
 			else {

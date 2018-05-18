@@ -25,8 +25,13 @@
 							<el-col :span="6">创建时间</el-col>
 							<el-col :span="4">删除</el-col>
 						</el-row>
-						<div class="project-list-item"  v-for="project in projects" :id="project.project_id" @click="openProject(project)">
-							<el-col :span="6">{{ project.name || '未命名任务'}}</el-col>
+						<div class="project-list-item"  v-for="project in projects" :id="project.project_id" @click="openProject(project)" >
+							<el-col :span="6">
+								<el-tooltip :content="project.name || '未命名任务'" effect="light" v-if="project.name.length > 20">
+									<div style="width: 80%;overflow: hidden; text-overflow: ellipsis; white-space: none;">{{ project.name || '未命名任务'}}</div>
+								</el-tooltip>
+								<div v-else>{{ project.name || '未命名任务' }}</div>
+							</el-col>
 							<el-col :span="8">{{ project.train_dataset_name || '--' }}</el-col>
 							<el-col :span="6">{{ project.createTime }}</el-col>
 							<el-col :span="4" >
@@ -122,7 +127,7 @@
 					this.$refs.top.setColors(['#666', '#666', '#666']);		
 				}
 				else {
-					this.$refs.top.setColors(['#666', '#ccc', '#666']);		
+					this.$refs.top.setColors(['#ccc', '#ccc', '#666']);		
 				}
 			},
 			openProject (project) {
@@ -216,6 +221,11 @@
 			'$route' (route) {
 				console.log('ini initttttt');
 				this.init();
+			}
+		},
+		computed: {
+			curStatus () {
+				return this.$store.state.curStatus;
 			}
 		}
 	}

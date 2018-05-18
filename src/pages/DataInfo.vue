@@ -664,6 +664,10 @@
 			progressInit () {
             	this.$store.state.progressItems.length = 0;
             	const uploadProgress = this.$store.state.uploadProgress;
+            	this.$store.state.uploadProgress.percent = '100%';
+				this.$store.state.uploadProgress.status = 2;
+
+
             	const portraitProgress = this.$store.state.portraitProgress;
             	portraitProgress.status = 1;
             	portraitProgress.percent = '0%';

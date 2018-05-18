@@ -217,6 +217,12 @@
 			},
 			download () {
 				downloadPredictReport(this.predictionId).then(data => {
+					const { error } = data;
+					if (error) {
+						this.$message.error(error.desc);
+						return;
+					}
+					console.log(data);
 					let url = window.URL.createObjectURL(new Blob([data]))
 					let link = document.createElement('a')
 			        link.style.display = 'none'
@@ -226,8 +232,6 @@
 			        document.body.appendChild(link)
 			        link.click()
 				});
-				
-				// alert('download');
 			},
 			deleteFile () {
 				this.$refs.upload.clearFiles();
@@ -248,7 +252,6 @@
 			}
 		},
 		mounted () {
-
 			const params = {
 				model_id: this.id
 			}

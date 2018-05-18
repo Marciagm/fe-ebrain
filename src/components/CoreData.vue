@@ -14,12 +14,14 @@
 			      style="height: 15px; border: 0; text-align: center; font-size: 12px;"
 			    ></el-autocomplete>	
 
-				<el-dropdown style="cursor: pointer;" @command="getList" trigger="click" :disabled="true"><div id="list">
-					<span class="el-dropdown-link">
-					    <span style="display: inline-block; width: 80px; text-align: center;">{{ curFeatureObj.name }}</span>
-					    <span style="color: #666; font-size: 10px;">(特征列表)</span>
-					    <i class="el-icon-arrow-down el-icon--right"></i>
-					</span></div>
+				<el-dropdown style="cursor: pointer;" @command="getList" trigger="click" :disabled="true">
+					<div id="list">
+						<span class="el-dropdown-link" style="">
+						    <span style="display: inline-block; width: 80px; text-align: center; text-overflow:ellipsis; white-space: nowrap; overflow: hidden; vertical-align: top;">{{ curFeatureObj.name }}</span>
+						    <span style="color: #666; font-size: 10px;">(特征列表)</span>
+						    <i class="el-icon-arrow-down el-icon--right"></i>
+						</span>
+					</div>
 					<el-dropdown-menu slot="dropdown">
 					    <el-dropdown-item v-for="(item, index) in featureList" :divided="index==1" :command="item">
 					    	{{ item.name }}
@@ -27,7 +29,7 @@
 					</el-dropdown-menu>
 				</el-dropdown>
 				<div class="eigen-list" v-show="isListNameShow"> 
-					<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" id="setListInput" />
+					<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" id="setListInput" maxlength="30" />
 					<button class="eigen-list-button" @click="setList">确定</button>
 				</div>
 			</div>

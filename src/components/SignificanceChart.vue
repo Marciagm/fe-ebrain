@@ -17,9 +17,9 @@
 			</el-col>
 			<el-col :span="15">
 				用前
-				<input v-model="num" style="width: 40px; text-align: center;">
+				<input id="num" v-model="num" style="width: 40px; text-align: center;" @change="numChange">
 				位特征
-				<input v-model="listName" placeholder="创建新的特征列表" id="listName">
+				<input v-model="listName" placeholder="创建新的特征列表" id="listName" maxlength="30">
 				<button class="create-button" @click="createFeatureList">确定</button>
 			</el-col>
 		</div>
@@ -229,7 +229,26 @@
 		mounted () {
 			this.elId = `significance${this.id}`;
 			const listName = document.getElementById('listName');
+			const num = document.getElementById('num');
+			num.onkeypress = (event) => {
+				if (event.charCode != 13) {
+					return;
+				}
 
+				if (!this.isNumber(this.num)) {
+					this.$message({
+						type: 'warning',
+						message: '请输入数字'
+					})
+				}
+
+				else if (this.listName && this.num < this.modelDescData.length) {
+					this.createFeatureList();
+				}
+				else {
+					listName.focus();
+				}
+			}
 			listName.onkeypress = (event) => {
 				if (event.charCode != 13) {
 					return;
@@ -294,6 +313,15 @@
 			 * 选择topn创建新的特征列表
 			 */
 			createFeatureList () {
+				if (!this.num) {
+					this.$message({
+						showClose: true,
+          				message: '填个数字啊？🙄️（白眼）',
+          				type: 'warning'
+					})
+					document.getElementById('num').focus();
+					return;
+				}
 				if (!this.listName) {
 					this.$message({
 						showClose: true,
@@ -324,7 +352,35 @@
 						message: '列表创建成功！',
 						type: 'success'
 					});
+					document.getElementById('num').blur();
+					document.getElementById('listName').blur();		
 				})
+			},
+			isNumber (num) {
+				const reg = /^\d+$/;
+				return reg.test(num);
+			},
+			numChange (event) {
+				if (!this.isNumber(this.num)) {
+					this.$message({
+						type: 'warning',
+						message: '请填数字'
+					})
+					this.num = '';
+					document.getElementById('num').focus();
+					console.log(this.num)
+				}
+				else {
+					if (this.num > this.modelDescData.length) {
+						this.$message({
+							type: 'warning',
+							message: `请填写小于特征个数（${this.modelDescData.length}）的数字`
+						})
+						this.num = '';
+						document.getElementById('num').focus();
+					}
+				}
+				
 			}
 		}
 	}
