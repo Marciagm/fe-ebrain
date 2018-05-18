@@ -69,9 +69,6 @@
 						const preProcessingTask = preprocessing_task;
 
 						const { stages, preprocess_info } = preProcessingTask;
-						console.log(1111);
-						console.log(preprocess_info);
-						console.log(this.$store.state.eigenData);
 						if (preprocess_info && !this.$store.state.eigenData.length) {
 							const params = {
 								project_id: this.projectId

@@ -313,10 +313,10 @@
 								item.validationSet = '--';
 								item.crossValidation = '--';
 								item.testSet = '--';
-								
+
 								item.runStatus = '很遗憾，训练失败！'
-								goOn = 1;
-								status = 1;
+								// goOn = 1;
+								// status = 1;
 								item.finished = 1;
 								item.finished = 0;
 								progressItems.push({
@@ -330,13 +330,10 @@
 								this.$store.commit('SET_ALLMODEL_STATUS', true);
 							}
 							else if (item.status == 4) {
-								//item.finished = true;
+								item.finished = true;
 							}
 							else {
 								status = 0;
-							}
-
-							if (model.status !== 4) {
 								goOn = 1;
 								item.finished = 0;
 								progressItems.push({
@@ -347,9 +344,6 @@
 									duration: item.duration,
 									percent: item.percentage || 0,
 								})
-							}
-							else {
-								item.finished = 1;
 							}
 							// 如果已经存在就直接更新
 							let exists = false;

@@ -379,7 +379,7 @@
 			.dataShow {
 				width: 40%;
 				max-width: 100%;
-				height: 600px;
+				height: 300px;
 				padding-left: 30px;
 				padding-bottom: 20px;
 			}
@@ -495,7 +495,7 @@
 		                    )
 		                }
 		            },
-		            barWidth: '40%',
+		            barMaxWidth: 30,
 		            //data: [5, 20, 36, Math.random() * 20 + 10, 10],
 		            data: data.freq,
 		            label: {
@@ -630,7 +630,7 @@
 		            	}
 		            },
 		            //barWidth: barWidth,
-		            barMaxWidth: 20
+		            barMaxWidth: 30
 		        }
 		    ]
 		};
