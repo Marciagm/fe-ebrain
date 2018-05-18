@@ -180,7 +180,6 @@
 	import { getModelData } from '@/api/api'
 	let obj;
 	function drawChart (id, data, matrices, disData) {
-		console.log(data);
 		const chart = echarts.init(document.getElementById(id));
 		const option = {
 			color: ['#589de2', '#deac2c'],
@@ -217,7 +216,8 @@
 					obj.predictValues.num5 = fn + tp;
 					obj.predictValues.num3 = tn + tp + fn + fp;
 
-		        	disData.poniter = dataIndex;
+		        	disData.pointer = item.probability;
+		        	
 		        	disData.probability = item.probability;
 
 		        	drawDistr('distribution' + obj.id, disData, matrices);
@@ -333,7 +333,6 @@
 	}
 
 	function drawDistr (id, data, matrices) {
-		console.log(data.blue);
 		const chart = echarts.init(document.getElementById(id));
 		var colors = ['#5793f3', '#d14a61', '#675bba'];
 
@@ -351,10 +350,10 @@
 		    tooltip: {
 		        trigger: 'axis',
 		        formatter (param) {
-		        	return `ppr: ${param[0].value[1]}<br>pnr: ${param[1].value[1]}`;
+		        	return `${param[0].axisValueLabel}<br>ppr: ${param[0].value[1]}<br>pnr: ${param[1].value[1]}`;
 		        },
 		        axisPointer: { 
-		            value: data.poniter,
+		            value: data.pointer,
 		            snap: true,
 		            lineStyle: {
 		                color: '#ccc',
@@ -421,7 +420,7 @@
 		        splitNumber: 10,
 		        //data: [0, 0.3, 0.8, 0.9],
 		        axisPointer: { 
-		            value: data.poniter,
+		            value: data.pointer,
 		            snap: true,
 		            //snap: false,
 		            lineStyle: {
@@ -667,7 +666,6 @@
 					return a.probability - b.probability;
 				});*/
 				const matricesSortByp = confusion_matrices;
-				console.log(matricesSortByp);
 				const disData = {
 					blue: [],
 					yellow: []
@@ -677,16 +675,16 @@
 					//disData.probabilities.push(item.probability);
 					// @TODO check
 					//disData.ratios.push(item.tpr);
-					console.log('pp: ' + item.probability + ' ppr: ' + item.ppr + '  pnr: ' + item.pnr);
 					
 					disData.blue.push([item.probability, item.ppr]);
 					disData.yellow.push([item.probability, item.pnr]);
 
 				}
-				disData.poniter = '0';
+				//disData.pointer = 0.5;
 				disData.probability = matricesSortByp[0].probability;
+				disData.pointer = disData.probability;
+				console.log(disData.pointer);
 				disData.index = confusion_matrices[max_fscore_index].probability;
-				
 				//drawChart('roc' + this.id, rocData, matricesAsc, disData);
 				drawChart('roc' + this.id, newRocdata, matricesAsc, disData);
 				drawDistr('distribution' + this.id, disData, matricesSortByp);

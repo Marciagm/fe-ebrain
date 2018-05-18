@@ -20,7 +20,11 @@
 		        show: false
 		    },
 		    tooltip: {
-		        trigger: 'axis'
+		        trigger: 'axis',
+		        formatter (param) {
+		        	console.log(param);
+		        	return `${param[0].axisValueLabel}<br>准确率：${param[0].value[1]} <br> 召回率：${param[1].value[1]}`;
+		        }
 		    },
 		    legend: {
 		        data:[ 
@@ -154,6 +158,40 @@
 			                }
 			            }
 		            },
+		        },
+		        {
+		        	type: 'line',
+		        	markLine: {
+		        		symbol: 'diamond',
+		        		symbolSize: 0,
+		                itemStyle: {
+		                    normal: {
+		                        borderWidth: 1,
+		                        lineStyle: {
+		                            type: 'dash',
+		                            //color: '#333 ',
+		                            color: '#ed0101',
+		                            width: 1,
+		                        },
+
+		                        label: {
+		                            formatter: '',
+		                            textStyle: {
+		                                fontSize: 16,
+		                                fontWeight: "bolder",
+		                            },
+		                        }
+		                    },
+
+		                },
+		                data:  [
+		                    [{
+		                        coord: [data.index, 0]
+		                    }, {
+		                        coord: [data.index, 1]
+		                    }]
+		                ]
+		            }
 		        }
 		    ]
 		};
@@ -171,7 +209,7 @@
 			this.elId = `recall${this.id}`;
 			
 			getModelData(this.id).then(data => {
-				const { error, confusion_matrices } = data;
+				const { error, confusion_matrices, max_fscore_index } = data;
 				if (error) {
 					this.$message.error(error.desc);
 					return;
@@ -188,7 +226,13 @@
 					//ppvs.push([matrices[i].probability, matrices[i].ppv]);
 					//tprs.push([matrices[i].probability, matrices[i].tpr]);
 				}
-				drawChart(this.elId, {ppvs: ppvs, tprs: tprs, xAxis: xAxis});
+				const chartData = {
+					ppvs: ppvs, 
+					tprs: tprs, 
+					xAxis: xAxis,
+					index: confusion_matrices[max_fscore_index].probability
+				} 
+				drawChart(this.elId, chartData);
 			})
 		}
 	}
