@@ -203,6 +203,9 @@
 								this.finished = true;
 								clearInterval(timer);
 							}
+							else if (status == 5) {
+								// 
+							}
 						}
 					})
 				}, interval);

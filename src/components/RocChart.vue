@@ -180,6 +180,7 @@
 	import { getModelData } from '@/api/api'
 	let obj;
 	function drawChart (id, data, matrices, disData) {
+		console.log(data);
 		const chart = echarts.init(document.getElementById(id));
 		const option = {
 			color: ['#589de2', '#deac2c'],
@@ -218,6 +219,7 @@
 
 		        	disData.poniter = dataIndex;
 		        	disData.probability = item.probability;
+
 		        	drawDistr('distribution' + obj.id, disData, matrices);
 		        	return `fpr: ${item.fpr} <br> tpr: ${item.tpr}`;
 		        },
@@ -251,12 +253,18 @@
 		        }
 		    },
 		    xAxis: {
-		        type: 'category',
+		        //type: 'category',
 		        boundaryGap: false,
-		        data: data.fprs,
+		        //data: data.fprs,
 		        name: '负正类率（FPR）',
 		        nameLocation: 'middle',
 		        nameGap: 25,
+		        min: 0,
+		        max: 1,
+		        splitNumber: 10,
+		        splitLine: {
+		            show: false
+		        },
 		        //data: [0, 0.3, 0.8, 0.9],
 		        axisLabel: {
 		        	textStyle: {
@@ -292,10 +300,10 @@
 		    },
 		    series: [
 		        {
-		            name:'K值',
 		            type:'line',
 		            smooth: true,
-		            data: data.tprs,
+		            //data: data.tprs,
+		            data: data,
 		            //data: data.fprs,
 		            symbol: 'circle',
 		            symbolSize: 2,
@@ -325,6 +333,7 @@
 	}
 
 	function drawDistr (id, data, matrices) {
+		console.log(data.blue);
 		const chart = echarts.init(document.getElementById(id));
 		var colors = ['#5793f3', '#d14a61', '#675bba'];
 
@@ -341,6 +350,9 @@
 		    },
 		    tooltip: {
 		        trigger: 'axis',
+		        formatter (param) {
+		        	return `ppr: ${param[0].value[1]}<br>pnr: ${param[1].value[1]}`;
+		        },
 		        axisPointer: { 
 		            value: data.poniter,
 		            snap: true,
@@ -352,6 +364,7 @@
 		            label: {
 		                show: false,
 		                formatter: function (params) {
+
 		                    return params.value;
 		                },
 		                //backgroundColor: 'red'
@@ -394,12 +407,18 @@
 		        }
 		    },
 		    xAxis: {
-		        type: 'category',
+		        //type: 'category',
 		        boundaryGap: false,
-		        data: data.probabilities,
-		        name: '预估概率',
+		        //data: data.probabilities,
+		        //name: '预估概率',
 		        nameLocation: 'middle',
 		        nameGap: 25,
+		        min: 0,
+		        max: 1,
+		        splitLine: {
+		        	show: false,
+		        },
+		        splitNumber: 10,
 		        //data: [0, 0.3, 0.8, 0.9],
 		        axisPointer: { 
 		            value: data.poniter,
@@ -414,6 +433,7 @@
 		            	fontSize: 8,
 		                show: false,
 		                formatter: function (params) {
+
 		                	return params.value;
 		                }
 		            },
@@ -460,7 +480,8 @@
 		        {
 		            name:'样本比例',
 		            type:'line',
-		            data: data.ratios,
+		            //data: data.ratios,
+		            data: data.blue,
 		            symbol: 'circle',
 		            symbolSize: 2,
 		            lineStyle: {
@@ -485,7 +506,8 @@
 		        {
 		            name:'预估概率',
 		            type:'line',
-		            data: data.probabilities,
+		            //data: data.probabilities,
+		            data: data.yellow,
 		            symbol: 'circle',
 		            symbolSize: 2,
 		            lineStyle: {
@@ -617,17 +639,17 @@
 					tprs: [],
 					fprs: []
 				};
-				const disData = {
+				const newRocdata = [];
+				/*const disData = {
 					probabilities: [],
 					ratios: []
-				};
+				};*/
 
 				if (error) {
 					this.$message.error(error.desc);
 					return;
 				}
 				this.auc = auc;
-
 				const matricesSortByFpr = confusion_matrices.sort((a, b) => {
 					return a.fpr - b.fpr;
 				});
@@ -636,25 +658,37 @@
 					const item = matricesSortByFpr[i];
 					rocData.tprs.push(item.tpr);
 					rocData.fprs.push(item.fpr);
+					newRocdata.push([item.fpr, item.tpr]);
 					matricesAsc.push(item);
 				}
 				this.setBasicIndex(matricesAsc[0]);
 
-				const matricesSortByp = confusion_matrices.sort((a, b) => {
+				/*const matricesSortByp = confusion_matrices.sort((a, b) => {
 					return a.probability - b.probability;
-				});
-
+				});*/
+				const matricesSortByp = confusion_matrices;
+				console.log(matricesSortByp);
+				const disData = {
+					blue: [],
+					yellow: []
+				}
 				for (let i = 0, len = matricesSortByp.length; i < len; i++) {
 					const item = matricesSortByp[i];
-					disData.probabilities.push(item.probability);
+					//disData.probabilities.push(item.probability);
 					// @TODO check
-					disData.ratios.push(item.tpr);
+					//disData.ratios.push(item.tpr);
+					console.log('pp: ' + item.probability + ' ppr: ' + item.ppr + '  pnr: ' + item.pnr);
+					
+					disData.blue.push([item.probability, item.ppr]);
+					disData.yellow.push([item.probability, item.pnr]);
+
 				}
 				disData.poniter = '0';
 				disData.probability = matricesSortByp[0].probability;
 				disData.index = confusion_matrices[max_fscore_index].probability;
 				
-				drawChart('roc' + this.id, rocData, matricesAsc, disData);
+				//drawChart('roc' + this.id, rocData, matricesAsc, disData);
+				drawChart('roc' + this.id, newRocdata, matricesAsc, disData);
 				drawDistr('distribution' + this.id, disData, matricesSortByp);
 			})
 		},

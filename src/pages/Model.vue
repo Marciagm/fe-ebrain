@@ -309,8 +309,11 @@
 								taskId: model.task_id,
 								status: model.status 
 							};
-
 							if (item.status == 5) {
+								item.validationSet = '--';
+								item.crossValidation = '--';
+								item.testSet = '--';
+								
 								item.runStatus = '很遗憾，训练失败！'
 								goOn = 1;
 								status = 1;

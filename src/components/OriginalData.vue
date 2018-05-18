@@ -46,7 +46,6 @@
             }
         },
         mounted () {
-            console.log(this.maxHeight);
             this.originalData = this.$store.state.originalData;
             if (this.originalData.length) {
                 return;
@@ -75,7 +74,7 @@
                     setTimeout(() => {
                         this.$store.commit('SET_TIPS_STATUS', false);
                         this.$store.commit('SET_FILE_NAME', name);
-                    }, 2000)
+                    }, 3000)
                 }
             })
         },

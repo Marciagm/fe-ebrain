@@ -346,6 +346,9 @@
 		},
 		methods: {
 			blurTarget () {
+				if (!this.targetInfo.value) {
+					return;
+				}
 				this.showBar(this.targetInfo);
 				for (let i = 0, len = this.queryList.length; i < len; i++ ) {
 					const item = this.queryList[i];

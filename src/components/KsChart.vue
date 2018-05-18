@@ -20,7 +20,11 @@
 		        show: false
 		    },
 		    tooltip: {
-		        trigger: 'axis'
+		        trigger: 'axis',
+		        formatter (praram) {
+		        	console.log(praram);
+		        	return `K值: ${praram[0].value[1]}<br>S值: ${praram[1].value[1]}`;
+		        }
 		    },
 		    legend: {
 		        data:['K值', 'S值'],
@@ -50,12 +54,19 @@
 		        }
 		    },
 		    xAxis: {
-		        type: 'category',
+		       //type: 'category',
 		        boundaryGap: false,
-		        data: data.xAxis,
+		        //data: data.xAxis,
+		        min: 1,
+		        max: 0,
+		        inverse: true,
+		        splitNumber: 10,
 		        name: '阈值',
 		        nameLocation: 'middle',
 		        nameGap: 25,
+		        splitLine: {
+		            show: false
+		        },
 		        //data: [0, 0.3, 0.8, 0.9],
 		        axisLabel: {
 		        	textStyle: {
@@ -162,13 +173,19 @@
 					this.$message.error(error.desc);
 					return;
 				}
-				const matrices = confusion_matrices.sort((a, b) => {
+				/*const matrices = confusion_matrices.sort((a, b) => {
 					return a.probability - b.probability;
-				});
+				});*/
+				const matrices = confusion_matrices;
 				const ks = [], ss = [], xAxis = [];
+				//for (let i = 0, len = matrices.length; i < len; i++) {
 				for (let i = 0, len = matrices.length; i < len; i++) {
-					ks.push(matrices[i].tpr);
-					ss.push(matrices[i].fpr);
+					//ks.push(matrices[i].tpr);
+					//ks.push([matrices[i].tpr, matrices[i].probability])
+					ks.push([matrices[i].probability, matrices[i].tpr])
+					//ss.push(matrices[i].fpr);
+					//ss.push([matrices[i].fpr, matrices[i].probability]);
+					ss.push([matrices[i].probability, matrices[i].fpr]);
 					xAxis.push(matrices[i].probability);
 				}
 				drawChart(this.elId, {ks, ss, xAxis});

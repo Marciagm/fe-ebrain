@@ -12,7 +12,7 @@
 			</ul>
 		</div>
 		<div class="info">
-			<div class="top-project-name" v-show="projectStatus">
+			<div class="top-project-name" v-show="curStatus >= 2">
 				<el-tooltip class="item" effect="light" :hide-after=1000 content="命名该任务" placement="bottom-end">
 			      	<input type="text" :placeholder="namePlaceholder" @focus="clearPlaceHolder" v-model="projectName" class="project-name" @blur="setPlaceHolder" @change="setProjectName">
 			    </el-tooltip>

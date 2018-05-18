@@ -57,12 +57,18 @@
 		        }
 		    },
 		    xAxis: {
-		        type: 'category',
+		        //type: 'category',
 		        boundaryGap: false,
-		        data: data.xAxis,
+		        //data: data.xAxis,
+		        min: 0,
+		        max: 1, 
+		        splitNumber: 10,
 		        name: '阈值',
 		        nameLocation: 'middle',
 		        nameGap: 25,
+		        splitLine: {
+		        	show: false,
+		        },
 		        //data: [0, 0.3, 0.8, 0.9],
 		        axisLabel: {
 		        	textStyle: {
@@ -82,6 +88,8 @@
 		    		//show: true
 		    		show: false
 		    	},
+		    	min: 0,
+		    	max: 1,
 		        name: '概率',
 		        nameLocation: 'middle',
 		        nameGap: 35,
@@ -174,9 +182,9 @@
 				const ppvs = [], tprs = [], xAxis = [];
 
 				for (let i = 0, len = matrices.length; i < len; i++) {
-					ppvs.push(matrices[i].ppv);
-					tprs.push(matrices[i].tpr);
-					xAxis.push(matrices[i].probability);
+					ppvs.push([matrices[i].probability, matrices[i].ppv]);
+					tprs.push([matrices[i].probability, matrices[i].tpr]);
+					//xAxis.push(matrices[i].probability);
 					//ppvs.push([matrices[i].probability, matrices[i].ppv]);
 					//tprs.push([matrices[i].probability, matrices[i].tpr]);
 				}

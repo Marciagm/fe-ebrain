@@ -214,6 +214,7 @@ const mutations = {
     initStatus (state) {
         state.modelStatus = false;
         state.curStatus = 0;
+        state.showTargetTips = false;
     }
 }
 

@@ -105,6 +105,7 @@
 		},
 		data () {
 			return {
+				projectId: this.$route.query.projectId,
 				projects: [],
 				searchCon: '',
 				names: []
@@ -156,7 +157,11 @@
 				this.$router.push('/main/data/upload');
 			},
 			deleteProject (projectId) {
-				this.$confirm('此操作将永久删除该任务, 是否继续?', '提示', {
+				let tips = '永久删除该任务, 是否继续?';
+				if (this.projectId == projectId) {
+					tips = '删除当前正在运行的任务，是否继续？';
+				}
+				this.$confirm(tips, '提示', {
 					confirmButtonText: '确定',
 					cancelButtonText: '取消',
 					type: 'warning'
@@ -167,24 +172,27 @@
 							this.$message.error(error.desc);
 							return;
 						}
-						this.$message({
-				          	message: '删除成功！',
-				          	type: 'success'
-				        });
+						
 	            		// 获取近期任务
             			this.$refs.top.getRecentProjects();
 				        
 				        // 刷新页面
 				        //location.reload();
 				        // 删除的是当前的任务时
+				        console.log('this.projectId: ' + this.projectId);
+				        console.log('projectId: ' + projectId);
 						if (this.projectId == projectId) {
-							this.init();
-							this.$router.push('/main/project');
+							//this.init();
+							console.log('fadsfadf');
+							this.$router.push('/main/data/upload');
 						}
 						else {
 							requestProjectList(this);
+							this.$message({
+					          	message: '删除成功！',
+					          	type: 'success'
+					        });
 						}
-						
 					}).catch( error => {
 						console.log(error);
 					})

@@ -67,8 +67,17 @@
 						}
 
 						const preProcessingTask = preprocessing_task;
+
 						const { stages, preprocess_info } = preProcessingTask;
-						
+						console.log(1111);
+						console.log(preprocess_info);
+						console.log(this.$store.state.eigenData);
+						if (preprocess_info && !this.$store.state.eigenData.length) {
+							const params = {
+								project_id: this.projectId
+							};
+							this.$refs.coreData.init(preprocess_info.feature_list_id, params);
+						}
 						this.fLId = preprocess_info.feature_list_id;
 						this.targetId = target_feature_id;
 						this.taskId = preProcessingTask.task_id;
@@ -138,13 +147,24 @@
 								clearInterval(trainTimer);
 								break;
 							case 5: 
+								progressItems.pop();
+								progressItems.push({
+									name: '运行失败',
+									status: -1
+								})
 								clearInterval(trainTimer);
 							break;
 								break;
 						}
 					}).catch((error) => {
 						console.log(error);
+						progressItems.pop();
+						progressItems.push({
+							name: '失败',
+							status: 0
+						})
 						clearInterval(trainTimer);
+
 					})
 				}, interval);
 			},
@@ -154,7 +174,8 @@
 					showFeatureNum: true,
 					showFeatureList: true
 				});
-				if (this.curStatus > 3) {
+				console.log(`this.curStatus: ${this.curStatus}`);
+				if (this.curStatus >= 4) {
 					this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
 				}
 				else {
@@ -168,6 +189,7 @@
 			}
 		},
 		mounted () {
+
 		},
 		computed: {
 			curStatus () {
