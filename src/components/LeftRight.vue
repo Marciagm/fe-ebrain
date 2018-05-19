@@ -293,11 +293,13 @@
 			modelProgressItems () {
 				return this.$store.state.modelProgressItems;
 			},
+			
 			showTargetTips () {
 				return this.$store.state.showTargetTips;
 				/*return this.$store.state.uploadProgress.status === 2 
 					&& this.$store.state.portraitProgress.status === 2 && !this.taskId;*/
 			},
+
 			/**
 			 * 特征名称
 			 */

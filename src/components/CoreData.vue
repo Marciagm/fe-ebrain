@@ -49,6 +49,7 @@
 			
 			<el-table
 				v-show="isEigenActive"
+				empty-text="正在生成数据画像..."
 			 	width="0"
 				align="center"
 				stripe

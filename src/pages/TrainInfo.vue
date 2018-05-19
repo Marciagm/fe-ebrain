@@ -166,11 +166,6 @@
 				}, interval);
 			},
 			init () {
-				this.$refs.leftRight.setStyles({
-					showTarget: true,
-					showFeatureNum: true,
-					showFeatureList: true
-				});
 				console.log(`this.curStatus: ${this.curStatus}`);
 				if (this.curStatus >= 4) {
 					this.$refs.top.setColors(['#1b7bdd', '#666', '#666']);
@@ -186,7 +181,11 @@
 			}
 		},
 		mounted () {
-
+			this.$refs.leftRight.setStyles({
+				showTarget: true,
+				showFeatureNum: true,
+				showFeatureList: true
+			});
 		},
 		computed: {
 			curStatus () {

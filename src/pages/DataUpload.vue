@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<top-part v-on:init="init"></top-part>
+		<top-part v-on:uploadInit="init"></top-part>
 		<div id="uploadPart" v-show="inUpload">
 			<div class="data-upload">
 				<el-upload
@@ -198,6 +198,7 @@
 				this.$store.commit('SET_PROGRESS_OK', false);
 			},
 			init () {
+				this.$refs.upload.abort();
 				this.inUpload = true; 
 				this.$store.commit('SET_PROJECT_STATUS', false);
 				this.$store.commit('SET_PROJECT_NAME', '未命名任务');

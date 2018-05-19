@@ -478,7 +478,7 @@
            	chooseTask (tag) {
            		if (tag === 0) {
            			this.$store.commit('SET_CUR_STATUS', 0);
-					this.$emit('init');
+					this.$emit('uploadInit');
            			this.$router.push('/main/data/upload');
            		}
            		else if (tag === 1) {

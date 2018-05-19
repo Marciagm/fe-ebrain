@@ -17,7 +17,7 @@
 			</el-col>
 			<el-col :span="15">
 				用前
-				<input v-model="num" style="width: 40px; text-align: center;" @change="numChange" @keyup.enter="numKeyUpEnter" id="num">
+				<input v-model="num" style="width: 40px; text-align: center;" @keyup.enter="numKeyUpEnter" id="num">
 				位特征
 				<input id="listName" v-model="listName" placeholder="创建新的特征列表" maxlength="30" @keyup.enter="listNameKeyUpEnter">
 				<button class="create-button" @click="createFeatureList">确定</button>
@@ -330,7 +330,7 @@
 				const reg = /^\d+$/;
 				return reg.test(num);
 			},
-			numChange (event) {
+			/*numChange (event) {
 				if (!this.isNumber(this.num)) {
 					this.$message({
 						type: 'warning',
@@ -351,7 +351,7 @@
 					}
 				}
 				
-			},
+			},*/
 
 			// 数字enter事件
 			numKeyUpEnter () {
@@ -361,7 +361,14 @@
 						message: '请输入数字'
 					})
 				}
-
+				else if (this.num > this.modelDescData.length) {
+					this.$message({
+						type: 'warning',
+						message: `请填写小于特征总数（特征总数：${this.modelDescData.length}）的数字`
+					})
+					this.num = '';
+					document.getElementById('num').focus();
+				}
 				else if (this.listName && this.num < this.modelDescData.length) {
 					this.createFeatureList();
 				}
