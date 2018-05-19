@@ -17,9 +17,9 @@
 			</el-col>
 			<el-col :span="15">
 				用前
-				<input id="num" v-model="num" style="width: 40px; text-align: center;" @change="numChange">
+				<input v-model="num" style="width: 40px; text-align: center;" @change="numChange" @keyup.enter="numKeyUpEnter" id="num">
 				位特征
-				<input v-model="listName" placeholder="创建新的特征列表" id="listName" maxlength="30">
+				<input id="listName" v-model="listName" placeholder="创建新的特征列表" maxlength="30" @keyup.enter="listNameKeyUpEnter">
 				<button class="create-button" @click="createFeatureList">确定</button>
 			</el-col>
 		</div>
@@ -228,35 +228,6 @@
 		},
 		mounted () {
 			this.elId = `significance${this.id}`;
-			const listName = document.getElementById('listName');
-			const num = document.getElementById('num');
-			num.onkeypress = (event) => {
-				if (event.charCode != 13) {
-					return;
-				}
-
-				if (!this.isNumber(this.num)) {
-					this.$message({
-						type: 'warning',
-						message: '请输入数字'
-					})
-				}
-
-				else if (this.listName && this.num < this.modelDescData.length) {
-					this.createFeatureList();
-				}
-				else {
-					listName.focus();
-				}
-			}
-			listName.onkeypress = (event) => {
-				if (event.charCode != 13) {
-					return;
-				}
-				else {
-					this.createFeatureList();
-				}
-			}
 
 			getModelFeatureData(this.id).then(data => {
 				const { error, features } = data;
@@ -292,7 +263,6 @@
 			})
 		},
 		methods: {
-
 			/**
 			 * 选择排序情况
 			 *
@@ -381,6 +351,28 @@
 					}
 				}
 				
+			},
+
+			// 数字enter事件
+			numKeyUpEnter () {
+				if (!this.isNumber(this.num)) {
+					this.$message({
+						type: 'warning',
+						message: '请输入数字'
+					})
+				}
+
+				else if (this.listName && this.num < this.modelDescData.length) {
+					this.createFeatureList();
+				}
+				else {
+					listName.focus();
+				}
+			},
+
+			// 特征列表名enter事件
+			listNameKeyUpEnter () {
+				this.createFeatureList();
 			}
 		}
 	}

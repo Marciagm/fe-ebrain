@@ -29,7 +29,7 @@
 					</el-dropdown-menu>
 				</el-dropdown>
 				<div class="eigen-list" v-show="isListNameShow"> 
-					<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" id="setListInput" maxlength="30" />
+					<input placeholder="新建特征列表" class="eigen-list-input" v-model="listName" id="setListInput" maxlength="30" @keyup.enter="keyUpEnter" />
 					<button class="eigen-list-button" @click="setList">确定</button>
 				</div>
 			</div>
@@ -519,7 +519,6 @@
      */
     function drawDistr (id, data) {
     	const type = data.type == 1 ? 'line' : 'bar';
-    	console.log(data);
     	const barWidth = data.barWidth;
     	const chartCon = document.getElementById(id);
     	const len = data.value.length;
@@ -755,7 +754,6 @@
 					this.$store.state.selection.forEach((value, index) => {
 						ids.push(value.feature_id);
 					})
-					console.log(ids);
 					const param = {
 						project_id: this.projectId,
 						name: this.listName,
@@ -1093,6 +1091,11 @@
 			showEigen (event) {
 				console.log(event.target);
 				this.isEigenActive = true;
+			},
+			keyUpEnter (event) {
+				// enter事件
+				console.log(event);
+				this.setList();
 			}
 		},
 		mounted () {
@@ -1102,13 +1105,6 @@
 			this.eigenData = this.$store.state.eigenData;
 			this.$store.commit('SET_TRAIN_STATUS', false);
 			//this.originalPartwidth = ($('tablePart').offsetWidth - $('eigenPart').offsetWidth - 100);
-			const setListInput = document.getElementById('setListInput');
-			setListInput.onkeypress = (event) => {
-				if (event.charCode != 13) {
-					return;
-				}
-				this.setList();
-			}
 		}
 	}
 </script>
