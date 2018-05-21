@@ -241,7 +241,7 @@
                 	show: true,
                 	color: '#fff',
 	                axisLabel: {
-	                	rotate: -45,
+	                	//rotate: -45,
 	                	textStyle:{
                     		color: "#999"  
                 		}  
@@ -704,7 +704,6 @@
 			}
  		},
 		mounted () {
-
 		},
 		computed: {
 			tips () {

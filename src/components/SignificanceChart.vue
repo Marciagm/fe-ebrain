@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div :style="{height: divHeight}">
 		<div class="title">
 			<el-col :span="8">
 				重要性
@@ -77,7 +77,9 @@
 		}
 	}
 	.chart {
-		height: 350px; 
+		display: red;
+		min-height: 480px;
+		/* height: 480px;  */
 		width: 60%; 
 		margin-left: 5%
 	}
@@ -120,9 +122,10 @@
 		        //data: ['2011年', '2012年']
 		    },
 		    grid: {
+		    	top: '0',
 		        left: '3%',
 		        right: '4%',
-		        bottom: '3%',
+		        //bottom: '3%',
 		        containLabel: true
 		    },
 		    xAxis: {
@@ -215,6 +218,7 @@
 		props: ['id'],
 		data () {
 			return {
+				divHeight: '666px',
 				elId: '',
 				sortBy: '从大到小',
 				modelData: {},
@@ -238,7 +242,9 @@
 				}
 
 				const importance = [], name = [];
-				for (let i = 0, len = features.length; i < len; i++) {
+				const len = features.length;
+				console.log(len)
+				for (let i = 0; i < len; i++) {
 					const item = features[i];
 					importance.push(item.importance);
 					name.push(item.feature.name);
@@ -252,13 +258,12 @@
 				// 降序数据
 				this.modelDescData = sortFeatrues;
 				const descImportance = [], descName = [];
-				for (let i = 0, len = sortFeatrues.length; i < len; i++) {
+				for (let i = 0; i < len; i++) {
 					const item = sortFeatrues[i];
 					descImportance.push(item.importance);
 					descName.push(item.feature.name);
 				}
 				this.chartDescData = { importance: descImportance, name: descName };
-
 				drawChart(this.elId, this.chartDescData);
 			})
 		},
@@ -326,45 +331,31 @@
 					document.getElementById('listName').blur();		
 				})
 			},
-			isNumber (num) {
+
+			/**
+			 * 判断是否为数字
+			 *
+			 * @param {number} num 数字
+			 * @return {boolean} 是否为数字的结果
+			 */
+			isIntNumber (num) {
 				const reg = /^\d+$/;
 				return reg.test(num);
 			},
-			/*numChange (event) {
-				if (!this.isNumber(this.num)) {
-					this.$message({
-						type: 'warning',
-						message: '请填数字'
-					})
-					this.num = '';
-					document.getElementById('num').focus();
-					console.log(this.num)
-				}
-				else {
-					if (this.num > this.modelDescData.length) {
-						this.$message({
-							type: 'warning',
-							message: `请填写小于特征个数（${this.modelDescData.length}）的数字`
-						})
-						this.num = '';
-						document.getElementById('num').focus();
-					}
-				}
-				
-			},*/
 
 			// 数字enter事件
 			numKeyUpEnter () {
-				if (!this.isNumber(this.num)) {
+				if (!this.isIntNumber(this.num)) {
 					this.$message({
 						type: 'warning',
-						message: '请输入数字'
+						message: '请输入合法的整数'
 					})
+					this.num = '';
 				}
 				else if (this.num > this.modelDescData.length) {
 					this.$message({
 						type: 'warning',
-						message: `请填写小于特征总数（特征总数：${this.modelDescData.length}）的数字`
+						message: `请填写小于特征总数（特征总数：${this.modelDescData.length}）的整数`
 					})
 					this.num = '';
 					document.getElementById('num').focus();

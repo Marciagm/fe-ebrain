@@ -7,16 +7,8 @@ import * as getters from './getters'
 Vue.use(Vuex)
 
 const actions = {
-    SET_EIGEN_DATA (state, eigenData) {
-        state.eigenData.length = 0;
-        for (let i = 0, len = eigenData.length; i < len; i++) {
-            state.eigenData[i] = eigenData[i];   
-        }
-        //state.eigenData = eigenData;
-    },
     SET_CUR_STATUS ({commit}, status) {
         commit('SET_CUR_STATUS', status);
-        // state.curStatus = status;
     }
 };
 
@@ -24,9 +16,7 @@ const actions = {
 const state = {
     // 文件
     filename: '',
-    progressOk: true,
     failReason: '上传失败',
-
     // 任务
     projectName: '',
     projectId:'',
@@ -37,11 +27,6 @@ const state = {
     tipsStatus: false,
     // 特征详情
     selection: '',
-
-    // step: 0-上传数据  1-生成数据画像 2-模型训练
-    step: 0,
-    // status: -1-失败 0-尚未开始 1-正在进行时 2-成功 
-    
     // 上传数据
     uploadProgress: {
         name: '1.上传数据',
@@ -86,8 +71,15 @@ const state = {
     targetName: '',
     modelStatus: false,
     isFileAbort: false,
-
-    // 0:初始化状态 1: 初始化结束 1.5:数据上传中 2:数据上传结束 2.5:生成数据画像中 3: 数据画像结束 3.5:训练预处理中 4：模型可点击时 4.5:模型训练中 5:重新训练状态
+    /**
+     * 
+     * 0:初始化状态 
+     * 1: 初始化结束 1.5:数据上传中 
+     * 2:数据上传结束 2.5:生成数据画像中 
+     * 3: 数据画像结束 3.5:训练预处理中 
+     * 4：模型可点击时 4.5:模型训练中 
+     * 5:重新训练状态
+     */
     curStatus: 0,
     showTargetTips: false
 }
@@ -97,9 +89,6 @@ const mutations = {
     // 文件
     SET_FILE_NAME (state, name) {
         state.filename = name;
-    },
-    SET_PROGRESS_OK (state, isOK) {
-        state.progressOk = isOK;
     },
     SET_FAILREASON (state, failReason) {
         state.failReason = failReason;
@@ -180,7 +169,6 @@ const mutations = {
     SET_FILE_ABORT (state, status) {
         state.isFileAbort = status;
     },
-
     initTrainObj (state) {
         state.trainObj = {
             featureName: '全部特征',

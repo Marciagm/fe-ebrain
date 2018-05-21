@@ -204,7 +204,7 @@
 				this.$store.commit('SET_PROJECT_NAME', '未命名任务');
 				this.$store.commit('initTrainObj');
 				this.$store.commit('SET_TARGET_TIPS', false);
-				this.$store.state.eigenData.length = 0;
+				this.$store.commit('SET_EIGEN_DATA', []);
 				this.$store.commit('initTimer');
 				this.$store.commit('initProgress');
 				this.$store.commit('initStatus');

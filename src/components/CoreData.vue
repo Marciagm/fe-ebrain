@@ -43,10 +43,6 @@
 		</div>
 
 		<div id="core-data">
-
-			<!-- 特征详情 -->
-			<!-- <eigenvalue-table :max-height="maxHeight" v-if="isEigenActive" v-on:setTarget="showBar" v-on:setList="showSetList"></eigenvalue-table> -->
-			
 			<el-table
 				v-show="isEigenActive"
 				empty-text="正在生成数据画像..."
@@ -93,9 +89,14 @@
 			      sortable
 			      width="200"
 			     >
-			      <template slot-scope="props" style="text-align: left;">
+			      <template slot-scope="props" style="text-align: left; ">
 			      	<div :id="props.row.feature_id" style=" height: 49px; line-height: 49px;">
-			      		<span >{{ props.row.name }}</span>
+			      		<span v-if="!props.row.showTip">{{ props.row.name }}</span>
+			      		<el-tooltip v-else class="item" effect="light" :hide-after=1000 :content="props.row.name" placement="bottom-end">
+			      			<span v-if="props.row.name.length < 10">{{ props.row.name }}</span>
+			      			<span v-else>{{ props.row.name.substring(0, 10) }}...</span>
+			      		</el-tooltip>
+			      			
 			      		<span v-show="props.row.showTip" class="target-tip" @click="chooseTarget(props.row)">
 			      			选该特征值为目标
 			      		</span>
@@ -418,7 +419,9 @@
     	const chartCon = document.getElementById(id);
     	
     	const len = data.value.length;
-    	chartCon.style.width = Math.min(40 + len / 2 * 1, 80) + '%';
+    	if (chartCon && chartCon.style) {
+    		chartCon.style.width = Math.min(40 + len / 2 * 1, 80) + '%';
+    	}
     	// chartCon.style.height = '316px';
     	const chart = echarts.init(chartCon);
     	chart.clear();
@@ -440,7 +443,7 @@
                 	show: true,
                 	color: '#fff',
 	                axisLabel: {
-	                	rotate: -45,
+	                	rotate: len > 10 ? -45 : 0,
 	                	textStyle:{
                     		color: "#999"  
                 		}  
@@ -646,6 +649,7 @@
 		},
 		data () {
 			return {
+				curShowTipsRow: {}, 
 				isEigenActive: false,
 				importanceShow: false,
 				taskId: '',
@@ -751,7 +755,7 @@
 					if (this.targetId) {
 						ids.push(this.targetId);
 					}
-					console.log(this.$store.state.selection);
+					// console.log(this.$store.state.selection);
 					this.$store.state.selection.forEach((value, index) => {
 						ids.push(value.feature_id);
 					})
@@ -942,11 +946,19 @@
 			 * @param {Object} event 事件对象
 			 */
 			showTip (row, column, cell, event) {
+				if (this.$store.state.curStatus > 3 ) {
+					return;
+				}
 				if (this.targetId) {
 					return;
 				}
 				setTimeout(() => {
+					if (this.curShowTipsRow && this.curShowTipsRow.showTip) {
+						this.curShowTipsRow.showTip = false;
+					}
+
 					row.showTip = true;
+					this.curShowTipsRow = row;
 				}, 0)
 				
 			},
@@ -1004,10 +1016,8 @@
 			 * @param {Object} expandRows 展开行信息
 			 */
 			expand (row, expandRows) {
-				console.log('uuu');
-				console.log(expandRows);
 				setTimeout(() => {
-					row.isShow = row.isShow || false;
+					//row.isShow = row.isShow || false;
 					if (row.isShow) {
 						row.isShow = false;
 						return;

@@ -192,7 +192,7 @@
 	
 	import { getModelList, poll, deleteModel } from '../api/api'
 
-	const chartHeights = ['555px', '858px', '554px', '554px', '554px', '318px'];
+	const chartHeights = ['555px', '858px', '554px', '554px', '666px', '318px'];
 	function getDate (dateStr) {
 		const date = new Date(dateStr * 1000);
 		const year = date.getFullYear();
