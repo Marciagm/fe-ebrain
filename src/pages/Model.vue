@@ -262,7 +262,6 @@
 		methods: {
 			// 初始化
 			init () {
-				console.log('in ninit');
 				this.projectId =  this.$route.params.projectId;
 				this.$refs.top.setColors(['#666', '#1b7bdd', '#666']);
 				this.$refs.leftRight.setStyles({

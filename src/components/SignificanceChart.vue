@@ -243,7 +243,6 @@
 
 				const importance = [], name = [];
 				const len = features.length;
-				console.log(len)
 				for (let i = 0; i < len; i++) {
 					const item = features[i];
 					importance.push(item.importance);
@@ -288,12 +287,20 @@
 			 * 选择topn创建新的特征列表
 			 */
 			createFeatureList () {
-				if (!this.num) {
+				if (!this.isIntNumber(this.num)) {
 					this.$message({
-						showClose: true,
-          				message: '填个数字啊？🙄️（白眼）',
-          				type: 'warning'
+						type: 'warning',
+						message: '请输入合法的整数'
 					})
+					this.num = '';
+					return
+				}
+				else if (this.num > this.modelDescData.length) {
+					this.$message({
+						type: 'warning',
+						message: `请填写小于特征总数（特征总数：${this.modelDescData.length}）的整数`
+					})
+					this.num = '';
 					document.getElementById('num').focus();
 					return;
 				}
@@ -308,6 +315,7 @@
 				const features  = this.modelDescData;
 				const ids = [];
 				// @TODO 添加去重和包含操作
+				console.log(`targetId: ${this.$store.state.targetId}`);
 				for (let i = 0; i < this.num; i++) {
 					ids.push(features[i].feature.feature_id);
 				}
